@@ -30,9 +30,12 @@ FinManager is a desktop software designed to assist users in managing their pers
 - Adding features like bill reminders and automated savings goals.
 
 ## Installation and Setup
-1. Clone the repository: `git clone https://github.com/Azzurriii/Fin-Manager-Windows-App.git`
-2. Open the project in Visual Studio.
-3. Build and run the application.
+1. Clone the repository:
+```
+git clone https://github.com/Azzurriii/Fin-Manager-Windows-App.git
+```
+3. Open the project in Visual Studio.
+4. Build and run the application.
 
 ## License
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
