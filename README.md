@@ -4,7 +4,7 @@
 FinManager is a desktop software designed to assist users in managing their personal finances. It allows users to track income and expenses, set financial goals, generate reports, and manage budgets.
 
 ## Team Members  
-| No  | MSSV      | Full Name            |
+| No  | ID        | Full Name            |
 |-----|-----------|----------------------|
 | 1   | 22120334  | Nguyễn Quang Thắng   |
 | 2   | 22120335  | Trương Tâm Thành     |
