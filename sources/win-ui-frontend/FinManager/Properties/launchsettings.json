@@ -1,0 +1,10 @@
+﻿{
+    "profiles": {
+      "FinManager (Package)": {
+        "commandName": "MsixPackage"
+      },
+      "FinManager (Unpackaged)": {
+        "commandName": "Project"
+      }
+    }
+}

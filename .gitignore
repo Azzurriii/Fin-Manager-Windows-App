@@ -1,0 +1,105 @@
+# Node.js build folders
+/dist
+/node_modules
+/build
+
+# Logs
+logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Tests (coverage reports, etc.)
+/coverage
+/.nyc_output
+
+# IDEs and Editors
+/.idea
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
+
+# IDE - VSCode specific settings
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# dotenv environment variable files
+.env
+.env.development.local
+.env.test.local
+.env.production.local
+.env.local
+
+# Temporary files
+.temp
+.tmp
+
+# Runtime data (PID files, etc.)
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Diagnostic reports (Node.js)
+report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
+
+# .NET build folders
+bin/
+obj/
+
+# User-specific Visual Studio files
+.vs/
+.vscode/
+.idea/
+
+# Windows Installer files
+*.cab
+*.msi
+*.msm
+
+# Windows Packaging files
+*.appx
+*.appxbundle
+*.msix
+*.msixbundle
+
+# Rider-specific files (IDE)
+.idea/
+
+# ASP.NET Scaffolding
+ScaffoldingReadMe.txt
+
+# VS for Mac
+.vscode/
+
+# Windows Installer Files (duplicate entries removed)
+*.cab
+*.msi
+*.msm
+
+# Generated files by the build system
+*.pdb
+*.dll
+*.exe
+*.cache
+*.log
+
+# User-specific files (Visual Studio settings)
+*.user
+*.userosscache
+*.suo
+*.userprefs
