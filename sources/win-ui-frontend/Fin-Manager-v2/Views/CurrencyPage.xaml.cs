@@ -1,19 +1,25 @@
 ﻿using Fin_Manager_v2.ViewModels;
-
 using Microsoft.UI.Xaml.Controls;
 
-namespace Fin_Manager_v2.Views;
-
-public sealed partial class CurrencyPage : Page
+namespace Fin_Manager_v2.Views
 {
-    public CurrencyViewModel ViewModel
+    public sealed partial class CurrencyPage : Page
     {
-        get;
-    }
+        public CurrencyViewModel ViewModel { get; }
 
-    public CurrencyPage()
-    {
-        ViewModel = App.GetService<CurrencyViewModel>();
-        InitializeComponent();
+        public CurrencyPage()
+        {
+            try
+            {
+                ViewModel = App.GetService<CurrencyViewModel>();
+                this.InitializeComponent();
+                DataContext = ViewModel;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error initializing CurrencyPage: {ex.Message}");
+                throw; // Re-throw để biết được lỗi trong quá trình development
+            }
+        }
     }
 }

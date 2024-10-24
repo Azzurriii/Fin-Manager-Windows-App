@@ -4,23 +4,21 @@ using Fin_Manager_v2.Core.Contracts.Services;
 using Fin_Manager_v2.Core.Services;
 using Fin_Manager_v2.Helpers;
 using Fin_Manager_v2.Services;
+using Fin_Manager_v2.Services.Interface;
 using Fin_Manager_v2.ViewModels;
 using Fin_Manager_v2.Views;
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.UI.Xaml;
+using Microsoft.Extensions.DependencyInjection;
+using System.Net.Http;
 
 namespace Fin_Manager_v2;
 
 // To learn more about WinUI 3, see https://docs.microsoft.com/windows/apps/winui/winui3/.
 public partial class App : Application
 {
-    // The .NET Generic Host provides dependency injection, configuration, logging, and other services.
-    // https://docs.microsoft.com/dotnet/core/extensions/generic-host
-    // https://docs.microsoft.com/dotnet/core/extensions/dependency-injection
-    // https://docs.microsoft.com/dotnet/core/extensions/configuration
-    // https://docs.microsoft.com/dotnet/core/extensions/logging
     public IHost Host
     {
         get;
@@ -41,8 +39,11 @@ public partial class App : Application
 
     public static UIElement? AppTitlebar { get; set; }
 
+    public IServiceProvider Services { get; private set; }
+
     public App()
     {
+        Services = ConfigureServices();
         InitializeComponent();
 
         Host = Microsoft.Extensions.Hosting.Host.
@@ -50,20 +51,17 @@ public partial class App : Application
         UseContentRoot(AppContext.BaseDirectory).
         ConfigureServices((context, services) =>
         {
-            // Default Activation Handler
             services.AddTransient<ActivationHandler<LaunchActivatedEventArgs>, DefaultActivationHandler>();
-
-            // Other Activation Handlers
 
             // Services
             services.AddTransient<INavigationViewService, NavigationViewService>();
-
             services.AddSingleton<IActivationService, ActivationService>();
             services.AddSingleton<IPageService, PageService>();
             services.AddSingleton<INavigationService, NavigationService>();
-
-            // Core Services
             services.AddSingleton<IFileService, FileService>();
+
+            // HTTP and Currency Services
+            services.AddHttpClient<ICurrencyService, CurrencyService>();
 
             // Views and ViewModels
             services.AddTransient<MonthlyViewViewModel>();
@@ -76,18 +74,32 @@ public partial class App : Application
             services.AddTransient<AccountPage>();
             services.AddTransient<ShellPage>();
             services.AddTransient<ShellViewModel>();
-
-            // Configuration
         }).
         Build();
 
         UnhandledException += App_UnhandledException;
     }
+    private static IServiceProvider ConfigureServices()
+    {
+        var services = new ServiceCollection();
+        // Register HttpClient and Services
+        services.AddHttpClient<ICurrencyService, CurrencyService>();
+        services.AddTransient<CurrencyViewModel>();
+        services.AddTransient<CurrencyPage>();
+        services.Configure<PageService>(options =>
+        {
+            options.Configure<CurrencyViewModel, CurrencyPage>();
+        });
+        return services.BuildServiceProvider();
+    }
+
 
     private void App_UnhandledException(object sender, Microsoft.UI.Xaml.UnhandledExceptionEventArgs e)
     {
         // TODO: Log and handle exceptions as appropriate.
         // https://docs.microsoft.com/windows/windows-app-sdk/api/winrt/microsoft.ui.xaml.application.unhandledexception.
+        System.Diagnostics.Debug.WriteLine($"Unhandled exception: {e.Message}\n{e.Exception.StackTrace}");
+
     }
 
     protected async override void OnLaunched(LaunchActivatedEventArgs args)
