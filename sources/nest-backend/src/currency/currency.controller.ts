@@ -27,7 +27,7 @@ export class CurrencyController {
       from.toUpperCase(),
       to.toUpperCase(),
     );
-
+    console.log(`[CurrencyController] convert: ${amount} ${from} to ${to}`);
     return {
       from: {
         currency: from,

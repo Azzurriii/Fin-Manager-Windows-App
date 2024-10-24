@@ -34,7 +34,7 @@ public class PageService : IPageService
         return pageType;
     }
 
-    private void Configure<VM, V>()
+   public void Configure<VM, V>()
         where VM : ObservableObject
         where V : Page
     {
