@@ -13,4 +13,17 @@
     <Window.SystemBackdrop>
         <MicaBackdrop/>
     </Window.SystemBackdrop>
+
+
+
+    <Grid>
+        <!-- Create a layout with buttons for navigation -->
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="10">
+            <!-- Button for navigating to AccountsPage -->
+            <Button Content="Accounts" Click="OnAccountsButtonClick" Margin="10"/>
+        </StackPanel>
+
+        <!-- Frame to display the content -->
+        <Frame x:Name="MainFrame" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+    </Grid>
 </windowex:WindowEx>

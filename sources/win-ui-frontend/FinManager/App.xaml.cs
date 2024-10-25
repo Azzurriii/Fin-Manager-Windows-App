@@ -81,6 +81,8 @@ public partial class App : Application
             services.AddTransient<ContentGridPage>();
             services.AddTransient<MainViewModel>();
             services.AddTransient<MainPage>();
+            services.AddTransient<AccountPage>();
+            services.AddTransient<AccountDetailPage>();
             services.AddTransient<ShellPage>();
             services.AddTransient<ShellViewModel>();
 
@@ -105,6 +107,8 @@ public partial class App : Application
         base.OnLaunched(args);
 
         App.GetService<IAppNotificationService>().Show(string.Format("AppNotificationSamplePayload".GetLocalized(), AppContext.BaseDirectory));
+
+        MainWindow.Activate();
 
         await App.GetService<IActivationService>().ActivateAsync(args);
     }
