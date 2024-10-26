@@ -18,6 +18,9 @@ public class PageService : IPageService
         Configure<TransactionViewModel, TransactionPage>();
         Configure<CurrencyViewModel, CurrencyPage>();
         Configure<MonthlyViewViewModel, MonthlyViewPage>();
+        Configure<ShellViewModel, ShellPage>();
+        Configure<LoginViewModel, LoginPage>();
+        Configure<SignUpViewModel, SignUpPage>();
     }
 
     public Type GetPageType(string key)

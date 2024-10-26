@@ -1,5 +1,6 @@
 ﻿using Fin_Manager_v2.Activation;
 using Fin_Manager_v2.Contracts.Services;
+using Fin_Manager_v2.Services.Interface;
 using Fin_Manager_v2.Views;
 
 using Microsoft.UI.Xaml;
@@ -11,33 +12,40 @@ public class ActivationService : IActivationService
 {
     private readonly ActivationHandler<LaunchActivatedEventArgs> _defaultHandler;
     private readonly IEnumerable<IActivationHandler> _activationHandlers;
+    private readonly IAuthService _authService;
     private UIElement? _shell = null;
 
-    public ActivationService(ActivationHandler<LaunchActivatedEventArgs> defaultHandler, IEnumerable<IActivationHandler> activationHandlers)
+    public ActivationService(
+        ActivationHandler<LaunchActivatedEventArgs> defaultHandler,
+        IEnumerable<IActivationHandler> activationHandlers,
+        IAuthService authService)
     {
         _defaultHandler = defaultHandler;
         _activationHandlers = activationHandlers;
+        _authService = authService;
     }
 
     public async Task ActivateAsync(object activationArgs)
     {
-        // Execute tasks before activation.
         await InitializeAsync();
 
-        // Set the MainWindow Content.
         if (App.MainWindow.Content == null)
         {
-            _shell = App.GetService<ShellPage>();
-            App.MainWindow.Content = _shell ?? new Frame();
+            if (_authService.IsAuthenticated)
+            {
+                _shell = App.GetService<ShellPage>();
+                App.MainWindow.Content = _shell ?? new Frame();
+            }
+            else
+            {
+                var frame = new Frame();
+                frame.Navigate(typeof(LoginPage));
+                App.MainWindow.Content = frame;
+            }
         }
 
-        // Handle activation via ActivationHandlers.
         await HandleActivationAsync(activationArgs);
-
-        // Activate the MainWindow.
         App.MainWindow.Activate();
-
-        // Execute tasks after activation.
         await StartupAsync();
     }
 

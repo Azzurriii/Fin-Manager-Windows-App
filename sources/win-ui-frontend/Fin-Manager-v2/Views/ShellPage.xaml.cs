@@ -1,5 +1,6 @@
 ﻿using Fin_Manager_v2.Contracts.Services;
 using Fin_Manager_v2.Helpers;
+using Fin_Manager_v2.Services;
 using Fin_Manager_v2.ViewModels;
 
 using Microsoft.UI.Xaml;
@@ -11,7 +12,6 @@ using Windows.System;
 
 namespace Fin_Manager_v2.Views;
 
-// TODO: Update NavigationViewItem titles and icons in ShellPage.xaml.
 public sealed partial class ShellPage : Page
 {
     public ShellViewModel ViewModel
@@ -39,7 +39,6 @@ public sealed partial class ShellPage : Page
     private void OnLoaded(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
     {
         TitleBarHelper.UpdateTitleBar(RequestedTheme);
-
         KeyboardAccelerators.Add(BuildKeyboardAccelerator(VirtualKey.Left, VirtualKeyModifiers.Menu));
         KeyboardAccelerators.Add(BuildKeyboardAccelerator(VirtualKey.GoBack));
     }
