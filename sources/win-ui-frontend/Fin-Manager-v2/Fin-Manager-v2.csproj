@@ -9,13 +9,13 @@
     <Platforms>x86;x64;arm64</Platforms>
     <RuntimeIdentifiers>win10-x86;win10-x64;win10-arm64</RuntimeIdentifiers>
     <PublishProfile>Properties\PublishProfiles\win10-$(Platform).pubxml</PublishProfile>
-	<ImplicitUsings>enable</ImplicitUsings>
-	<Nullable>enable</Nullable>
-	<UseWinUI>true</UseWinUI>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <UseWinUI>true</UseWinUI>
     <EnableMsixTooling>true</EnableMsixTooling>
-
-	  <WindowsSdkPackageVersion>10.0.19041.38</WindowsSdkPackageVersion>
+    <WindowsSdkPackageVersion>10.0.19041.38</WindowsSdkPackageVersion>
   </PropertyGroup>
+
   <ItemGroup>
     <None Remove="Views\AccountDetailPage.xaml" />
     <None Remove="Views\LoginPage.xaml" />
@@ -38,25 +38,20 @@
     <PackageReference Include="Microsoft.Xaml.Behaviors.WinUI.Managed" Version="2.0.9" />
     <PackageReference Include="System.Security.Cryptography.ProtectedData" Version="8.0.0" />
     <PackageReference Include="WinUIEx" Version="2.3.2" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="8.0.1" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Fin-Manager-v2.Core\Fin-Manager-v2.Core.csproj" />
   </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="Microsoft.Extensions.Http" Version="8.0.1" />
-  </ItemGroup>
+
   <ItemGroup>
     <Page Update="Views\AccountDetailPage.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
-  </ItemGroup>
-  <ItemGroup>
     <Page Update="Views\SignUpPage.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
-  </ItemGroup>
-  <ItemGroup>
     <Page Update="Views\LoginPage.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
