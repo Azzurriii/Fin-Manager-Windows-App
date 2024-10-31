@@ -1,4 +1,4 @@
-﻿using Fin_Manager_v2.Model;
+﻿using Fin_Manager_v2.Models;
 using Fin_Manager_v2.Services.Interface;
 using System;
 using System.Collections.Generic;
@@ -16,7 +16,7 @@ namespace Fin_Manager_v2.Services
         public CurrencyService(HttpClient httpClient)
         {
             _httpClient = httpClient;
-            _httpClient.BaseAddress = new Uri("http://localhost:3000/"); // Update với URL của NestJS API
+            _httpClient.BaseAddress = new Uri("http://localhost:3000/");
         }
 
         public async Task<CurrencyResponse> ConvertCurrencyAsync(decimal amount, string fromCurrency, string toCurrency)

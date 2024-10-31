@@ -1,4 +1,4 @@
-﻿using Fin_Manager_v2.Model;
+﻿using Fin_Manager_v2.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
