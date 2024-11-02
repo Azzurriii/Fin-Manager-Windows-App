@@ -18,7 +18,7 @@ namespace Fin_Manager_v2.Views
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"Error initializing CurrencyPage: {ex.Message}");
-                throw; // Re-throw để biết được lỗi trong quá trình development
+                throw;
             }
         }
     }
