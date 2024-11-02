@@ -80,6 +80,7 @@ public partial class App : Application
             services.AddTransient<LoginPage>();
             services.AddTransient<SignUpViewModel>();
             services.AddTransient<SignUpPage>();
+            services.AddSingleton<ITagService, TagService>();
             services.AddSingleton<ITransactionService, TransactionService>();
         }).
         Build();

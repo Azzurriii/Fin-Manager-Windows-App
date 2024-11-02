@@ -10,87 +10,104 @@
         <local:StringNotEmptyToBoolConverter x:Key="StringNotEmptyToBoolConverter"/>
     </Page.Resources>
 
-    <Grid Padding="20">
+    <Grid Padding="24">
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <!-- Header -->
-        <TextBlock Text="Chuyển đổi tiền tệ" Style="{StaticResource TitleTextBlockStyle}" Margin="0,0,0,20"/>
+        <!-- Main Content -->
+        <Border Grid.Row="0" Margin="0,12">
+            <Grid Padding="20">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
 
-        <!-- Input Section -->
-        <StackPanel Grid.Row="1" Spacing="12">
-            <NumberBox Header="Số tiền" 
-                      Value="{x:Bind ViewModel.Amount, Mode=TwoWay, Converter={StaticResource DecimalToDoubleConverter}}"
-                      SpinButtonPlacementMode="Compact" 
-                      Minimum="0" 
-                      SmallChange="1000" 
-                      LargeChange="10000"/>
+                <!-- Input Section -->
+                <StackPanel Grid.Row="0" Spacing="16">
+                    <Grid ColumnSpacing="16">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <NumberBox Header="Amount" 
+                                 Value="{x:Bind ViewModel.Amount, Mode=TwoWay, Converter={StaticResource DecimalToDoubleConverter}}"
+                                 SpinButtonPlacementMode="Compact"/>
+                        
+                        <Button Grid.Column="1" 
+                                Content="Convert"
+                                Command="{x:Bind ViewModel.ConvertCommand}" 
+                                Style="{StaticResource AccentButtonStyle}"
+                                VerticalAlignment="Bottom"/>
+                    </Grid>
 
-            <ComboBox Header="Từ tiền tệ" 
-                      ItemsSource="{x:Bind ViewModel.CurrencyList, Mode=OneTime}" 
-                      SelectedItem="{x:Bind ViewModel.SelectedFromCurrency, Mode=TwoWay}"
-                      HorizontalAlignment="Stretch"
-                      PlaceholderText="Chọn tiền tệ"/>
+                    <Grid ColumnSpacing="16">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <ComboBox Header="From Currency" 
+                                ItemsSource="{x:Bind ViewModel.CurrencyList, Mode=OneTime}" 
+                                SelectedItem="{x:Bind ViewModel.SelectedFromCurrency, Mode=TwoWay}"
+                                HorizontalAlignment="Stretch"/>
 
-            <ComboBox Header="Sang tiền tệ" 
-                      ItemsSource="{x:Bind ViewModel.CurrencyList, Mode=OneTime}" 
-                      SelectedItem="{x:Bind ViewModel.SelectedToCurrency, Mode=TwoWay}"
-                      HorizontalAlignment="Stretch"
-                      PlaceholderText="Chọn tiền tệ"/>
+                        <ComboBox Grid.Column="1"
+                                Header="To Currency" 
+                                ItemsSource="{x:Bind ViewModel.CurrencyList, Mode=OneTime}" 
+                                SelectedItem="{x:Bind ViewModel.SelectedToCurrency, Mode=TwoWay}"
+                                HorizontalAlignment="Stretch"/>
+                    </Grid>
+                </StackPanel>
 
-            <Button Content="Chuyển đổi" 
-                    Command="{x:Bind ViewModel.ConvertCommand}" 
-                    Style="{StaticResource AccentButtonStyle}"
-                    HorizontalAlignment="Stretch"/>
+                <!-- Result Section -->
+                <Grid Grid.Row="1" 
+                      Visibility="{x:Bind ViewModel.Result, Mode=OneWay, Converter={StaticResource NullToVisibilityConverter}}" 
+                      Margin="0,24,0,0" 
+                      ColumnSpacing="16" 
+                      RowSpacing="12">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
 
-            <!-- Loading và Error -->
+                    <TextBlock Text="From:" Grid.Column="0"/>
+                    <TextBlock Text="{x:Bind ViewModel.Result.From.Formatted, Mode=OneWay}" 
+                              Grid.Column="1"
+                              FontWeight="SemiBold"/>
+
+                    <TextBlock Text="To:" Grid.Column="2"/>
+                    <TextBlock Text="{x:Bind ViewModel.Result.To.Formatted, Mode=OneWay}" 
+                              Grid.Column="3"
+                              FontWeight="SemiBold"/>
+
+                    <TextBlock Text="Rate:" Grid.Row="1" Grid.Column="0"/>
+                    <TextBlock Text="{x:Bind ViewModel.Result.Rate, Mode=OneWay}" 
+                              Grid.Row="1" Grid.Column="1"/>
+
+                    <TextBlock Text="Time:" Grid.Row="1" Grid.Column="2"/>
+                    <TextBlock Text="{x:Bind ViewModel.Result.Timestamp, Mode=OneWay}" 
+                              Grid.Row="1" Grid.Column="3"/>
+                </Grid>
+            </Grid>
+        </Border>
+
+        <!-- Loading and Error States -->
+        <StackPanel Grid.Row="1" Spacing="8">
             <ProgressRing IsActive="{x:Bind ViewModel.IsLoading, Mode=OneWay}" 
                          Visibility="{x:Bind ViewModel.IsLoading, Mode=OneWay}"/>
 
             <InfoBar IsOpen="{x:Bind ViewModel.ErrorMessage, Mode=OneWay, Converter={StaticResource StringNotEmptyToBoolConverter}}" 
                      Message="{x:Bind ViewModel.ErrorMessage, Mode=OneWay}"
                      Severity="Error"/>
-        </StackPanel>
-
-        <!-- Result Section -->
-        <StackPanel Grid.Row="2" 
-                    Visibility="{x:Bind ViewModel.Result, Mode=OneWay, Converter={StaticResource NullToVisibilityConverter}}" 
-                    Margin="0,20,0,0" 
-                    Spacing="8">
-            <TextBlock Text="Kết quả chuyển đổi" Style="{StaticResource SubtitleTextBlockStyle}"/>
-            <Grid ColumnSpacing="12" RowSpacing="8">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="100"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                </Grid.RowDefinitions>
-
-                <TextBlock Text="Từ:" Grid.Row="0" Grid.Column="0"/>
-                <TextBlock Text="{x:Bind ViewModel.Result.From.Formatted, Mode=OneWay}" 
-                          Grid.Row="0" Grid.Column="1" 
-                          FontWeight="SemiBold"/>
-
-                <TextBlock Text="Sang:" Grid.Row="1" Grid.Column="0"/>
-                <TextBlock Text="{x:Bind ViewModel.Result.To.Formatted, Mode=OneWay}" 
-                          Grid.Row="1" Grid.Column="1" 
-                          FontWeight="SemiBold"/>
-
-                <TextBlock Text="Tỷ giá:" Grid.Row="2" Grid.Column="0"/>
-                <TextBlock Text="{x:Bind ViewModel.Result.Rate, Mode=OneWay}" 
-                          Grid.Row="2" Grid.Column="1"/>
-
-                <TextBlock Text="Thời gian:" Grid.Row="3" Grid.Column="0"/>
-                <TextBlock Text="{x:Bind ViewModel.Result.Timestamp, Mode=OneWay}" 
-                          Grid.Row="3" Grid.Column="1"/>
-            </Grid>
         </StackPanel>
     </Grid>
 </Page>

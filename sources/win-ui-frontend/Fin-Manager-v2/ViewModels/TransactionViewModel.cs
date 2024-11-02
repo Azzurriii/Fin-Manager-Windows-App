@@ -5,12 +5,14 @@ using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
+using Fin_Manager_v2.Services.Interface;
 
 namespace Fin_Manager_v2.ViewModels
 {
     public partial class TransactionViewModel : ObservableRecipient
     {
         private readonly ITransactionService _transactionService;
+        private readonly ITagService _tagService;
 
         [ObservableProperty]
         private ObservableCollection<TransactionModel> _transactions = new();
@@ -39,21 +41,42 @@ namespace Fin_Manager_v2.ViewModels
         [ObservableProperty]
         private bool _isAddTransactionDialogOpen;
 
-        public TransactionViewModel(ITransactionService transactionService)
+        [ObservableProperty]
+        private DateTimeOffset _transactionDate = DateTimeOffset.Now;
+
+        [ObservableProperty]
+        private string _selectedTransactionType = "INCOME";
+
+        [ObservableProperty]
+        private double _transactionAmount;
+
+        [ObservableProperty]
+        private ObservableCollection<TagModel> _availableTags = new();
+
+        [ObservableProperty]
+        private TagModel _selectedTag;
+
+        public TransactionViewModel(ITransactionService transactionService, ITagService tagService)
         {
             _transactionService = transactionService;
+            _tagService = tagService;
             SelectedDate = DateTimeOffset.Now;
             SelectedAccount = "All Accounts";
+            NewTransaction = new TransactionModel();
+            LoadTagsAsync();
         }
 
-        partial void OnSelectedDateChanged(DateTimeOffset? value)
+        [RelayCommand]
+        private async Task InitializeAsync()
         {
-            LoadTransactionsCommand.ExecuteAsync(null);
-        }
-
-        partial void OnSelectedAccountChanged(string value)
-        {
-            LoadTransactionsCommand.ExecuteAsync(null);
+            try
+            {
+                await LoadTransactionsAsync();
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error initializing: {ex.Message}");
+            }
         }
 
         [RelayCommand]
@@ -62,67 +85,106 @@ namespace Fin_Manager_v2.ViewModels
             try
             {
                 var transactions = await _transactionService.GetUserTransactionsAsync(1);
-
-                // Filter transactions by date
-                if (SelectedDate.HasValue)
-                {
-                    transactions = transactions.Where(t =>
-                        t.Date.Month == SelectedDate.Value.Month &&
-                        t.Date.Year == SelectedDate.Value.Year).ToList();
-                }
-
-                // Filter transactions by account
-                if (SelectedAccount != "All Accounts")
-                {
-                    transactions = transactions.Where(t => t.Account == SelectedAccount).ToList();
-                }
-
                 Transactions = new ObservableCollection<TransactionModel>(transactions);
 
                 // Calculate totals
-                TotalIncome = transactions.Where(t => t.TransactionType == "INCOME").Sum(t => t.Amount);
-                TotalExpense = transactions.Where(t => t.TransactionType == "EXPENSE").Sum(t => t.Amount);
+                var startDate = new DateTime(SelectedDate?.Year ?? DateTime.Now.Year, 
+                                           SelectedDate?.Month ?? DateTime.Now.Month, 1);
+                var endDate = startDate.AddMonths(1).AddDays(-1);
+                var accountId = SelectedAccount == "All Accounts" ? null : GetAccountId(SelectedAccount);
+
+                TotalIncome = await _transactionService.GetTotalAmountAsync(1, accountId, "INCOME", startDate, endDate);
+                TotalExpense = await _transactionService.GetTotalAmountAsync(1, accountId, "EXPENSE", startDate, endDate);
                 Balance = TotalIncome - TotalExpense;
             }
             catch (Exception ex)
             {
-                // Handle exceptions, e.g., log them or display a user message
+                System.Diagnostics.Debug.WriteLine($"Error loading transactions: {ex.Message}");
             }
         }
 
-        [RelayCommand]
-        private async Task CreateTransactionAsync()
+        private async Task LoadTagsAsync()
         {
-            if (NewTransaction == null || NewTransaction.Amount <= 0)
-            {
-                // Validate amount or other fields as needed
-                return;
-            }
-
-            NewTransaction.UserId = 1; // User ID hard-coded, adjust as needed
-            NewTransaction.Date = DateTime.Now;
-
             try
             {
-                var result = await _transactionService.CreateTransactionAsync(NewTransaction);
-                if (result)
-                {
-                    await LoadTransactionsAsync();
-                    NewTransaction = new TransactionModel(); // Reset for next input
-                    IsAddTransactionDialogOpen = false;
-                }
+                var tags = await _tagService.GetTagsAsync();
+                AvailableTags = new ObservableCollection<TagModel>(tags);
             }
             catch (Exception ex)
             {
-                // Handle exception, e.g., log or show a message
+                System.Diagnostics.Debug.WriteLine($"Error loading tags: {ex.Message}");
             }
         }
 
         [RelayCommand]
         private void OpenAddTransaction()
         {
-            NewTransaction = new TransactionModel();
+            NewTransaction = new TransactionModel
+            {
+                Date = DateTime.Now,
+                TransactionType = "INCOME",
+                Amount = 0
+            };
+            TransactionAmount = 0;
+            TransactionDate = DateTimeOffset.Now;
+            SelectedTransactionType = "INCOME";
+            SelectedAccount = "Account 1";
+            SelectedTag = null;
             IsAddTransactionDialogOpen = true;
+        }
+
+        [RelayCommand]
+        private async Task CreateTransactionAsync()
+        {
+            try
+            {
+                if (TransactionAmount <= 0 || 
+                    string.IsNullOrEmpty(NewTransaction.Description) ||
+                    SelectedAccount == null || 
+                    SelectedAccount == "All Accounts")
+                {
+                    return;
+                }
+
+                NewTransaction.AccountId = GetAccountId(SelectedAccount) ?? 1;
+                NewTransaction.UserId = 1;
+                NewTransaction.TransactionType = SelectedTransactionType;
+                NewTransaction.Amount = Convert.ToDecimal(TransactionAmount);
+                NewTransaction.TagId = SelectedTag?.Id;
+                NewTransaction.Description = NewTransaction.Description.Trim();
+                NewTransaction.Date = TransactionDate.DateTime.ToUniversalTime();
+
+                System.Diagnostics.Debug.WriteLine($"Creating transaction with TagId: {NewTransaction.TagId}");
+
+                var result = await _transactionService.CreateTransactionAsync(NewTransaction);
+                if (result)
+                {
+                    await LoadTransactionsAsync();
+                    IsAddTransactionDialogOpen = false;
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error creating transaction: {ex.Message}");
+            }
+        }
+
+        private int? GetAccountId(string accountName)
+        {
+            return accountName switch
+            {
+                "Account 1" => 1,
+                "Account 2" => 2,
+                _ => null
+            };
+        }
+
+        partial void OnTransactionAmountChanged(double value)
+        {
+            if (NewTransaction != null)
+            {
+                NewTransaction.Amount = Convert.ToDecimal(value);
+            }
         }
     }
 }
