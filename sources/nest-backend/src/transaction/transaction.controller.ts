@@ -1,7 +1,7 @@
 // src/transaction/transaction.controller.ts
 import { Controller, Get, Post, Body, Param } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBody } from '@nestjs/swagger';
-import { CreateTransactionDto, TransactionService } from './transaction.service';
+import { CreateTransactionDto, GetTotalAmountDto, TransactionService } from './transaction.service';
 import { Transaction } from './entity/transaction.entity';
 
 @ApiTags('transactions')
@@ -14,19 +14,7 @@ export class TransactionController {
     @ApiBody({
         description: 'Transaction data',
         type: CreateTransactionDto,
-        examples: {
-            example: {
-                summary: 'Sample transaction',
-                value: {
-                    account_id : 1,
-                    user_id: 1,
-                    transaction_type: 'CASH',
-                    amount: 100.0,
-                    tag_id: 1,
-                    description: 'Sample transaction',
-                },
-            },
-        },
+
     })
     async create(@Body() createTransactionDto: CreateTransactionDto): Promise<Transaction> {
         return this.transactionService.addTransaction(createTransactionDto);
@@ -42,5 +30,11 @@ export class TransactionController {
     @ApiOperation({ summary: 'Get transactions by User ID' })
     async findByUserId(@Param('userId') userId: string): Promise<Transaction[]> {
         return this.transactionService.findByUserId(+userId);
+    }
+
+    @Post('total-amount')
+    @ApiOperation({ summary: 'Get total amount by date' })
+    async getTotalAmountByDate(@Body() getTotalAmountDto: GetTotalAmountDto): Promise<number> {
+        return this.transactionService.getTotalAmountByDate(getTotalAmountDto);
     }
 }

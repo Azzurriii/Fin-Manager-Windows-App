@@ -10,6 +10,8 @@ import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { BaseModule } from './base/base.module';
 import { FinanceAccountModule } from './account/account.module';
+import { Tag } from './tag/entity/tag.entity';
+import { TagModule } from './tag/tag.module';
 
 @Module({
   imports: [
@@ -35,7 +37,8 @@ import { FinanceAccountModule } from './account/account.module';
     UserModule,
     AuthModule,
     BaseModule,
-    FinanceAccountModule
+    FinanceAccountModule,
+    TagModule,
   ],
   controllers: [AppController],
   providers: [AppService],
