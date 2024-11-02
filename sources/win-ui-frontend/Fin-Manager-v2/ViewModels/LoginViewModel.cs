@@ -35,8 +35,14 @@ public class LoginViewModel : ObservableObject
         Console.WriteLine(token);
         if (loginSuccessful)
         {
-            _shell = App.GetService<ShellPage>();
-            Fin_Manager_v2.App.MainWindow.Content = _shell ?? new Frame();
+            var shell = App.GetService<ShellPage>();
+            App.MainWindow.Content = shell;
+            // Get the frame from the shell
+            if (shell.FindName("NavigationFrame") is Frame shellFrame)
+            {
+                _navigationService.Frame = shellFrame;
+                _navigationService.NavigateTo(typeof(AccountViewModel).FullName!);
+            }
         }
         else
         {
