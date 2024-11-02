@@ -6,6 +6,9 @@ import { Transaction } from './entity/transaction.entity';
 // src/transaction/dto/create-transaction.dto.ts
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNumber, IsString, IsEnum, IsDate, IsOptional } from 'class-validator';
+import { FinanceAccount } from 'src/account/entity/account.entity';
+import { log } from 'console';
+
 
 export enum TransactionType {
     INCOME = 'INCOME',
@@ -73,13 +76,29 @@ export class TransactionService {
     constructor(
         @InjectRepository(Transaction)
         private readonly transactionRepository: Repository<Transaction>,
+        @InjectRepository(FinanceAccount)
+        private readonly accountRepository: Repository<FinanceAccount>,
     ) {}
 
     async addTransaction(createTransactionDto: CreateTransactionDto): Promise<Transaction> {
+        console.log('Creating transaction with DTO:', createTransactionDto);
+        
         const transaction = this.transactionRepository.create(createTransactionDto);
-        // 💡 NEED TO DO: ADD OR MINUS MONEY IN ACCOUNT
+        const account = await this.accountRepository.findOne({ where: { account_id: createTransactionDto.account_id } });
+        
+        if (!account) {
+            console.error('Account not found for ID:', createTransactionDto.account_id);
+            throw new Error('Account not found');
+        }
+        
+        account.current_balance = +account.current_balance  + Number(createTransactionDto.amount);
+    
+    
+        await this.accountRepository.save(account);
         return this.transactionRepository.save(transaction);
     }
+    
+    
 
     async findById(id: number): Promise<Transaction> {
         return this.transactionRepository.findOne({ where: { transaction_id : id  } });
