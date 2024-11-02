@@ -5,6 +5,7 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Security.Principal;
 using Fin_Manager_v2.Model;
+using Fin_Manager_v2.DTO;
 using System.Net.Http.Json;
 using Fin_Manager_v2.Services.Interface;
 using Fin_Manager_v2.Services;
@@ -80,20 +81,18 @@ public partial class AccountViewModel : ObservableRecipient
 
     public AccountViewModel()
     {
-        _httpClient = new HttpClient { BaseAddress = new Uri("http://localhost:3000/") }; // Replace with your API base URL
+        _httpClient = new HttpClient { BaseAddress = new Uri("http://localhost:3000/") };
         Accounts = new ObservableCollection<Account>();
 
         _authService = new AuthService(_httpClient);
 
-        var token = _authService.GetAccessToken(); // You need to implement this function
+        var token = _authService.GetAccessToken();
 
-        // Set Authorization header
         if (!string.IsNullOrEmpty(token))
         {
             _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
         }
 
-        // Load accounts asynchronously
         LoadAccountsAsync().ConfigureAwait(true);
     }
 
@@ -113,35 +112,35 @@ public partial class AccountViewModel : ObservableRecipient
         }
         catch (HttpRequestException e)
         {
-            // Handle the error (e.g., log it or show a message to the user)
             Console.WriteLine($"Request error: {e.Message}");
         }
     }
 
-    public async Task AddAccountAsync(Account account)
+    public async Task AddAccountAsync(CreateFinanceAccountDto account)
     {
         try
         {
-            var response = await _httpClient.PostAsJsonAsync("finance-accounts", account); // Replace with your endpoint
+            var token = _authService.GetAccessToken();
+            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+            var response = await _httpClient.PostAsJsonAsync("finance-accounts", account);
+
             if (response.IsSuccessStatusCode)
             {
-                // Optionally, reload accounts or add the new account to the collection
-                // Option 1: Reload all accounts
                 await LoadAccountsAsync();
-
-                // Option 2: Add the new account directly to the collection
-                // Accounts.Add(account); 
             }
             else
             {
-                // Handle error response
+                var errorMessage = await response.Content.ReadAsStringAsync();
+                Console.WriteLine($"Error: {errorMessage}");
             }
         }
         catch (HttpRequestException e)
         {
-            // Handle the error
+            Console.WriteLine($"Request error: {e.Message}");
         }
     }
+
 
     public void UpdateAccount(Account account)
     {
@@ -154,7 +153,6 @@ public partial class AccountViewModel : ObservableRecipient
             existingAccount.CurrentBalance = account.CurrentBalance;
             existingAccount.UpdateAt = DateTime.Now;
 
-            // Notify property change if needed
             OnPropertyChanged(nameof(Accounts));
         }
     }

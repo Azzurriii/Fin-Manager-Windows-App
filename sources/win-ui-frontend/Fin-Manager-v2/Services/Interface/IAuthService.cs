@@ -13,4 +13,8 @@ public interface IAuthService
     void Logout();
 
     public string GetAccessToken();
+
+    Task FetchUserIdAsync();
+
+    public int? GetUserId();
 }
