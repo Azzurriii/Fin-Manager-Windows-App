@@ -1,15 +1,71 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Between, Repository } from 'typeorm';
 import { Transaction } from './entity/transaction.entity';
 
+// src/transaction/dto/create-transaction.dto.ts
+import { ApiProperty } from '@nestjs/swagger';
+import { IsNumber, IsString, IsEnum, IsDate, IsOptional } from 'class-validator';
+
+export enum TransactionType {
+    INCOME = 'INCOME',
+    EXPENSE = 'EXPENSE',
+}
+
 export class CreateTransactionDto {
-    readonly account_id: number;
-    readonly user_id: number;
-    readonly transaction_type: string;
-    readonly amount: number;
-    readonly tag_id: number;
-    readonly description: string;
+  @ApiProperty({ example: 1 })
+  @IsNumber()
+  account_id: number;
+
+  @ApiProperty({ example: 1 })
+  @IsNumber()
+  user_id: number;
+
+  @ApiProperty({ example: 'INCOME' , enum: TransactionType })
+  @IsEnum(TransactionType)
+  transaction_type: TransactionType;
+
+  @ApiProperty({ example: 100.0 })
+  @IsNumber()
+  amount: number;
+
+  @ApiProperty({ example: 1 })
+  @IsNumber()
+  tag_id: number;
+
+  @ApiProperty({ example: 'Sample transaction' })
+  @IsOptional()
+  @IsString()
+  description?: string;
+
+  @ApiProperty({ example: '2023-10-05T14:48:00.000Z' })
+  @IsDate()
+  transaction_date?: Date;
+}
+
+export class GetTotalAmountDto {
+    @ApiProperty({ example: 1 })
+    @IsNumber()
+    user_id: number;
+
+    @ApiProperty({ example: 1 })
+    @IsNumber()
+    account_id: number;
+
+    @ApiProperty({ example: 'INCOME' , enum: TransactionType })
+    @IsEnum(TransactionType)
+    @IsOptional()
+    transaction_type?: TransactionType;
+
+    @ApiProperty({ example: '2023-10-05T14:48:00.000Z' })
+    @IsDate()
+    @IsOptional()
+    startDate?: Date;
+
+    @ApiProperty({ example: '2023-11-05T14:48:00.000Z' })
+    @IsDate()
+    @IsOptional()
+    endDate?: Date;
 }
 
 @Injectable()
@@ -21,6 +77,7 @@ export class TransactionService {
 
     async addTransaction(createTransactionDto: CreateTransactionDto): Promise<Transaction> {
         const transaction = this.transactionRepository.create(createTransactionDto);
+        // 💡 NEED TO DO: ADD OR MINUS MONEY IN ACCOUNT
         return this.transactionRepository.save(transaction);
     }
 
@@ -31,4 +88,19 @@ export class TransactionService {
     async findByUserId(user_id: number): Promise<Transaction[]> {
         return this.transactionRepository.find({ where: { user_id } });
     }
+
+
+async getTotalAmountByDate(getTotalAmountDto: GetTotalAmountDto): Promise<number> {
+    const { user_id, account_id, startDate, endDate, transaction_type } = getTotalAmountDto;
+    const transactions = await this.transactionRepository.find({
+        where: {
+            user_id,
+            account_id,
+            transaction_date: Between(startDate, endDate),
+            transaction_type, 
+        },
+    });
+
+    return transactions.reduce((total, transaction) => total + 1*transaction.amount, 0);
+}
 }
