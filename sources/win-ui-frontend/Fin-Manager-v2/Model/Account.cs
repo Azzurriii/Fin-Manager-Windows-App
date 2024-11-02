@@ -3,16 +3,22 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace Fin_Manager_v2.Model
 {
     public class Account : INotifyPropertyChanged
     {
+        [JsonPropertyName("account_id")]
         public int AccountId { get; set; }
+
+        [JsonPropertyName("user_id")]
         public int UserId { get; set; }
 
-        private string? _accountName; // Make this nullable
+        private string? _accountName;
+
+        [JsonPropertyName("account_name")]// Make this nullable
         public string AccountName
         {
             get { return _accountName ?? string.Empty; } // Return an empty string if null
@@ -27,6 +33,8 @@ namespace Fin_Manager_v2.Model
         }
 
         private string? _accountType;
+
+        [JsonPropertyName("account_type")]
         public string AccountType
         {
             get { return _accountType ?? string.Empty; }
@@ -41,6 +49,8 @@ namespace Fin_Manager_v2.Model
         }
 
         private decimal _initialBalance;
+
+        [JsonPropertyName("initial_balance")]
         public decimal InitialBalance
         {
             get { return _initialBalance; }
@@ -55,6 +65,8 @@ namespace Fin_Manager_v2.Model
         }
 
         private decimal _currentBalance;
+
+        [JsonPropertyName("current_balance")]
         public decimal CurrentBalance
         {
             get { return _currentBalance; }
@@ -68,8 +80,13 @@ namespace Fin_Manager_v2.Model
             }
         }
 
+        [JsonPropertyName("currency")]
         public string Currency { get; set; } = string.Empty; // Initialize to empty string to avoid null
+
+        [JsonPropertyName("creat_at")]
         public DateTime CreateAt { get; set; } = DateTime.Now;
+
+        [JsonPropertyName("updat_at")]
         public DateTime UpdateAt { get; set; } = DateTime.Now;
 
         public event PropertyChangedEventHandler? PropertyChanged; // Make this nullable
