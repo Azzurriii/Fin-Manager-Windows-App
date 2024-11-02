@@ -4,9 +4,212 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:converters="using:Fin_Manager_v2.Converters"
+    xmlns:global="using:Fin_Manager_v2"
+    xmlns:models="using:Fin_Manager_v2.Models"
     mc:Ignorable="d">
 
-    <Grid x:Name="ContentArea">
-        
+    <Page.Resources>
+        <!-- Converter for transaction type colors -->
+        <converters:TransactionTypeToColorConverter x:Key="TypeToColorConverter"/>
+
+        <!-- Add Transaction Dialog -->
+        <TeachingTip x:Name="AddTransactionDialog"
+                     IsOpen="{x:Bind ViewModel.IsAddTransactionDialogOpen, Mode=TwoWay}"
+                     Title="Add New Transaction"
+                     Closing="AddTransactionDialog_Closing"
+                     IsLightDismissEnabled="True"
+                     PlacementMargin="20"
+                     Width="400">
+            <TeachingTip.Content>
+                <StackPanel Spacing="12">
+                    <TextBox PlaceholderText="Amount" 
+                             Text="{x:Bind ViewModel.NewTransaction.Amount, Mode=TwoWay}"/>
+                    <TextBox PlaceholderText="Description" 
+                             Text="{x:Bind ViewModel.NewTransaction.Description, Mode=TwoWay}"/>
+                    <ComboBox Header="Transaction Type"
+                              PlaceholderText="Select Type" 
+                              SelectedItem="{x:Bind ViewModel.NewTransaction.TransactionType, Mode=TwoWay}"
+                              Width="200">
+                        <ComboBoxItem Content="INCOME"/>
+                        <ComboBoxItem Content="EXPENSE"/>
+                    </ComboBox>
+                    <ComboBox Header="Account"
+                              PlaceholderText="Select Account"
+                              ItemsSource="{x:Bind ViewModel.Accounts}"
+                              SelectedItem="{x:Bind ViewModel.NewTransaction.Account, Mode=TwoWay}"
+                              Width="200"/>
+                    <Button Content="Add Transaction" 
+                            Style="{StaticResource AccentButtonStyle}"
+                            Command="{x:Bind ViewModel.CreateTransactionCommand}"
+                            HorizontalAlignment="Right"/>
+                </StackPanel>
+            </TeachingTip.Content>
+        </TeachingTip>
+    </Page.Resources>
+
+    <Grid x:Name="ContentArea" Padding="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Controls Section -->
+        <Grid Grid.Row="0" Margin="0,0,0,20">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <CalendarDatePicker Grid.Column="0" 
+                               Header="Select Month"
+                               DateFormat="{}{month.full} {year.full}"
+                               Date="{x:Bind ViewModel.SelectedDate, Mode=TwoWay}"
+                               Margin="0,0,12,0"/>
+
+            <ComboBox Grid.Column="1"
+                      Header="Account"
+                      PlaceholderText="Select Account"
+                      ItemsSource="{x:Bind ViewModel.Accounts}"
+                      SelectedItem="{x:Bind ViewModel.SelectedAccount, Mode=TwoWay}"
+                      MinWidth="150"
+                      Margin="0,0,12,0"/>
+
+            <Button Grid.Column="3"
+                    Style="{StaticResource AccentButtonStyle}"
+                    Command="{x:Bind ViewModel.OpenAddTransactionCommand}">
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <FontIcon FontFamily="Segoe MDL2 Assets" Glyph="&#xE109;"/>
+                    <TextBlock Text="New Transaction"/>
+                </StackPanel>
+            </Button>
+        </Grid>
+
+        <!-- Summary Cards -->
+        <Grid Grid.Row="1" Margin="0,0,0,20">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Income Card -->
+            <Border Grid.Column="0" 
+                    Margin="0,0,10,0"
+                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                    BorderThickness="1"
+                    CornerRadius="8">
+                <Grid Padding="16">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Text="Total Income" 
+                              Style="{StaticResource BodyTextBlockStyle}"
+                              Opacity="0.8"/>
+                    <TextBlock Grid.Row="1" 
+                              Text="{x:Bind ViewModel.TotalIncome, Mode=OneWay}" 
+                              Foreground="Green" 
+                              Style="{StaticResource SubtitleTextBlockStyle}"
+                              FontWeight="SemiBold"/>
+                </Grid>
+            </Border>
+
+            <!-- Expense Card -->
+            <Border Grid.Column="1" 
+                    Margin="5,0,5,0"
+                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                    BorderThickness="1"
+                    CornerRadius="8">
+                <Grid Padding="16">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Text="Total Expense" 
+                              Style="{StaticResource BodyTextBlockStyle}"
+                              Opacity="0.8"/>
+                    <TextBlock Grid.Row="1" 
+                              Text="{x:Bind ViewModel.TotalExpense, Mode=OneWay}" 
+                              Foreground="Red" 
+                              Style="{StaticResource SubtitleTextBlockStyle}"
+                              FontWeight="SemiBold"/>
+                </Grid>
+            </Border>
+
+            <!-- Balance Card -->
+            <Border Grid.Column="2" 
+                    Margin="10,0,0,0"
+                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                    BorderThickness="1"
+                    CornerRadius="8">
+                <Grid Padding="16">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Text="Balance" 
+                              Style="{StaticResource BodyTextBlockStyle}"
+                              Opacity="0.8"/>
+                    <TextBlock Grid.Row="1" 
+                              Text="{x:Bind ViewModel.Balance, Mode=OneWay}" 
+                              Foreground="{ThemeResource SystemAccentColor}" 
+                              Style="{StaticResource SubtitleTextBlockStyle}"
+                              FontWeight="SemiBold"/>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <!-- Transactions List -->
+        <ListView Grid.Row="2" 
+                  ItemsSource="{x:Bind ViewModel.Transactions, Mode=OneWay}"
+                  Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                  CornerRadius="8"
+                  Padding="4">
+            <ListView.ItemTemplate>
+                <DataTemplate x:DataType="models:TransactionModel">
+                    <Grid Padding="12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <FontIcon Grid.Column="0" 
+                                 Margin="0,0,12,0"
+                                 Glyph="&#xE10F;"
+                                 Foreground="{x:Bind TransactionType, Converter={StaticResource TypeToColorConverter}}"/>
+
+                        <StackPanel Grid.Column="1">
+                            <TextBlock Text="{x:Bind Description}" 
+                                     Style="{StaticResource BodyStrongTextBlockStyle}"/>
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                                <TextBlock Text="{x:Bind Date}" 
+                                         Style="{StaticResource CaptionTextBlockStyle}" 
+                                         Opacity="0.6"/>
+                                <TextBlock Text="|" 
+                                         Style="{StaticResource CaptionTextBlockStyle}" 
+                                         Opacity="0.6"/>
+                                <TextBlock Text="{x:Bind Account}" 
+                                         Style="{StaticResource CaptionTextBlockStyle}" 
+                                         Opacity="0.6"/>
+                            </StackPanel>
+                        </StackPanel>
+
+                        <TextBlock Grid.Column="2" 
+                                 Text="{x:Bind Amount}"
+                                 Foreground="{x:Bind TransactionType, Converter={StaticResource TypeToColorConverter}}"
+                                 Style="{StaticResource SubtitleTextBlockStyle}"
+                                 FontWeight="SemiBold"/>
+                    </Grid>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
     </Grid>
 </Page>

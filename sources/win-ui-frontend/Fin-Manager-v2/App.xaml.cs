@@ -51,15 +51,7 @@ public partial class App : Application
         UseContentRoot(AppContext.BaseDirectory).
         ConfigureServices((context, services) =>
         {
-            //services.Configure<PageService>(options =>
-            //{
-            //    options.Configure<LoginViewModel>(typeof(LoginPage).FullName!);
-            //    options.Configure<ShellViewModel>(typeof(ShellPage).FullName!);
-            //    options.Configure<CurrencyViewModel>(typeof(CurrencyPage).FullName!);
-            //    options.Configure<TransactionViewModel>(typeof(TransactionPage).FullName!);
-            //    options.Configure<AccountViewModel>(typeof(AccountPage).FullName!);
-            //    options.Configure<MonthlyViewViewModel>(typeof(MonthlyViewPage).FullName!);
-            //});
+            
             services.AddTransient<ActivationHandler<LaunchActivatedEventArgs>, DefaultActivationHandler>();
 
             // Services
@@ -88,6 +80,7 @@ public partial class App : Application
             services.AddTransient<LoginPage>();
             services.AddTransient<SignUpViewModel>();
             services.AddTransient<SignUpPage>();
+            services.AddSingleton<ITransactionService, TransactionService>();
         }).
         Build();
 
