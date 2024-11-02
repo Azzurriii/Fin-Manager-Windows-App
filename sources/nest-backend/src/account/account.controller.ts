@@ -1,17 +1,23 @@
 // src/finance-account/finance-account.controller.ts
-import { Controller, Get, Param, ParseIntPipe } from '@nestjs/common';
+import { Controller, Get, Param, ParseIntPipe, Req, UseGuards } from '@nestjs/common';
 import { FinanceAccountService } from './account.service';
 import { FinanceAccount } from './entity/account.entity';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { AuthGuard } from 'src/guard/auth.guard';
 
+
+@ApiTags('Finance Accounts')
 @Controller('finance-accounts')
 export class FinanceAccountController {
   constructor(private readonly financeAccountService: FinanceAccountService) {}
 
-  @Get(':userId')
+  @Get('/me')
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth()
   async getAccountsByUser(
-    @Param('userId', ParseIntPipe) userId: number,
+    @Req() req: any
   ): Promise<FinanceAccount[]> {
-    return this.financeAccountService.getAccountsByUser(userId);
+    return this.financeAccountService.getAccountsByUser(req.user.id);
   }
 
   @Get()
