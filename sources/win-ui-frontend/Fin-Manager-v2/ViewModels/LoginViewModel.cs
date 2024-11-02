@@ -29,6 +29,14 @@ public class LoginViewModel : ObservableObject
             return;
         }
 
+        // Hardcoded login check
+        if (username == "1" && password == "1")
+        {
+            _shell = App.GetService<ShellPage>();
+            Fin_Manager_v2.App.MainWindow.Content = _shell ?? new Frame();
+            return;
+        }
+
         // Direct API call to AuthService for login
         var loginSuccessful = await _authService.LoginAsync(username, password);
         if (loginSuccessful)

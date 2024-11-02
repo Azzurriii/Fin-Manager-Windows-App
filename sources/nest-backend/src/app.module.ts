@@ -4,7 +4,7 @@ import { AppService } from './app.service';
 import { CurrencyModule } from './currency/currency.module';
 import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { TransactionModule } from './transaction/transaction.module';
-
+import { FinanceAccountModule } from './account/account.module';
 
 const typeOrmConfig: TypeOrmModuleOptions = {
   type: 'postgres', // Replace with your database type
@@ -19,7 +19,12 @@ const typeOrmConfig: TypeOrmModuleOptions = {
 export default typeOrmConfig;
 
 @Module({
-  imports: [TypeOrmModule.forRoot(typeOrmConfig),CurrencyModule,TransactionModule],
+  imports: [
+    TypeOrmModule.forRoot(typeOrmConfig),
+    CurrencyModule,
+    TransactionModule,
+    FinanceAccountModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })

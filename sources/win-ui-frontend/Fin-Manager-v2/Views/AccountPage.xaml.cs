@@ -36,6 +36,7 @@ public sealed partial class AccountPage : Page
     private void OnPageLoaded(object sender, RoutedEventArgs e)
     {
         // Khi trang được nạp xong, cho phép chọn mục
+        //ViewModel.LoadAccountsAsync();
         isUserSelection = true;
     }
 
@@ -127,7 +128,8 @@ public sealed partial class AccountPage : Page
                 CreateAt = DateTime.Now,
             };
 
-            ViewModel.AddAccount(newAccount);
+            //ViewModel.AddAccount(newAccount);
+            ViewModel.AddAccountAsync(newAccount);
 
             ViewModel.SelectedAccount = null;
         }
