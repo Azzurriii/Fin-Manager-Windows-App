@@ -5,45 +5,126 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Security.Principal;
 using Fin_Manager_v2.Model;
+using System.Net.Http.Json;
 
 namespace Fin_Manager_v2.ViewModels;
 
 public partial class AccountViewModel : ObservableRecipient
 {
-    public ObservableCollection<Account> Accounts { get; set; }
+    //public ObservableCollection<Account> Accounts { get; set; }
 
+    //private Account _selectedAccount;
+    //public Account SelectedAccount
+    //{
+    //    get { return _selectedAccount; }
+    //    set
+    //    {
+    //        if (_selectedAccount != value)  // Add this check to prevent redundant updates
+    //        {
+    //            _selectedAccount = value;
+    //            OnPropertyChanged(nameof(SelectedAccount));
+    //        }
+    //    }
+    //}
+
+    //public static readonly DependencyProperty SelectedAccountProperty =
+    //        DependencyProperty.Register("SelectedAccount", typeof(Account), typeof(AccountViewModel), new PropertyMetadata(null));
+
+    //public AccountViewModel()
+    //{
+    //    Accounts = new ObservableCollection<Account>
+    //    {
+    //        new Account { AccountName = "Checking", AccountType = "Bank", CurrentBalance = 1000 },
+    //        new Account { AccountName = "Savings", AccountType = "Bank", CurrentBalance = 5000 }
+    //    };
+
+    //    // Initialize SelectedAccount to avoid null reference issues
+    //    //SelectedAccount = Accounts[0];
+    //}
+
+    //public void AddAccount(Account account)
+    //{
+    //    Accounts.Add(account);
+    //}
+
+    //public void UpdateAccount(Account account)
+    //{
+    //    var existingAccount = Accounts.FirstOrDefault(a => a.AccountId == account.AccountId);
+    //    if (existingAccount != null)
+    //    {
+    //        existingAccount.AccountName = account.AccountName;
+    //        existingAccount.AccountType = account.AccountType;
+    //        existingAccount.InitialBalance = account.InitialBalance;
+    //        existingAccount.CurrentBalance = account.CurrentBalance;
+    //        existingAccount.UpdateAt = DateTime.Now;
+    //    }
+    //}
+
+    //public event PropertyChangedEventHandler PropertyChanged;
+    //protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
+    //{
+    //    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    //}
+
+    private readonly HttpClient _httpClient;
+
+    public ObservableCollection<Account> Accounts { get; private set; }
+
+    [ObservableProperty]
     private Account _selectedAccount;
-    public Account SelectedAccount
-    {
-        get { return _selectedAccount; }
-        set
-        {
-            if (_selectedAccount != value)  // Add this check to prevent redundant updates
-            {
-                _selectedAccount = value;
-                OnPropertyChanged(nameof(SelectedAccount));
-            }
-        }
-    }
-
-    public static readonly DependencyProperty SelectedAccountProperty =
-            DependencyProperty.Register("SelectedAccount", typeof(Account), typeof(AccountViewModel), new PropertyMetadata(null));
 
     public AccountViewModel()
     {
-        Accounts = new ObservableCollection<Account>
-        {
-            new Account { AccountName = "Checking", AccountType = "Bank", CurrentBalance = 1000 },
-            new Account { AccountName = "Savings", AccountType = "Bank", CurrentBalance = 5000 }
-        };
+        _httpClient = new HttpClient { BaseAddress = new Uri("http://localhost:3000/") }; // Replace with your API base URL
+        Accounts = new ObservableCollection<Account>();
 
-        // Initialize SelectedAccount to avoid null reference issues
-        //SelectedAccount = Accounts[0];
+        // Load accounts asynchronously
+        LoadAccountsAsync().ConfigureAwait(true);
     }
 
-    public void AddAccount(Account account)
+    public async Task LoadAccountsAsync()
     {
-        Accounts.Add(account);
+        try
+        {
+            var accounts = await _httpClient.GetFromJsonAsync<List<Account>>("finance-accounts"); // Replace with your endpoint
+            if (accounts != null)
+            {
+                Accounts.Clear();
+                foreach (var account in accounts)
+                {
+                    Accounts.Add(account);
+                }
+            }
+        }
+        catch (HttpRequestException e)
+        {
+            // Handle the error (e.g., log it or show a message to the user)
+        }
+    }
+
+    public async Task AddAccountAsync(Account account)
+    {
+        try
+        {
+            var response = await _httpClient.PostAsJsonAsync("finance-accounts", account); // Replace with your endpoint
+            if (response.IsSuccessStatusCode)
+            {
+                // Optionally, reload accounts or add the new account to the collection
+                // Option 1: Reload all accounts
+                await LoadAccountsAsync();
+
+                // Option 2: Add the new account directly to the collection
+                // Accounts.Add(account); 
+            }
+            else
+            {
+                // Handle error response
+            }
+        }
+        catch (HttpRequestException e)
+        {
+            // Handle the error
+        }
     }
 
     public void UpdateAccount(Account account)
@@ -56,12 +137,9 @@ public partial class AccountViewModel : ObservableRecipient
             existingAccount.InitialBalance = account.InitialBalance;
             existingAccount.CurrentBalance = account.CurrentBalance;
             existingAccount.UpdateAt = DateTime.Now;
-        }
-    }
 
-    public event PropertyChangedEventHandler PropertyChanged;
-    protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
-    {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            // Notify property change if needed
+            OnPropertyChanged(nameof(Accounts));
+        }
     }
 }
