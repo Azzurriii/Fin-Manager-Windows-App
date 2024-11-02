@@ -13,32 +13,72 @@
         <!-- Converter for transaction type colors -->
         <converters:TransactionTypeToColorConverter x:Key="TypeToColorConverter"/>
 
+        <!-- Converter to convert decimal to double -->
+        <converters:DecimalToDoubleConverter x:Key="DecimalToDoubleConverter"/>
+
         <!-- Add Transaction Dialog -->
         <TeachingTip x:Name="AddTransactionDialog"
-                     IsOpen="{x:Bind ViewModel.IsAddTransactionDialogOpen, Mode=TwoWay}"
-                     Title="Add New Transaction"
-                     Closing="AddTransactionDialog_Closing"
-                     IsLightDismissEnabled="True"
-                     PlacementMargin="20"
-                     Width="400">
+             IsOpen="{x:Bind ViewModel.IsAddTransactionDialogOpen, Mode=TwoWay}"
+             Title="Add New Transaction"
+             Closing="AddTransactionDialog_Closing"
+             IsLightDismissEnabled="True"
+             PlacementMargin="20"
+             Width="400">
             <TeachingTip.Content>
                 <StackPanel Spacing="12">
-                    <TextBox PlaceholderText="Amount" 
-                             Text="{x:Bind ViewModel.NewTransaction.Amount, Mode=TwoWay}"/>
-                    <TextBox PlaceholderText="Description" 
+                    <!-- Amount with title -->
+                    <NumberBox Header="Amount"
+                               PlaceholderText="Enter amount"
+                               Value="{x:Bind ViewModel.TransactionAmount, Mode=TwoWay}"
+                               SpinButtonPlacementMode="Hidden"
+                               SmallChange="1000"
+                               LargeChange="10000"
+                               Minimum="0"
+                               ValidationMode="InvalidInputOverwritten"/>
+
+                    <!-- Description -->
+                    <TextBox Header="Description"
+                             PlaceholderText="Description" 
                              Text="{x:Bind ViewModel.NewTransaction.Description, Mode=TwoWay}"/>
+
+                    <!-- Transaction Date -->
+                    <CalendarDatePicker Header="Transaction Date"
+                                       PlaceholderText="Select date"
+                                       Date="{x:Bind ViewModel.TransactionDate, Mode=TwoWay}"
+                                       FirstDayOfWeek="Monday"/>
+
+                    <!-- Transaction Type -->
                     <ComboBox Header="Transaction Type"
                               PlaceholderText="Select Type" 
-                              SelectedItem="{x:Bind ViewModel.NewTransaction.TransactionType, Mode=TwoWay}"
-                              Width="200">
-                        <ComboBoxItem Content="INCOME"/>
-                        <ComboBoxItem Content="EXPENSE"/>
+                              SelectedItem="{x:Bind ViewModel.SelectedTransactionType, Mode=TwoWay}"
+                              Width="200"
+                              SelectedIndex="0">
+                        <x:String>INCOME</x:String>
+                        <x:String>EXPENSE</x:String>
                     </ComboBox>
+
+                    <!-- Account -->
                     <ComboBox Header="Account"
                               PlaceholderText="Select Account"
                               ItemsSource="{x:Bind ViewModel.Accounts}"
-                              SelectedItem="{x:Bind ViewModel.NewTransaction.Account, Mode=TwoWay}"
-                              Width="200"/>
+                              SelectedItem="{x:Bind ViewModel.SelectedAccount, Mode=TwoWay}"
+                              Width="200"
+                              SelectedIndex="0"/>
+
+                    <!-- Tag -->
+                    <ComboBox Header="Tag"
+                            PlaceholderText="Select Tag"
+                            ItemsSource="{x:Bind ViewModel.AvailableTags}"
+                            SelectedItem="{x:Bind ViewModel.SelectedTag, Mode=TwoWay}"
+                            Width="200">
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate x:DataType="models:TagModel">
+                                <TextBlock Text="{x:Bind Name}"/>
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
+
+                    <!-- Add Transaction Button -->
                     <Button Content="Add Transaction" 
                             Style="{StaticResource AccentButtonStyle}"
                             Command="{x:Bind ViewModel.CreateTransactionCommand}"
@@ -190,7 +230,7 @@
                             <TextBlock Text="{x:Bind Description}" 
                                      Style="{StaticResource BodyStrongTextBlockStyle}"/>
                             <StackPanel Orientation="Horizontal" Spacing="8">
-                                <TextBlock Text="{x:Bind Date}" 
+                                <TextBlock Text="{x:Bind FormattedDate}" 
                                          Style="{StaticResource CaptionTextBlockStyle}" 
                                          Opacity="0.6"/>
                                 <TextBlock Text="|" 

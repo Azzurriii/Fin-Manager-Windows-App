@@ -15,25 +15,27 @@ public class TransactionModel
     public int UserId { get; set; }
 
     [JsonPropertyName("transaction_type")]
-    public string TransactionType { get; set; }
+    public string TransactionType { get; set; } = "INCOME";
 
     [JsonPropertyName("amount")]
     public decimal Amount { get; set; }
 
     [JsonPropertyName("tag_id")]
-    public int TagId { get; set; }
+    public int? TagId { get; set; }
 
     [JsonPropertyName("description")]
-    public string Description { get; set; }
+    public string Description { get; set; } = string.Empty;
 
     [JsonPropertyName("transaction_date")]
-    public DateTime Date { get; set; }
+    public DateTime Date { get; set; } = DateTime.Now;
 
     [JsonPropertyName("updated_at")]
     public DateTime UpdatedAt { get; set; }
 
     [JsonPropertyName("account")]
-    public string Account { get; set; }
+    public string Account { get; set; } = string.Empty;
 
-    public string FormattedAmount => $"{(TransactionType == "EXPENSE" ? "-" : "+")}{Amount:C}";
+    public string FormattedAmount => $"{(TransactionType == "EXPENSE" ? "-" : "+")}{Amount:N0} đ";
+
+    public string FormattedDate => Date.ToString("dd/MM/yyyy");
 }

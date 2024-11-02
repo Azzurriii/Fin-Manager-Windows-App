@@ -16,16 +16,18 @@ namespace Fin_Manager_v2.Views
 
         private async void TransactionPage_Loaded(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
         {
-            // Load transactions when the page is loaded
-            if (ViewModel.LoadTransactionsCommand.CanExecute(null))
+            try
             {
-                await ViewModel.LoadTransactionsCommand.ExecuteAsync(null);
+                await ViewModel.InitializeCommand.ExecuteAsync(null);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error in TransactionPage_Loaded: {ex.Message}");
             }
         }
 
         private void AddTransactionDialog_Closing(TeachingTip sender, TeachingTipClosingEventArgs args)
         {
-            // Close the dialog and reset necessary properties if required
             ViewModel.IsAddTransactionDialogOpen = false;
         }
     }

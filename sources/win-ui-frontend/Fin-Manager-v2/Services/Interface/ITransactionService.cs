@@ -5,5 +5,5 @@ public interface ITransactionService
 {
     Task<bool> CreateTransactionAsync(TransactionModel transaction);
     Task<List<TransactionModel>> GetUserTransactionsAsync(int userId);
-    Task<decimal> GetTotalAmountByTypeAsync(string transactionType);
+    Task<decimal> GetTotalAmountAsync(int userId, int? accountId, string transactionType, DateTime startDate, DateTime endDate);
 }
