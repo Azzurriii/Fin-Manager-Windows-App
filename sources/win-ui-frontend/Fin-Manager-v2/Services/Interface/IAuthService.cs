@@ -11,4 +11,6 @@ public interface IAuthService
         get;
     }
     void Logout();
+
+    public string GetAccessToken();
 }

@@ -5,6 +5,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using Fin_Manager_v2.Models;
 using Fin_Manager_v2.Services.Interface;
+using Windows.Storage;
 
 namespace Fin_Manager_v2.Services;
 
@@ -23,19 +24,29 @@ public class AuthService : IAuthService
     public async Task<bool> LoginAsync(string username, string password)
     {
         var loginData = new { username, password };
-        var jsonContent = JsonSerializer.Serialize(loginData);
-        var httpContent = new StringContent(jsonContent, Encoding.UTF8, "application/json");
 
-        var response = await _httpClient.PostAsync("http://localhost:3000/users/login", httpContent);
+        // Send login request as JSON and get response
+        var response = await _httpClient.PostAsJsonAsync("http://localhost:3000/users/login", loginData);
         if (response.IsSuccessStatusCode)
         {
-            _isAuthenticated = true;
-            return true;
+            // Automatically deserialize JSON response to a Dictionary
+            var responseData = await response.Content.ReadFromJsonAsync<Dictionary<string, string>>();
+
+            if (responseData != null && responseData.TryGetValue("access_token", out var accessToken))
+            {
+                // Save the token in local storage
+                var localSettings = ApplicationData.Current.LocalSettings;
+                localSettings.Values["AccessToken"] = accessToken;
+
+                _isAuthenticated = true;
+                return true;
+            }
         }
 
         _isAuthenticated = false;
         return false;
     }
+
 
     public async Task<bool> SignUpAsync(UserModel user)
     {
@@ -46,5 +57,17 @@ public class AuthService : IAuthService
     public void Logout()
     {
         _isAuthenticated = false;
+    }
+
+    public string GetAccessToken()
+    {
+        var localSettings = ApplicationData.Current.LocalSettings;
+
+        if (localSettings.Values.TryGetValue("AccessToken", out var token))
+        {
+            return token as string;
+        }
+
+        return null;
     }
 }
