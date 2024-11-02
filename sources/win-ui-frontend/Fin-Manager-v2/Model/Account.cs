@@ -83,10 +83,10 @@ namespace Fin_Manager_v2.Model
         [JsonPropertyName("currency")]
         public string Currency { get; set; } = string.Empty; // Initialize to empty string to avoid null
 
-        [JsonPropertyName("creat_at")]
+        [JsonPropertyName("create_at")]
         public DateTime CreateAt { get; set; } = DateTime.Now;
 
-        [JsonPropertyName("updat_at")]
+        [JsonPropertyName("update_at")]
         public DateTime UpdateAt { get; set; } = DateTime.Now;
 
         public event PropertyChangedEventHandler? PropertyChanged; // Make this nullable

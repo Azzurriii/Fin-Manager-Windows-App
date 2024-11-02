@@ -15,6 +15,7 @@ using Windows.Foundation;
 using Windows.Foundation.Collections;
 using System.Security.Principal;
 using Fin_Manager_v2.Model;
+using Fin_Manager_v2.Services.Interface;
 
 namespace Fin_Manager_v2.Views;
 
@@ -24,6 +25,10 @@ public sealed partial class AccountPage : Page
 
     private bool isUserSelection = false;
 
+    private readonly IAuthService _authService;
+
+    //public AccountPage() { }
+
     public AccountPage()
     {
         this.InitializeComponent();
@@ -31,6 +36,7 @@ public sealed partial class AccountPage : Page
         this.DataContext = ViewModel;
 
         this.Loaded += OnPageLoaded;
+        
     }
 
     private void OnPageLoaded(object sender, RoutedEventArgs e)

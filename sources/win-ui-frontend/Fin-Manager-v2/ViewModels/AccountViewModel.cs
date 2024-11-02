@@ -6,6 +6,9 @@ using System.Runtime.CompilerServices;
 using System.Security.Principal;
 using Fin_Manager_v2.Model;
 using System.Net.Http.Json;
+using System.Net.Http.Headers;
+using Fin_Manager_v2.Services.Interface;
+using Fin_Manager_v2.Services;
 
 namespace Fin_Manager_v2.ViewModels;
 
@@ -68,15 +71,36 @@ public partial class AccountViewModel : ObservableRecipient
 
     private readonly HttpClient _httpClient;
 
+    private readonly IAuthService _authService;
+
     public ObservableCollection<Account> Accounts { get; private set; }
 
     [ObservableProperty]
     private Account _selectedAccount;
 
+    private string RetrieveTokenFromLocalStorage()
+    {
+        // Replace with your actual retrieval logic, e.g., reading from local storage
+        // This is just a placeholder
+        return Windows.Storage.ApplicationData.Current.LocalSettings.Values["AuthToken"] as string;
+    }
+
+    //public AccountViewModel() { }
+
     public AccountViewModel()
     {
         _httpClient = new HttpClient { BaseAddress = new Uri("http://localhost:3000/") }; // Replace with your API base URL
         Accounts = new ObservableCollection<Account>();
+
+        _authService = new AuthService(_httpClient);
+
+        var token = _authService.GetAccessToken(); // You need to implement this function
+
+        // Set Authorization header
+        if (!string.IsNullOrEmpty(token))
+        {
+            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+        }
 
         // Load accounts asynchronously
         LoadAccountsAsync().ConfigureAwait(true);
@@ -86,7 +110,7 @@ public partial class AccountViewModel : ObservableRecipient
     {
         try
         {
-            var accounts = await _httpClient.GetFromJsonAsync<List<Account>>("finance-accounts"); // Replace with your endpoint
+            var accounts = await _httpClient.GetFromJsonAsync<List<Account>>("finance-accounts/me"); // Replace with your endpoint
             if (accounts != null)
             {
                 Accounts.Clear();
@@ -99,6 +123,7 @@ public partial class AccountViewModel : ObservableRecipient
         catch (HttpRequestException e)
         {
             // Handle the error (e.g., log it or show a message to the user)
+            Console.WriteLine($"Request error: {e.Message}");
         }
     }
 
