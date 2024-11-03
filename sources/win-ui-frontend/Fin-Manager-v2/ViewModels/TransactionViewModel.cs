@@ -13,6 +13,7 @@ namespace Fin_Manager_v2.ViewModels
     {
         private readonly ITransactionService _transactionService;
         private readonly ITagService _tagService;
+        private readonly IAccountService _accountService;
 
         [ObservableProperty]
         private ObservableCollection<TransactionModel> _transactions = new();
@@ -33,10 +34,7 @@ namespace Fin_Manager_v2.ViewModels
         private DateTimeOffset? _selectedDate;
 
         [ObservableProperty]
-        private string _selectedAccount;
-
-        [ObservableProperty]
-        private ObservableCollection<string> _accounts = new() { "All Accounts", "Account 1", "Account 2" };
+        private ObservableCollection<Account> _accounts = new();
 
         [ObservableProperty]
         private bool _isAddTransactionDialogOpen;
@@ -56,14 +54,19 @@ namespace Fin_Manager_v2.ViewModels
         [ObservableProperty]
         private TagModel _selectedTag;
 
-        public TransactionViewModel(ITransactionService transactionService, ITagService tagService)
+        [ObservableProperty]
+        private Account _selectedAccountObj;
+
+        public TransactionViewModel(ITransactionService transactionService, 
+            ITagService tagService, 
+            IAccountService accountService)
         {
             _transactionService = transactionService;
             _tagService = tagService;
+            _accountService = accountService;
             SelectedDate = DateTimeOffset.Now;
-            SelectedAccount = "All Accounts";
             NewTransaction = new TransactionModel();
-            LoadTagsAsync();
+            LoadInitialDataAsync();
         }
 
         [RelayCommand]
@@ -84,14 +87,20 @@ namespace Fin_Manager_v2.ViewModels
         {
             try
             {
-                var transactions = await _transactionService.GetUserTransactionsAsync(1);
-                Transactions = new ObservableCollection<TransactionModel>(transactions);
-
-                // Calculate totals
                 var startDate = new DateTime(SelectedDate?.Year ?? DateTime.Now.Year, 
                                            SelectedDate?.Month ?? DateTime.Now.Month, 1);
                 var endDate = startDate.AddMonths(1).AddDays(-1);
-                var accountId = SelectedAccount == "All Accounts" ? null : GetAccountId(SelectedAccount);
+
+                var accountId = SelectedAccountObj?.AccountName == "All Accounts" ? null : SelectedAccountObj?.AccountId;
+
+                var transactions = await _transactionService.GetUserTransactionsAsync(1);
+                
+                transactions = transactions
+                    .Where(t => t.Date >= startDate && t.Date <= endDate)
+                    .Where(t => accountId == null || t.AccountId == accountId)
+                    .ToList();
+
+                Transactions = new ObservableCollection<TransactionModel>(transactions);
 
                 TotalIncome = await _transactionService.GetTotalAmountAsync(1, accountId, "INCOME", startDate, endDate);
                 TotalExpense = await _transactionService.GetTotalAmountAsync(1, accountId, "EXPENSE", startDate, endDate);
@@ -100,6 +109,28 @@ namespace Fin_Manager_v2.ViewModels
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"Error loading transactions: {ex.Message}");
+            }
+        }
+
+        private async Task LoadInitialDataAsync()
+        {
+            await LoadAccountsAsync();
+            await LoadTagsAsync();
+        }
+
+        private async Task LoadAccountsAsync()
+        {
+            try
+            {
+                var accounts = await _accountService.GetAccountsAsync();
+                var accountsList = new List<Account> { new Account { AccountName = "All Accounts" } };
+                accountsList.AddRange(accounts);
+                Accounts = new ObservableCollection<Account>(accountsList);
+                SelectedAccountObj = Accounts.FirstOrDefault();
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error loading accounts: {ex.Message}");
             }
         }
 
@@ -128,7 +159,7 @@ namespace Fin_Manager_v2.ViewModels
             TransactionAmount = 0;
             TransactionDate = DateTimeOffset.Now;
             SelectedTransactionType = "INCOME";
-            SelectedAccount = "Account 1";
+            SelectedAccountObj = Accounts.FirstOrDefault(a => a.AccountName != "All Accounts");
             SelectedTag = null;
             IsAddTransactionDialogOpen = true;
         }
@@ -140,21 +171,19 @@ namespace Fin_Manager_v2.ViewModels
             {
                 if (TransactionAmount <= 0 || 
                     string.IsNullOrEmpty(NewTransaction.Description) ||
-                    SelectedAccount == null || 
-                    SelectedAccount == "All Accounts")
+                    SelectedAccountObj == null || 
+                    SelectedAccountObj.AccountName == "All Accounts")
                 {
                     return;
                 }
 
-                NewTransaction.AccountId = GetAccountId(SelectedAccount) ?? 1;
+                NewTransaction.AccountId = SelectedAccountObj.AccountId;
                 NewTransaction.UserId = 1;
                 NewTransaction.TransactionType = SelectedTransactionType;
                 NewTransaction.Amount = Convert.ToDecimal(TransactionAmount);
-                NewTransaction.TagId = SelectedTag?.Id;
+                NewTransaction.TagId = SelectedTag?.Id ?? 0;
                 NewTransaction.Description = NewTransaction.Description.Trim();
                 NewTransaction.Date = TransactionDate.DateTime.ToUniversalTime();
-
-                System.Diagnostics.Debug.WriteLine($"Creating transaction with TagId: {NewTransaction.TagId}");
 
                 var result = await _transactionService.CreateTransactionAsync(NewTransaction);
                 if (result)
@@ -169,22 +198,22 @@ namespace Fin_Manager_v2.ViewModels
             }
         }
 
-        private int? GetAccountId(string accountName)
-        {
-            return accountName switch
-            {
-                "Account 1" => 1,
-                "Account 2" => 2,
-                _ => null
-            };
-        }
-
         partial void OnTransactionAmountChanged(double value)
         {
             if (NewTransaction != null)
             {
                 NewTransaction.Amount = Convert.ToDecimal(value);
             }
+        }
+
+        partial void OnSelectedDateChanged(DateTimeOffset? value)
+        {
+            LoadTransactionsAsync().ConfigureAwait(false);
+        }
+
+        partial void OnSelectedAccountObjChanged(Account value)
+        {
+            LoadTransactionsAsync().ConfigureAwait(false);
         }
     }
 }

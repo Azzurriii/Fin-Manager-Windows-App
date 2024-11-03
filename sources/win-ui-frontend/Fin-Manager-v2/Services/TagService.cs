@@ -16,8 +16,16 @@ namespace Fin_Manager_v2.Services
 
         public async Task<List<TagModel>> GetTagsAsync()
         {
-            var response = await _httpClient.GetFromJsonAsync<List<TagModel>>($"{_baseUrl}/tags");
-            return response ?? new List<TagModel>();
+            try 
+            {
+                var response = await _httpClient.GetFromJsonAsync<List<TagModel>>($"{_baseUrl}/tags");
+                return response ?? new List<TagModel>();
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error getting tags: {ex.Message}");
+                return new List<TagModel>();
+            }
         }
 
         public async Task<TagModel?> GetTagAsync(int id)
