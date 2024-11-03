@@ -29,15 +29,14 @@ public class LoginViewModel : ObservableObject
             return;
         }
 
-        // Direct API call to AuthService for login
         var loginSuccessful = await _authService.LoginAsync(username, password);
         var token = _authService.GetAccessToken();
         Console.WriteLine(token);
         if (loginSuccessful)
         {
+            await _authService.FetchUserIdAsync();
             var shell = App.GetService<ShellPage>();
             App.MainWindow.Content = shell;
-            // Get the frame from the shell
             if (shell.FindName("NavigationFrame") is Frame shellFrame)
             {
                 _navigationService.Frame = shellFrame;

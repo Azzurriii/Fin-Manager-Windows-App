@@ -15,6 +15,9 @@ using Windows.Foundation;
 using Windows.Foundation.Collections;
 using System.Security.Principal;
 using Fin_Manager_v2.Model;
+using Fin_Manager_v2.DTO;
+using Fin_Manager_v2.Services.Interface;
+using Fin_Manager_v2.Services;
 
 namespace Fin_Manager_v2.Views;
 
@@ -35,58 +38,8 @@ public sealed partial class AccountPage : Page
 
     private void OnPageLoaded(object sender, RoutedEventArgs e)
     {
-        // Khi trang được nạp xong, cho phép chọn mục
-        //ViewModel.LoadAccountsAsync();
         isUserSelection = true;
     }
-
-    //private void OnAddAccountClick(object sender, RoutedEventArgs e)
-    //{
-    //    // Make sure SelectedAccount is not null
-    //    if (ViewModel.SelectedAccount == null)
-    //    {
-    //        ViewModel.SelectedAccount = new Account(); // Initialize if null
-    //    }
-
-    //    var newAccount = new Account
-    //    {
-    //        AccountName = ViewModel.SelectedAccount.AccountName,
-    //        AccountType = ViewModel.SelectedAccount.AccountType,
-    //        InitialBalance = ViewModel.SelectedAccount.InitialBalance,
-    //        CurrentBalance = ViewModel.SelectedAccount.CurrentBalance,
-    //        Currency = "USD",
-    //        UserId = 1 // For demo purposes, hardcode UserId
-    //    };
-
-    //    ViewModel.AddAccount(newAccount);
-    //}
-
-    //private void OnAccountSelected(object sender, SelectionChangedEventArgs e)
-    //{
-    //    if (ViewModel.SelectedAccount != null)
-    //    {
-    //        Frame.Navigate(typeof(AccountDetailPage), ViewModel.SelectedAccount);
-    //    }
-    //}
-
-    //private void OnAccountSelected(object sender, SelectionChangedEventArgs e)
-    //{
-    //    var selectedAccount = (Account)((ListView)sender).SelectedItem;
-    //    if (selectedAccount != null)
-    //    {
-    //        isUserSelection = false;
-    //        // Sử dụng DispatcherQueue để thực hiện điều hướng sau khi UI hoàn thành
-    //        DispatcherQueue.TryEnqueue(() =>
-    //        {
-    //            Frame.Navigate(typeof(AccountDetailPage), selectedAccount);
-    //        });
-
-    //        ((ListView)sender).SelectedItem = null;
-
-    //        // Kích hoạt lại isSelectionEnabled sau khi xử lý
-    //        isUserSelection = true;
-    //    }
-    //}
 
     private void OnAccountSelected(object sender, SelectionChangedEventArgs e)
     {
@@ -110,28 +63,52 @@ public sealed partial class AccountPage : Page
         await AddAccountDialog.ShowAsync();
     }
 
-    private void OnAddAccountDialogPrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
+    private async void OnAddAccountDialogPrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
     {
         var accountName = AccountNameInput.Text;
         var accountType = AccountTypeInput.Text;
         var currency = CurrencyInput.Text;
+
         if (decimal.TryParse(InitialBalanceInput.Text, out decimal initialBalance))
         {
-            var newAccount = new Account
+
+            var newAccount = new CreateFinanceAccountDto
             {
-                AccountName = accountName,
-                AccountType = accountType,
-                InitialBalance = initialBalance,
-                CurrentBalance = initialBalance,
-                Currency = currency,
-                UserId = 1,
-                CreateAt = DateTime.Now,
+                account_name = accountName,
+                account_type = accountType,
+                initial_balance = initialBalance,
+                current_balance = initialBalance,
+                currency = currency,
             };
 
-            //ViewModel.AddAccount(newAccount);
-            ViewModel.AddAccountAsync(newAccount);
+            try
+            {
+                await ViewModel.AddAccountAsync(newAccount);
 
-            ViewModel.SelectedAccount = null;
+                ViewModel.SelectedAccount = null;
+            }
+            catch (Exception ex)
+            {
+                await ShowErrorDialog("Failed to add account. Please try again.");
+                Console.WriteLine($"Error adding account: {ex.Message}");
+            }
+        }
+        else
+        {
+            await ShowErrorDialog("Please enter a valid initial balance.");
         }
     }
+
+    private async Task ShowErrorDialog(string message)
+    {
+        var errorDialog = new ContentDialog
+        {
+            Title = "Error",
+            Content = message,
+            CloseButtonText = "OK",
+            XamlRoot = this.XamlRoot
+        };
+        await errorDialog.ShowAsync();
+    }
+
 }
