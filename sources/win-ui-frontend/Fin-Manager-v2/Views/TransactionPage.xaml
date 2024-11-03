@@ -108,7 +108,7 @@
                       Header="Account"
                       ItemsSource="{x:Bind ViewModel.Accounts}"
                       SelectedItem="{x:Bind ViewModel.SelectedAccountObj, Mode=TwoWay}"
-                      DisplayMemberPath="Name"
+                      DisplayMemberPath="AccountName"
                       MinWidth="150"
                       Margin="0,0,12,0"/>
 

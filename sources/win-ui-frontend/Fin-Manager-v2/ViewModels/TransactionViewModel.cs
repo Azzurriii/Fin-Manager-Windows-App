@@ -66,7 +66,7 @@ namespace Fin_Manager_v2.ViewModels
             _accountService = accountService;
             SelectedDate = DateTimeOffset.Now;
             NewTransaction = new TransactionModel();
-            LoadInitialDataAsync();
+            LoadInitialData();
         }
 
         [RelayCommand]
@@ -112,10 +112,14 @@ namespace Fin_Manager_v2.ViewModels
             }
         }
 
-        private async Task LoadInitialDataAsync()
+        [RelayCommand]
+        private void LoadInitialData()
         {
-            await LoadAccountsAsync();
-            await LoadTagsAsync();
+            Task.Run(async () =>
+            {
+                await LoadAccountsAsync();
+                await LoadTagsAsync();
+            });
         }
 
         private async Task LoadAccountsAsync()
