@@ -6,7 +6,7 @@ using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
-namespace Fin_Manager_v2.Model
+namespace Fin_Manager_v2.Models
 {
     public class Account : INotifyPropertyChanged
     {

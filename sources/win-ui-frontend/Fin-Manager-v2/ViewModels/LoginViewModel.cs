@@ -23,42 +23,55 @@ public class LoginViewModel : ObservableObject
 
     public async Task LoginAsync(string username, string password)
     {
-        if (string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(password))
+        try
         {
-            ShowErrorDialog("Username and password cannot be empty.");
-            return;
-        }
-
-        var loginSuccessful = await _authService.LoginAsync(username, password);
-        var token = _authService.GetAccessToken();
-        Console.WriteLine(token);
-        if (loginSuccessful)
-        {
-            await _authService.FetchUserIdAsync();
-            var shell = App.GetService<ShellPage>();
-            App.MainWindow.Content = shell;
-            if (shell.FindName("NavigationFrame") is Frame shellFrame)
+            if (string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(password))
             {
-                _navigationService.Frame = shellFrame;
-                _navigationService.NavigateTo(typeof(AccountViewModel).FullName!);
+                await ShowErrorDialog("Username and password cannot be empty.");
+                return;
+            }
+
+            var loginSuccessful = await _authService.LoginAsync(username, password);
+            if (loginSuccessful)
+            {
+                await _authService.FetchUserIdAsync();
+                var shell = App.GetService<ShellPage>();
+                App.MainWindow.Content = shell;
+                if (shell.FindName("NavigationFrame") is Frame shellFrame)
+                {
+                    _navigationService.Frame = shellFrame;
+                    _navigationService.NavigateTo(typeof(AccountViewModel).FullName!);
+                }
+            }
+            else
+            {
+                await ShowErrorDialog("Invalid username or password.");
             }
         }
-        else
+        catch (Exception ex)
         {
-            ShowErrorDialog("Invalid username or password.");
+            System.Diagnostics.Debug.WriteLine($"Login error: {ex}");
+            await ShowErrorDialog($"Login failed: {ex.Message}");
         }
     }
 
-    private async void ShowErrorDialog(string message)
+    private async Task ShowErrorDialog(string message)
     {
-        var dialog = new ContentDialog
+        try
         {
-            Title = "Login Failed",
-            Content = message,
-            CloseButtonText = "OK",
-            XamlRoot = App.MainWindow.Content.XamlRoot
-        };
-        await dialog.ShowAsync();
+            var dialog = new ContentDialog
+            {
+                Title = "Login Failed",
+                Content = message,
+                CloseButtonText = "OK",
+                XamlRoot = App.MainWindow.Content.XamlRoot
+            };
+            await dialog.ShowAsync();
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Error showing dialog: {ex}");
+        }
     }
 
     public void NavigateToSignUp()
