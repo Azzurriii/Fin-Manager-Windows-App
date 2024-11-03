@@ -4,29 +4,27 @@ using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
 using Fin_Manager_v2.DTO;
 using Fin_Manager_v2.Models;
+using System.Collections.ObjectModel;
 
 namespace Fin_Manager_v2.Views;
 
 public sealed partial class AccountPage : Page
 {
     private bool isUserSelection = false;
-
-    // Make ViewModel read-only since we'll set it once in constructor
     public AccountViewModel ViewModel { get; }
 
     public AccountPage()
     {
-        // Get ViewModel from DI container
         ViewModel = App.GetService<AccountViewModel>();
-
         this.InitializeComponent();
         this.DataContext = ViewModel;
-        this.Loaded += OnPageLoaded;
+        this.Loaded += AccountPage_Loaded;
     }
 
-    private void OnPageLoaded(object sender, RoutedEventArgs e)
+    private async void AccountPage_Loaded(object sender, RoutedEventArgs e)
     {
         isUserSelection = true;
+        await ViewModel.InitializeAsync();
     }
 
     private void OnAccountSelected(object sender, SelectionChangedEventArgs e)
@@ -45,23 +43,20 @@ public sealed partial class AccountPage : Page
 
     private async void OnAddAccountClick(object sender, RoutedEventArgs e)
     {
-        // Clear previous input values
         AccountNameInput.Text = string.Empty;
-        AccountTypeInput.Text = string.Empty;
-        InitialBalanceInput.Text = string.Empty;
-        CurrencyInput.Text = string.Empty;
+        AccountTypeInput.SelectedItem = null;
+        InitialBalanceInput.Value = 0;
+        CurrencyInput.SelectedItem = null;
 
         await AddAccountDialog.ShowAsync();
     }
 
     private async void OnAddAccountDialogPrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
     {
-        // Defer the closing of the dialog until we validate
         var deferral = args.GetDeferral();
 
         try
         {
-            // Validate inputs
             if (string.IsNullOrWhiteSpace(AccountNameInput.Text))
             {
                 await ShowErrorDialog("Please enter an account name.");
@@ -69,37 +64,33 @@ public sealed partial class AccountPage : Page
                 return;
             }
 
-            if (string.IsNullOrWhiteSpace(AccountTypeInput.Text))
+            if (AccountTypeInput.SelectedItem == null)
             {
-                await ShowErrorDialog("Please enter an account type.");
+                await ShowErrorDialog("Please select an account type.");
                 args.Cancel = true;
                 return;
             }
 
-            if (string.IsNullOrWhiteSpace(CurrencyInput.Text))
+            if (CurrencyInput.SelectedItem == null)
             {
-                await ShowErrorDialog("Please enter a currency.");
+                await ShowErrorDialog("Please select a currency.");
                 args.Cancel = true;
                 return;
             }
 
-            if (!decimal.TryParse(InitialBalanceInput.Text, out decimal initialBalance))
-            {
-                await ShowErrorDialog("Please enter a valid initial balance.");
-                args.Cancel = true;
-                return;
-            }
+            var accountType = (AccountTypeInput.SelectedItem as ComboBoxItem)?.Content.ToString();
+            var currency = (CurrencyInput.SelectedItem as ComboBoxItem)?.Content.ToString();
+            var initialBalance = InitialBalanceInput.Value;
 
             var newAccount = new CreateFinanceAccountDto
             {
                 account_name = AccountNameInput.Text.Trim(),
-                account_type = AccountTypeInput.Text.Trim(),
-                initial_balance = initialBalance,
-                current_balance = initialBalance,
-                currency = CurrencyInput.Text.Trim(),
+                account_type = accountType?.Trim(),
+                initial_balance = (decimal)initialBalance,
+                current_balance = (decimal)initialBalance,
+                currency = currency?.Split('-')[0].Trim(), // Extract currency code
             };
 
-            // Show loading indicator if you have one
             sender.IsPrimaryButtonEnabled = false;
             sender.IsSecondaryButtonEnabled = false;
 
@@ -112,7 +103,6 @@ public sealed partial class AccountPage : Page
             }
             else
             {
-                // Clear selection only if add was successful
                 ViewModel.SelectedAccount = null;
             }
         }
@@ -123,7 +113,6 @@ public sealed partial class AccountPage : Page
         }
         finally
         {
-            // Re-enable dialog buttons
             sender.IsPrimaryButtonEnabled = true;
             sender.IsSecondaryButtonEnabled = true;
             deferral.Complete();
@@ -147,17 +136,19 @@ public sealed partial class AccountPage : Page
     {
         base.OnNavigatedTo(e);
 
-        // Refresh accounts when navigating to this page
-        _ = ViewModel.LoadAccountsAsync();
+        if (ViewModel.IsInitialized)
+        {
+            _ = ViewModel.LoadAccountsAsync();
+        }
     }
 
-    public Visibility CollectionVisibility(ICollection<Account> accounts)
+    private Visibility CollectionVisibility(ObservableCollection<Account> accounts)
     {
-        return (accounts == null || !accounts.Any()) ? Visibility.Visible : Visibility.Collapsed;
+        return (accounts == null || accounts.Count == 0) ? Visibility.Visible : Visibility.Collapsed;
     }
 
-    public Visibility InverseCollectionVisibility(ICollection<Account> accounts)
+    private Visibility InverseCollectionVisibility(ObservableCollection<Account> accounts)
     {
-        return (accounts == null || !accounts.Any()) ? Visibility.Collapsed : Visibility.Visible;
+        return (accounts == null || accounts.Count == 0) ? Visibility.Collapsed : Visibility.Visible;
     }
 }

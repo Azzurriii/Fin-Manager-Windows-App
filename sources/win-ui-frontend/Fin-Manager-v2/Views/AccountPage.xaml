@@ -57,7 +57,7 @@
 
             <!-- Accounts List -->
             <ListView x:Name="AccountsList"
-                      ItemsSource="{x:Bind ViewModel.Accounts}" 
+                      ItemsSource="{x:Bind ViewModel.Accounts, Mode=OneWay}" 
                       SelectedItem="{x:Bind ViewModel.SelectedAccount, Mode=TwoWay}"
                       SelectionChanged="OnAccountSelected"
                       Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"

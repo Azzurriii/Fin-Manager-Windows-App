@@ -10,7 +10,8 @@ public partial class AccountViewModel : ObservableRecipient
 {
     private readonly IAccountService _accountService;
 
-    public ObservableCollection<Account> Accounts { get; private set; }
+    [ObservableProperty]
+    private ObservableCollection<Account> _accounts;
 
     [ObservableProperty]
     private Account _selectedAccount;
@@ -24,17 +25,26 @@ public partial class AccountViewModel : ObservableRecipient
     [ObservableProperty]
     private string _errorMessage;
 
+    [ObservableProperty]
+    private bool _isInitialized;
+
     public AccountViewModel(IAccountService accountService)
     {
+        _accountService = accountService ?? throw new ArgumentNullException(nameof(accountService));
+        _accounts = new ObservableCollection<Account>();
+        IsLoading = false;
+        HasError = false;
+        IsInitialized = false;
+    }
+
+    public async Task InitializeAsync()
+    {
+        if (IsInitialized) return;
+
         try
         {
-            _accountService = accountService ?? throw new ArgumentNullException(nameof(accountService));
-            Accounts = new ObservableCollection<Account>();
-            IsLoading = false;
-            HasError = false;
-
-            // Load accounts asynchronously
-            _ = InitializeAsync();
+            await LoadAccountsAsync();
+            IsInitialized = true;
         }
         catch (Exception ex)
         {
@@ -42,11 +52,6 @@ public partial class AccountViewModel : ObservableRecipient
             ErrorMessage = $"Initialization error: {ex.Message}";
             System.Diagnostics.Debug.WriteLine($"AccountViewModel initialization failed: {ex}");
         }
-    }
-
-    private async Task InitializeAsync()
-    {
-        await LoadAccountsAsync();
     }
 
     public async Task LoadAccountsAsync()
