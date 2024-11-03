@@ -88,7 +88,7 @@ public sealed partial class AccountPage : Page
                 account_type = accountType?.Trim(),
                 initial_balance = (decimal)initialBalance,
                 current_balance = (decimal)initialBalance,
-                currency = currency?.Split('-')[0].Trim(), // Extract currency code
+                currency = currency?.Split('-')[0].Trim(),
             };
 
             sender.IsPrimaryButtonEnabled = false;

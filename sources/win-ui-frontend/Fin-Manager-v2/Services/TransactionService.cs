@@ -7,13 +7,11 @@ namespace Fin_Manager_v2.Services;
 public class TransactionService : ITransactionService
 {
     private readonly HttpClient _httpClient;
-    private readonly ITagService _tagService;
     private const string BaseUrl = "http://localhost:3000";
 
-    public TransactionService(HttpClient httpClient, ITagService tagService)
+    public TransactionService(HttpClient httpClient)
     {
         _httpClient = httpClient;
-        _tagService = tagService;
     }
 
     public async Task<bool> CreateTransactionAsync(TransactionModel transaction)
@@ -32,13 +30,13 @@ public class TransactionService : ITransactionService
             };
 
             var response = await _httpClient.PostAsJsonAsync($"{BaseUrl}/transactions", requestBody);
-
+            
             if (!response.IsSuccessStatusCode)
             {
                 var error = await response.Content.ReadAsStringAsync();
                 System.Diagnostics.Debug.WriteLine($"Error creating transaction: {error}");
             }
-
+            
             return response.IsSuccessStatusCode;
         }
         catch (Exception ex)
@@ -78,8 +76,7 @@ public class TransactionService : ITransactionService
     {
         try
         {
-            var response =
-                await _httpClient.GetFromJsonAsync<List<TransactionModel>>($"{BaseUrl}/transactions/user/{userId}");
+            var response = await _httpClient.GetFromJsonAsync<List<TransactionModel>>($"{BaseUrl}/transactions/user/{userId}");
             return response ?? new List<TransactionModel>();
         }
         catch (Exception ex)

@@ -64,6 +64,7 @@ public partial class App : Application
 
             // HTTP and Currency Services
             services.AddHttpClient<ICurrencyService, CurrencyService>();
+            services.AddSingleton<HttpClient>();
 
             // Views and ViewModels
             services.AddTransient<MonthlyViewViewModel>();

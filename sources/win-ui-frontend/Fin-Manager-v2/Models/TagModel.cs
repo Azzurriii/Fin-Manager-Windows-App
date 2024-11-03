@@ -4,12 +4,9 @@ namespace Fin_Manager_v2.Models;
 
 public class TagModel
 {
-    [JsonPropertyName("tag_id")]
+    [JsonPropertyName("id")]
     public int Id { get; set; }
 
     [JsonPropertyName("name")]
-    public string Name { get; set; } = string.Empty;
-
-    [JsonPropertyName("is_selected")]
-    public bool IsSelected { get; set; }
+    public string TagName { get; set; } = string.Empty;
 }

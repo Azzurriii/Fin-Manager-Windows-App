@@ -60,23 +60,18 @@
                     <!-- Account -->
                     <ComboBox Header="Account"
                               PlaceholderText="Select Account"
-                              ItemsSource="{x:Bind ViewModel.Accounts}"
-                              SelectedItem="{x:Bind ViewModel.SelectedAccount, Mode=TwoWay}"
-                              Width="200"
-                              SelectedIndex="0"/>
+                              ItemsSource="{x:Bind ViewModel.Accounts, Mode=OneWay}"
+                              SelectedItem="{x:Bind ViewModel.SelectedAccountObj, Mode=TwoWay}"
+                              DisplayMemberPath="AccountName"
+                              Width="200"/>
 
                     <!-- Tag -->
                     <ComboBox Header="Tag"
-                            PlaceholderText="Select Tag"
-                            ItemsSource="{x:Bind ViewModel.AvailableTags}"
-                            SelectedItem="{x:Bind ViewModel.SelectedTag, Mode=TwoWay}"
-                            Width="200">
-                        <ComboBox.ItemTemplate>
-                            <DataTemplate x:DataType="models:TagModel">
-                                <TextBlock Text="{x:Bind Name}"/>
-                            </DataTemplate>
-                        </ComboBox.ItemTemplate>
-                    </ComboBox>
+                              PlaceholderText="Select Tag"
+                              ItemsSource="{x:Bind ViewModel.AvailableTags, Mode=OneWay}"
+                              SelectedItem="{x:Bind ViewModel.SelectedTag, Mode=TwoWay}"
+                              DisplayMemberPath="TagName"
+                              Width="200"/>
 
                     <!-- Add Transaction Button -->
                     <Button Content="Add Transaction" 
@@ -112,9 +107,9 @@
 
             <ComboBox Grid.Column="1"
                       Header="Account"
-                      PlaceholderText="Select Account"
-                      ItemsSource="{x:Bind ViewModel.Accounts}"
-                      SelectedItem="{x:Bind ViewModel.SelectedAccount, Mode=TwoWay}"
+                      ItemsSource="{x:Bind ViewModel.Accounts, Mode=OneWay}"
+                      SelectedItem="{x:Bind ViewModel.SelectedAccountObj, Mode=TwoWay}"
+                      DisplayMemberPath="AccountName"
                       MinWidth="150"
                       Margin="0,0,12,0"/>
 
