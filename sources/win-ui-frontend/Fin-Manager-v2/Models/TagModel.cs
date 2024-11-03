@@ -8,5 +8,5 @@ public class TagModel
     public int Id { get; set; }
 
     [JsonPropertyName("name")]
-    public string Name { get; set; } = string.Empty;
+    public string TagName { get; set; } = string.Empty;
 }

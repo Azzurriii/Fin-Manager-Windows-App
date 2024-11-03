@@ -18,12 +18,28 @@ namespace Fin_Manager_v2.Services
         {
             try 
             {
-                var response = await _httpClient.GetFromJsonAsync<List<TagModel>>($"{_baseUrl}/tags");
-                return response ?? new List<TagModel>();
+                System.Diagnostics.Debug.WriteLine("Fetching tags from API...");
+                var response = await _httpClient.GetAsync($"{_baseUrl}/tags");
+                
+                if (!response.IsSuccessStatusCode)
+                {
+                    System.Diagnostics.Debug.WriteLine($"API returned status code: {response.StatusCode}");
+                    return new List<TagModel>();
+                }
+
+                var tags = await response.Content.ReadFromJsonAsync<List<TagModel>>();
+                System.Diagnostics.Debug.WriteLine($"Successfully fetched {tags?.Count ?? 0} tags");
+                return tags ?? new List<TagModel>();
+            }
+            catch (HttpRequestException ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Network error getting tags: {ex.Message}");
+                return new List<TagModel>();
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"Error getting tags: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Stack trace: {ex.StackTrace}");
                 return new List<TagModel>();
             }
         }

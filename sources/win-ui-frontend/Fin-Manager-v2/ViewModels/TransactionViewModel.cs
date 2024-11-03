@@ -6,6 +6,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using Fin_Manager_v2.Services.Interface;
+using Microsoft.UI.Dispatching;
 
 namespace Fin_Manager_v2.ViewModels
 {
@@ -14,6 +15,7 @@ namespace Fin_Manager_v2.ViewModels
         private readonly ITransactionService _transactionService;
         private readonly ITagService _tagService;
         private readonly IAccountService _accountService;
+        private readonly DispatcherQueue dispatcherQueue;
 
         [ObservableProperty]
         private ObservableCollection<TransactionModel> _transactions = new();
@@ -57,16 +59,27 @@ namespace Fin_Manager_v2.ViewModels
         [ObservableProperty]
         private Account _selectedAccountObj;
 
-        public TransactionViewModel(ITransactionService transactionService, 
-            ITagService tagService, 
+        public TransactionViewModel(ITransactionService transactionService,
+            ITagService tagService,
             IAccountService accountService)
         {
             _transactionService = transactionService;
             _tagService = tagService;
             _accountService = accountService;
+            
+            // Get the dispatcher queue for the current thread
+            dispatcherQueue = DispatcherQueue.GetForCurrentThread();
+            
             SelectedDate = DateTimeOffset.Now;
             NewTransaction = new TransactionModel();
-            LoadInitialData();
+            
+            // Initialize collections
+            Transactions = new ObservableCollection<TransactionModel>();
+            Accounts = new ObservableCollection<Account>();
+            AvailableTags = new ObservableCollection<TagModel>();
+            
+            // Load data asynchronously
+            _ = InitializeAsync();
         }
 
         [RelayCommand]
@@ -74,11 +87,16 @@ namespace Fin_Manager_v2.ViewModels
         {
             try
             {
+                await Task.WhenAll(
+                    LoadAccountsAsync(),
+                    LoadTagsAsync()
+                );
                 await LoadTransactionsAsync();
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"Error initializing: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Stack trace: {ex.StackTrace}");
             }
         }
 
@@ -87,14 +105,14 @@ namespace Fin_Manager_v2.ViewModels
         {
             try
             {
-                var startDate = new DateTime(SelectedDate?.Year ?? DateTime.Now.Year, 
+                var startDate = new DateTime(SelectedDate?.Year ?? DateTime.Now.Year,
                                            SelectedDate?.Month ?? DateTime.Now.Month, 1);
                 var endDate = startDate.AddMonths(1).AddDays(-1);
 
                 var accountId = SelectedAccountObj?.AccountName == "All Accounts" ? null : SelectedAccountObj?.AccountId;
 
                 var transactions = await _transactionService.GetUserTransactionsAsync(1);
-                
+
                 transactions = transactions
                     .Where(t => t.Date >= startDate && t.Date <= endDate)
                     .Where(t => accountId == null || t.AccountId == accountId)
@@ -112,29 +130,35 @@ namespace Fin_Manager_v2.ViewModels
             }
         }
 
-        [RelayCommand]
-        private void LoadInitialData()
-        {
-            Task.Run(async () =>
-            {
-                await LoadAccountsAsync();
-                await LoadTagsAsync();
-            });
-        }
-
         private async Task LoadAccountsAsync()
         {
             try
             {
                 var accounts = await _accountService.GetAccountsAsync();
-                var accountsList = new List<Account> { new Account { AccountName = "All Accounts" } };
-                accountsList.AddRange(accounts);
-                Accounts = new ObservableCollection<Account>(accountsList);
-                SelectedAccountObj = Accounts.FirstOrDefault();
+                System.Diagnostics.Debug.WriteLine($"Loaded {accounts?.Count() ?? 0} accounts");
+
+                dispatcherQueue.TryEnqueue(() =>
+                {
+                    Accounts.Clear();
+                    var allAccounts = new Account { AccountId = 0, AccountName = "All Accounts" };
+                    Accounts.Add(allAccounts);
+
+                    if (accounts != null)
+                    {
+                        foreach (var account in accounts)
+                        {
+                            Accounts.Add(account);
+                        }
+                    }
+
+                    SelectedAccountObj = Accounts.FirstOrDefault();
+                    System.Diagnostics.Debug.WriteLine($"Final accounts count: {Accounts.Count}");
+                });
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"Error loading accounts: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Stack trace: {ex.StackTrace}");
             }
         }
 
@@ -143,11 +167,25 @@ namespace Fin_Manager_v2.ViewModels
             try
             {
                 var tags = await _tagService.GetTagsAsync();
-                AvailableTags = new ObservableCollection<TagModel>(tags);
+                System.Diagnostics.Debug.WriteLine($"Loaded {tags?.Count() ?? 0} tags");
+
+                dispatcherQueue.TryEnqueue(() =>
+                {
+                    AvailableTags.Clear();
+                    if (tags != null)
+                    {
+                        foreach (var tag in tags)
+                        {
+                            AvailableTags.Add(tag);
+                        }
+                    }
+                    System.Diagnostics.Debug.WriteLine($"AvailableTags count: {AvailableTags.Count}");
+                });
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"Error loading tags: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Stack trace: {ex.StackTrace}");
             }
         }
 
@@ -163,7 +201,14 @@ namespace Fin_Manager_v2.ViewModels
             TransactionAmount = 0;
             TransactionDate = DateTimeOffset.Now;
             SelectedTransactionType = "INCOME";
-            SelectedAccountObj = Accounts.FirstOrDefault(a => a.AccountName != "All Accounts");
+            
+            // Ensure we select a valid account
+            var firstRealAccount = Accounts.FirstOrDefault(a => a.AccountName != "All Accounts");
+            if (firstRealAccount != null)
+            {
+                SelectedAccountObj = firstRealAccount;
+            }
+            
             SelectedTag = null;
             IsAddTransactionDialogOpen = true;
         }
@@ -173,10 +218,10 @@ namespace Fin_Manager_v2.ViewModels
         {
             try
             {
-                if (TransactionAmount <= 0 || 
+                if (TransactionAmount <= 0 ||
                     string.IsNullOrEmpty(NewTransaction.Description) ||
-                    SelectedAccountObj == null || 
-                    SelectedAccountObj.AccountName == "All Accounts")
+                    SelectedAccountObj == null ||
+                    SelectedAccountObj.AccountId == 0)
                 {
                     return;
                 }

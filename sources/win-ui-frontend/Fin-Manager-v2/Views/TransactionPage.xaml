@@ -59,18 +59,19 @@
 
                     <!-- Account -->
                     <ComboBox Header="Account"
-                              ItemsSource="{x:Bind ViewModel.Accounts}"
+                              PlaceholderText="Select Account"
+                              ItemsSource="{x:Bind ViewModel.Accounts, Mode=OneWay}"
                               SelectedItem="{x:Bind ViewModel.SelectedAccountObj, Mode=TwoWay}"
                               DisplayMemberPath="AccountName"
                               Width="200"/>
 
                     <!-- Tag -->
                     <ComboBox Header="Tag"
-                            PlaceholderText="Select Tag"
-                            ItemsSource="{x:Bind ViewModel.AvailableTags}"
-                            SelectedItem="{x:Bind ViewModel.SelectedTag, Mode=TwoWay}"
-                            DisplayMemberPath="Name"
-                            Width="200"/>
+                              PlaceholderText="Select Tag"
+                              ItemsSource="{x:Bind ViewModel.AvailableTags, Mode=OneWay}"
+                              SelectedItem="{x:Bind ViewModel.SelectedTag, Mode=TwoWay}"
+                              DisplayMemberPath="TagName"
+                              Width="200"/>
 
                     <!-- Add Transaction Button -->
                     <Button Content="Add Transaction" 
@@ -106,7 +107,7 @@
 
             <ComboBox Grid.Column="1"
                       Header="Account"
-                      ItemsSource="{x:Bind ViewModel.Accounts}"
+                      ItemsSource="{x:Bind ViewModel.Accounts, Mode=OneWay}"
                       SelectedItem="{x:Bind ViewModel.SelectedAccountObj, Mode=TwoWay}"
                       DisplayMemberPath="AccountName"
                       MinWidth="150"
