@@ -1,38 +1,26 @@
 ﻿using Fin_Manager_v2.ViewModels;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Controls.Primitives;
-using Microsoft.UI.Xaml.Data;
-using Microsoft.UI.Xaml.Input;
-using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Navigation;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
-using System.Security.Principal;
-using Fin_Manager_v2.Model;
 using Fin_Manager_v2.DTO;
-using Fin_Manager_v2.Services.Interface;
-using Fin_Manager_v2.Services;
+using Fin_Manager_v2.Models;
 
 namespace Fin_Manager_v2.Views;
 
 public sealed partial class AccountPage : Page
 {
-    public AccountViewModel ViewModel { get; set; }
-
     private bool isUserSelection = false;
+
+    // Make ViewModel read-only since we'll set it once in constructor
+    public AccountViewModel ViewModel { get; }
 
     public AccountPage()
     {
-        this.InitializeComponent();
-        ViewModel = new AccountViewModel();
-        this.DataContext = ViewModel;
+        // Get ViewModel from DI container
+        ViewModel = App.GetService<AccountViewModel>();
 
+        this.InitializeComponent();
+        this.DataContext = ViewModel;
         this.Loaded += OnPageLoaded;
     }
 
@@ -43,59 +31,102 @@ public sealed partial class AccountPage : Page
 
     private void OnAccountSelected(object sender, SelectionChangedEventArgs e)
     {
-        if (isUserSelection) // Kiểm tra xem người dùng có thực sự chọn mục hay không
+        if (!isUserSelection) return;
+
+        if (sender is ListView listView && listView.SelectedItem is Account selectedAccount)
         {
-            var selectedAccount = (Account)((ListView)sender).SelectedItem;
-            if (selectedAccount != null)
+            ViewModel.SelectedAccount = selectedAccount;
+            DispatcherQueue.TryEnqueue(() =>
             {
-                ViewModel.SelectedAccount = selectedAccount;
-                DispatcherQueue.TryEnqueue(() =>
-                {
-                    Frame.Navigate(typeof(AccountDetailPage), selectedAccount);
-                });
-            }
+                Frame.Navigate(typeof(AccountDetailPage), selectedAccount);
+            });
         }
     }
 
-
     private async void OnAddAccountClick(object sender, RoutedEventArgs e)
     {
+        // Clear previous input values
+        AccountNameInput.Text = string.Empty;
+        AccountTypeInput.Text = string.Empty;
+        InitialBalanceInput.Text = string.Empty;
+        CurrencyInput.Text = string.Empty;
+
         await AddAccountDialog.ShowAsync();
     }
 
     private async void OnAddAccountDialogPrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
     {
-        var accountName = AccountNameInput.Text;
-        var accountType = AccountTypeInput.Text;
-        var currency = CurrencyInput.Text;
+        // Defer the closing of the dialog until we validate
+        var deferral = args.GetDeferral();
 
-        if (decimal.TryParse(InitialBalanceInput.Text, out decimal initialBalance))
+        try
         {
+            // Validate inputs
+            if (string.IsNullOrWhiteSpace(AccountNameInput.Text))
+            {
+                await ShowErrorDialog("Please enter an account name.");
+                args.Cancel = true;
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(AccountTypeInput.Text))
+            {
+                await ShowErrorDialog("Please enter an account type.");
+                args.Cancel = true;
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(CurrencyInput.Text))
+            {
+                await ShowErrorDialog("Please enter a currency.");
+                args.Cancel = true;
+                return;
+            }
+
+            if (!decimal.TryParse(InitialBalanceInput.Text, out decimal initialBalance))
+            {
+                await ShowErrorDialog("Please enter a valid initial balance.");
+                args.Cancel = true;
+                return;
+            }
 
             var newAccount = new CreateFinanceAccountDto
             {
-                account_name = accountName,
-                account_type = accountType,
+                account_name = AccountNameInput.Text.Trim(),
+                account_type = AccountTypeInput.Text.Trim(),
                 initial_balance = initialBalance,
                 current_balance = initialBalance,
-                currency = currency,
+                currency = CurrencyInput.Text.Trim(),
             };
 
-            try
-            {
-                await ViewModel.AddAccountAsync(newAccount);
+            // Show loading indicator if you have one
+            sender.IsPrimaryButtonEnabled = false;
+            sender.IsSecondaryButtonEnabled = false;
 
+            await ViewModel.AddAccountAsync(newAccount);
+
+            if (ViewModel.HasError)
+            {
+                await ShowErrorDialog(ViewModel.ErrorMessage);
+                args.Cancel = true;
+            }
+            else
+            {
+                // Clear selection only if add was successful
                 ViewModel.SelectedAccount = null;
             }
-            catch (Exception ex)
-            {
-                await ShowErrorDialog("Failed to add account. Please try again.");
-                Console.WriteLine($"Error adding account: {ex.Message}");
-            }
         }
-        else
+        catch (Exception ex)
         {
-            await ShowErrorDialog("Please enter a valid initial balance.");
+            await ShowErrorDialog($"An unexpected error occurred: {ex.Message}");
+            args.Cancel = true;
+        }
+        finally
+        {
+            // Re-enable dialog buttons
+            sender.IsPrimaryButtonEnabled = true;
+            sender.IsSecondaryButtonEnabled = true;
+            deferral.Complete();
         }
     }
 
@@ -108,7 +139,15 @@ public sealed partial class AccountPage : Page
             CloseButtonText = "OK",
             XamlRoot = this.XamlRoot
         };
+
         await errorDialog.ShowAsync();
     }
 
+    protected override void OnNavigatedTo(NavigationEventArgs e)
+    {
+        base.OnNavigatedTo(e);
+
+        // Refresh accounts when navigating to this page
+        _ = ViewModel.LoadAccountsAsync();
+    }
 }

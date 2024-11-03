@@ -2,15 +2,11 @@
     x:Class="Fin_Manager_v2.Views.AccountPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="using:Fin_Manager_v2.Model"
     xmlns:vm="using:Fin_Manager_v2.ViewModels"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:models="using:Fin_Manager_v2.Models"
     mc:Ignorable="d">
-
-    <Page.DataContext>
-        <vm:AccountViewModel />
-    </Page.DataContext>
 
     <Grid>
         <Grid.RowDefinitions>
@@ -31,7 +27,7 @@
               SelectedItem="{x:Bind ViewModel.SelectedAccount, Mode=TwoWay}"
               SelectionChanged="OnAccountSelected">
             <ListView.ItemTemplate>
-                <DataTemplate x:DataType="local:Account">
+                <DataTemplate x:DataType="models:Account">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*" />
