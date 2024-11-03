@@ -150,4 +150,14 @@ public sealed partial class AccountPage : Page
         // Refresh accounts when navigating to this page
         _ = ViewModel.LoadAccountsAsync();
     }
+
+    public Visibility CollectionVisibility(ICollection<Account> accounts)
+    {
+        return (accounts == null || !accounts.Any()) ? Visibility.Visible : Visibility.Collapsed;
+    }
+
+    public Visibility InverseCollectionVisibility(ICollection<Account> accounts)
+    {
+        return (accounts == null || !accounts.Any()) ? Visibility.Collapsed : Visibility.Visible;
+    }
 }
