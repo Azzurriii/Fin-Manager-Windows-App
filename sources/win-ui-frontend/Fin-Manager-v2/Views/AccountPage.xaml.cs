@@ -103,13 +103,11 @@ public sealed partial class AccountPage : Page
 
     private Visibility CollectionVisibility(ObservableCollection<AccountModel> accounts)
     {
-        //return (accounts == null || accounts.Count == 0) ? Visibility.Visible : Visibility.Collapsed;
         return ViewModel.CollectionVisibility(accounts);
     }
 
     private Visibility InverseCollectionVisibility(ObservableCollection<AccountModel> accounts)
     {
-        //return (accounts == null || accounts.Count == 0) ? Visibility.Collapsed : Visibility.Visible;
         return ViewModel.InverseCollectionVisibility(accounts);
     }
 }
