@@ -51,7 +51,6 @@ public partial class App : Application
         UseContentRoot(AppContext.BaseDirectory).
         ConfigureServices((context, services) =>
         {
-            
             services.AddTransient<ActivationHandler<LaunchActivatedEventArgs>, DefaultActivationHandler>();
 
             // Services
@@ -84,6 +83,7 @@ public partial class App : Application
             services.AddSingleton<ITagService, TagService>();
             services.AddSingleton<ITransactionService, TransactionService>();
             services.AddSingleton<IAccountService, AccountService>();
+            services.AddSingleton<IDialogService, DialogService>();
         }).
         Build();
 
@@ -92,7 +92,6 @@ public partial class App : Application
     private static IServiceProvider ConfigureServices()
     {
         var services = new ServiceCollection();
-        // Register HttpClient and Services
         services.AddHttpClient<ICurrencyService, CurrencyService>();
         services.AddTransient<CurrencyViewModel>();
         services.AddTransient<CurrencyPage>();

@@ -35,7 +35,7 @@ namespace Fin_Manager_v2.Views
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
             // Receive the account object when navigating to this page
-            if (e.Parameter is Account account)
+            if (e.Parameter is AccountModel account)
             {
                 ViewModel = new AccountDetailViewModel(account);
                 DataContext = ViewModel; // Make sure to set DataContext to ViewModel

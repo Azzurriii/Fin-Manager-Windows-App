@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Fin_Manager_v2.Models
 {
-    public class CurrencyResponse
+    public class CurrencyModel
     {
         public CurrencyInfo From { get; set; }
         public CurrencyInfo To { get; set; }

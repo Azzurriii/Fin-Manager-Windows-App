@@ -27,11 +27,11 @@ public class AccountService : IAccountService
         _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
     }
 
-    public async Task<List<Account>> GetAccountsAsync()
+    public async Task<List<AccountModel>> GetAccountsAsync()
     {
         SetAuthorizationHeader();
-        var accounts = await _httpClient.GetFromJsonAsync<List<Account>>("finance-accounts/me");
-        return accounts ?? new List<Account>();
+        var accounts = await _httpClient.GetFromJsonAsync<List<AccountModel>>("finance-accounts/me");
+        return accounts ?? new List<AccountModel>();
     }
 
     public async Task<bool> CreateAccountAsync(CreateFinanceAccountDto accountDto)
@@ -41,7 +41,7 @@ public class AccountService : IAccountService
         return response.IsSuccessStatusCode;
     }
 
-    public async Task<bool> UpdateAccountAsync(Account account)
+    public async Task<bool> UpdateAccountAsync(AccountModel account)
     {
         SetAuthorizationHeader();
         var response = await _httpClient.PutAsJsonAsync($"finance-accounts/{account.AccountId}", account);

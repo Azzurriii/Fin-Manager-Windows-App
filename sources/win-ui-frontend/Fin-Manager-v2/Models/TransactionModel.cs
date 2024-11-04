@@ -37,5 +37,7 @@ public class TransactionModel
 
     public string FormattedAmount => $"{(TransactionType == "EXPENSE" ? "-" : "+")}{Amount:N0} đ";
 
+    public string TagName { get; set; } = string.Empty;
+
     public string FormattedDate => Date.ToString("dd/MM/yyyy");
 }

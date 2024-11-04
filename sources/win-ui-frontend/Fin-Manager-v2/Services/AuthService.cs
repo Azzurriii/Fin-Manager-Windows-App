@@ -50,41 +50,16 @@ public class AuthService : IAuthService
     }
 
 
-    public async Task<bool> SignUpAsync(UserModel user)
+    public async Task<HttpResponseMessage> SignUpAsync(UserModel user)
     {
         var response = await _httpClient.PostAsJsonAsync("http://localhost:3000/users", user);
-        return response.IsSuccessStatusCode;
+        return response;
     }
 
     public void Logout()
     {
         _isAuthenticated = false;
     }
-
-    //public async Task FetchUserIdAsync()
-    //{
-    //    try
-    //    {
-    //        var response = await _httpClient.GetAsync("/users/me");
-
-    //        if (response.IsSuccessStatusCode)
-    //        {
-    //            // Lấy thông tin người dùng từ phản hồi
-    //            var userData = await response.Content.ReadFromJsonAsync<Dictionary<string, object>>();
-
-    //            if (userData != null && userData.TryGetValue("id", out var userId))
-    //            {
-    //                // Lưu userId vào local storage
-    //                var localSettings = ApplicationData.Current.LocalSettings;
-    //                localSettings.Values["UserId"] = userId;
-    //            }
-    //        }
-    //    }
-    //    catch (Exception ex)
-    //    {
-    //        Console.WriteLine($"Error fetching user ID: {ex.Message}");
-    //    }
-    //}
 
     public async Task FetchUserIdAsync()
     {
