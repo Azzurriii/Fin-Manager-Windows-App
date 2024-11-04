@@ -8,6 +8,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Fin_Manager_v2.Services.Interface;
 using Microsoft.UI.Dispatching;
+using Fin_Manager_v2.Services;
 
 namespace Fin_Manager_v2.ViewModels
 {
@@ -16,8 +17,9 @@ namespace Fin_Manager_v2.ViewModels
         private readonly ITransactionService _transactionService;
         private readonly ITagService _tagService;
         private readonly IAccountService _accountService;
-        private readonly DispatcherQueue dispatcherQueue;
+        private readonly DispatcherQueue _dispatcherQueue;
         private readonly IAuthService _authService;
+        private readonly IDialogService _dialogService = new DialogService();
 
         [ObservableProperty]
         private ObservableCollection<TransactionModel> _transactions = new();
@@ -56,7 +58,7 @@ namespace Fin_Manager_v2.ViewModels
         private ObservableCollection<TagModel> _availableTags = new();
 
         [ObservableProperty]
-        private TagModel _selectedTag;
+        private TagModel? _selectedTag;
 
         [ObservableProperty]
         private AccountModel _selectedAccountObj;
@@ -72,18 +74,15 @@ namespace Fin_Manager_v2.ViewModels
             _accountService = accountService;
             _authService = authService;
 
-            // Get the dispatcher queue for the current thread
-            dispatcherQueue = DispatcherQueue.GetForCurrentThread();
+            _dispatcherQueue = DispatcherQueue.GetForCurrentThread();
 
             SelectedDate = DateTimeOffset.Now;
             NewTransaction = new TransactionModel();
 
-            // Initialize collections
             Transactions = new ObservableCollection<TransactionModel>();
             Accounts = new ObservableCollection<AccountModel>();
             AvailableTags = new ObservableCollection<TagModel>();
 
-            // Load data asynchronously
             _ = InitializeAsync();
         }
 
@@ -102,6 +101,9 @@ namespace Fin_Manager_v2.ViewModels
             {
                 System.Diagnostics.Debug.WriteLine($"Error initializing: {ex.Message}");
                 System.Diagnostics.Debug.WriteLine($"Stack trace: {ex.StackTrace}");
+                await _dialogService.ShowErrorAsync(
+                    "Initialization Error",
+                    "An error occurred while initializing the application. Please try again later.");
             }
         }
 
@@ -111,12 +113,11 @@ namespace Fin_Manager_v2.ViewModels
             try
             {
                 var startDate = new DateTime(SelectedDate?.Year ?? DateTime.Now.Year,
-                                           SelectedDate?.Month ?? DateTime.Now.Month, 1);
+                    SelectedDate?.Month ?? DateTime.Now.Month, 1);
                 var endDate = startDate.AddMonths(1).AddDays(-1);
                 var userId = _authService.GetUserId() ?? 0;
                 var accountId = SelectedAccountObj?.AccountName == "All Accounts" ? null : SelectedAccountObj?.AccountId;
 
-                // Load transactions
                 // Load transactions
                 var transactions = await _transactionService.GetUserTransactionsAsync(userId);
                 var filteredTransactions = FilterTransactions(transactions, accountId, startDate, endDate);
@@ -135,7 +136,9 @@ namespace Fin_Manager_v2.ViewModels
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"Error loading transactions: {ex.Message}");
-                // Có thể thêm thông báo lỗi cho người dùng ở đây
+                await _dialogService.ShowErrorAsync(
+                    "Load Transactions Error",
+                    "An error occurred while loading the transactions. Please try again later.");
             }
         }
 
@@ -156,7 +159,7 @@ namespace Fin_Manager_v2.ViewModels
 
             var tagTasks = uniqueTagIds.Select(async tagId =>
             {
-                var tag = await _tagService.GetTagAsync((int)tagId); // Explicit cast to int
+                var tag = await _tagService.GetTagAsync((int)tagId);
                 return (tagId, tag?.TagName);
             });
 
@@ -176,9 +179,9 @@ namespace Fin_Manager_v2.ViewModels
         {
             var tasks = new[]
             {
-        _transactionService.GetTotalAmountAsync(userId, accountId, "INCOME", startDate, endDate),
-        _transactionService.GetTotalAmountAsync(userId, accountId, "EXPENSE", startDate, endDate)
-    };
+                _transactionService.GetTotalAmountAsync(userId, accountId, "INCOME", startDate, endDate),
+                _transactionService.GetTotalAmountAsync(userId, accountId, "EXPENSE", startDate, endDate)
+            };
 
             var results = await Task.WhenAll(tasks);
             TotalIncome = results[0];
@@ -197,6 +200,7 @@ namespace Fin_Manager_v2.ViewModels
                                  .Sum(a => a.CurrentBalance);
             }
         }
+
         private async Task LoadAccountsAsync()
         {
             try
@@ -204,7 +208,7 @@ namespace Fin_Manager_v2.ViewModels
                 var accounts = await _accountService.GetAccountsAsync();
                 System.Diagnostics.Debug.WriteLine($"Loaded {accounts?.Count() ?? 0} accounts");
 
-                dispatcherQueue.TryEnqueue((DispatcherQueueHandler)(() =>
+                _dispatcherQueue.TryEnqueue((DispatcherQueueHandler)(() =>
                 {
                     Accounts.Clear();
                     var allAccounts = new AccountModel { AccountId = 0, AccountName = "All Accounts" };
@@ -236,7 +240,7 @@ namespace Fin_Manager_v2.ViewModels
                 var tags = await _tagService.GetTagsAsync();
                 System.Diagnostics.Debug.WriteLine($"Loaded {tags?.Count() ?? 0} tags");
 
-                dispatcherQueue.TryEnqueue(() =>
+                _dispatcherQueue.TryEnqueue(() =>
                 {
                     AvailableTags.Clear();
                     if (tags != null)
@@ -284,11 +288,35 @@ namespace Fin_Manager_v2.ViewModels
         {
             try
             {
-                if (TransactionAmount <= 0 ||
-                    string.IsNullOrEmpty(NewTransaction.Description) ||
-                    SelectedAccountObj == null ||
-                    SelectedAccountObj.AccountId == 0)
+                if (TransactionAmount <= 0)
                 {
+                    await _dialogService.ShowErrorAsync(
+                        "Invalid Amount",
+                        "Transaction amount must be greater than zero.");
+                    return;
+                }
+
+                if (string.IsNullOrWhiteSpace(NewTransaction.Description))
+                {
+                    await _dialogService.ShowErrorAsync(
+                        "Invalid Description",
+                        "Please provide a valid description for the transaction.");
+                    return;
+                }
+
+                if (SelectedAccountObj == null || SelectedAccountObj.AccountId == 0)
+                {
+                    await _dialogService.ShowErrorAsync(
+                        "Invalid Account",
+                        "Please select a valid account for the transaction.");
+                    return;
+                }
+
+                if (SelectedTag == null)
+                {
+                    await _dialogService.ShowErrorAsync(
+                        "No Tag Selected",
+                        "Please select a tag for the transaction.");
                     return;
                 }
 
@@ -307,9 +335,18 @@ namespace Fin_Manager_v2.ViewModels
                     IsAddTransactionDialogOpen = false;
                 }
             }
+            catch (ArgumentException ex)
+            {
+                await _dialogService.ShowErrorAsync(
+                    "Invalid Input",
+                    "Please check your input and try again.");
+            }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"Error creating transaction: {ex.Message}");
+                await _dialogService.ShowErrorAsync(
+                    "Create Transaction Failed",
+                    "An unexpected error occurred. Please try again later.");
             }
         }
 

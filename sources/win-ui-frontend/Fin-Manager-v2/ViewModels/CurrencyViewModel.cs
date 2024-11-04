@@ -8,6 +8,7 @@ namespace Fin_Manager_v2.ViewModels;
 public partial class CurrencyViewModel : ObservableObject
 {
     private readonly ICurrencyService _currencyService;
+    private readonly IDialogService _dialogService;
 
     [ObservableProperty]
     private decimal _amount;
@@ -30,11 +31,11 @@ public partial class CurrencyViewModel : ObservableObject
     public List<string> CurrencyList { get; } = new List<string>
         { "VND", "USD", "EUR", "JPY", "GBP", "AUD", "CAD", "CHF", "CNY", "SEK" };
 
-    public CurrencyViewModel(ICurrencyService currencyService)
+    public CurrencyViewModel(ICurrencyService currencyService, IDialogService dialogService)
     {
         _currencyService = currencyService ?? throw new ArgumentNullException(nameof(currencyService));
+        _dialogService = dialogService ?? throw new ArgumentNullException(nameof(dialogService));
 
-        // Set default values
         SelectedFromCurrency = CurrencyList.FirstOrDefault() ?? "VND";
         SelectedToCurrency = CurrencyList.Skip(1).FirstOrDefault() ?? "USD";
         Amount = 0;
@@ -60,12 +61,16 @@ public partial class CurrencyViewModel : ObservableObject
         }
         catch (HttpRequestException ex)
         {
-            ErrorMessage = "Không thể kết nối đến server. Vui lòng kiểm tra lại kết nối.";
+            await _dialogService.ShowErrorAsync(
+                "Connection Error",
+                "Unable to connect to the server. Please check your connection.");
             Result = null;
         }
         catch (Exception ex)
         {
-            ErrorMessage = $"Có lỗi xảy ra: {ex.Message}";
+            await _dialogService.ShowErrorAsync(
+                "Conversion Error",
+                $"An error occurred: {ex.Message}");
             Result = null;
             System.Diagnostics.Debug.WriteLine($"Convert error: {ex}");
         }
