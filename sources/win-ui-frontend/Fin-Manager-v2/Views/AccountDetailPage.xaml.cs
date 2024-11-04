@@ -45,23 +45,6 @@ namespace Fin_Manager_v2.Views
             base.OnNavigatedTo(e);
         }
 
-        //protected override void OnNavigatedTo(NavigationEventArgs e)
-        //{
-        //    base.OnNavigatedTo(e);
-
-        //    if (e.Parameter is Account account)
-        //    {
-        //        SelectedAccount = account;
-        //        // Cập nhật thông tin tài khoản trên UI
-        //        AccountNameTextBlock.Text = SelectedAccount.AccountName;
-        //        AccountTypeTextBlock.Text = SelectedAccount.AccountType;
-        //        InitialBalanceTextBlock.Text = SelectedAccount.InitialBalance.ToString("C");
-        //        CurrentBalanceTextBlock.Text = SelectedAccount.CurrentBalance.ToString("C");
-        //        CurrencyTextBlock.Text = SelectedAccount.Currency;
-        //        CreatedAtTextBlock.Text = SelectedAccount.CreateAt.ToString("g");
-        //    }
-        //}
-
         private void OnBackButtonClick(object sender, RoutedEventArgs e)
         {
             Frame.GoBack();

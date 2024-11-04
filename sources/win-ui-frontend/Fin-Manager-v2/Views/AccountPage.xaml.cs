@@ -51,72 +51,31 @@ public sealed partial class AccountPage : Page
         await AddAccountDialog.ShowAsync();
     }
 
+
     private async void OnAddAccountDialogPrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
     {
-        var deferral = args.GetDeferral();
-
-        try
+        var newAccount = new CreateFinanceAccountDto
         {
-            if (string.IsNullOrWhiteSpace(AccountNameInput.Text))
-            {
-                await ShowErrorDialog("Please enter an account name.");
-                args.Cancel = true;
-                return;
-            }
+            account_name = AccountNameInput.Text.Trim(),
+            account_type = (AccountTypeInput.SelectedItem as ComboBoxItem)?.Content.ToString(),
+            initial_balance = (decimal)InitialBalanceInput.Value,
+            current_balance = (decimal)InitialBalanceInput.Value,
+            currency = (CurrencyInput.SelectedItem as ComboBoxItem)?.Content.ToString()?.Split('-')[0].Trim(),
+        };
 
-            if (AccountTypeInput.SelectedItem == null)
-            {
-                await ShowErrorDialog("Please select an account type.");
-                args.Cancel = true;
-                return;
-            }
+        sender.IsPrimaryButtonEnabled = false;
+        sender.IsSecondaryButtonEnabled = false;
 
-            if (CurrencyInput.SelectedItem == null)
-            {
-                await ShowErrorDialog("Please select a currency.");
-                args.Cancel = true;
-                return;
-            }
+        bool isSuccess = await ViewModel.AddAccountAsync(newAccount);
 
-            var accountType = (AccountTypeInput.SelectedItem as ComboBoxItem)?.Content.ToString();
-            var currency = (CurrencyInput.SelectedItem as ComboBoxItem)?.Content.ToString();
-            var initialBalance = InitialBalanceInput.Value;
-
-            var newAccount = new CreateFinanceAccountDto
-            {
-                account_name = AccountNameInput.Text.Trim(),
-                account_type = accountType?.Trim(),
-                initial_balance = (decimal)initialBalance,
-                current_balance = (decimal)initialBalance,
-                currency = currency?.Split('-')[0].Trim(),
-            };
-
-            sender.IsPrimaryButtonEnabled = false;
-            sender.IsSecondaryButtonEnabled = false;
-
-            await ViewModel.AddAccountAsync(newAccount);
-
-            if (ViewModel.HasError)
-            {
-                await ShowErrorDialog(ViewModel.ErrorMessage);
-                args.Cancel = true;
-            }
-            else
-            {
-                ViewModel.SelectedAccount = null;
-            }
-        }
-        catch (Exception ex)
+        if (!isSuccess)
         {
-            await ShowErrorDialog($"An unexpected error occurred: {ex.Message}");
             args.Cancel = true;
+            await ShowErrorDialog(ViewModel.ErrorMessage);
         }
-        finally
-        {
-            sender.IsPrimaryButtonEnabled = true;
-            sender.IsSecondaryButtonEnabled = true;
-            deferral.Complete();
-        }
+
+        sender.IsPrimaryButtonEnabled = true;
+        sender.IsSecondaryButtonEnabled = true;
     }
 
     private async Task ShowErrorDialog(string message)
@@ -144,11 +103,13 @@ public sealed partial class AccountPage : Page
 
     private Visibility CollectionVisibility(ObservableCollection<AccountModel> accounts)
     {
-        return (accounts == null || accounts.Count == 0) ? Visibility.Visible : Visibility.Collapsed;
+        //return (accounts == null || accounts.Count == 0) ? Visibility.Visible : Visibility.Collapsed;
+        return ViewModel.CollectionVisibility(accounts);
     }
 
     private Visibility InverseCollectionVisibility(ObservableCollection<AccountModel> accounts)
     {
-        return (accounts == null || accounts.Count == 0) ? Visibility.Collapsed : Visibility.Visible;
+        //return (accounts == null || accounts.Count == 0) ? Visibility.Collapsed : Visibility.Visible;
+        return ViewModel.InverseCollectionVisibility(accounts);
     }
 }
