@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using Fin_Manager_v2.Models;
 using System;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Fin_Manager_v2.Services.Interface;
@@ -16,6 +17,7 @@ namespace Fin_Manager_v2.ViewModels
         private readonly ITagService _tagService;
         private readonly IAccountService _accountService;
         private readonly DispatcherQueue dispatcherQueue;
+        private readonly IAuthService _authService;
 
         [ObservableProperty]
         private ObservableCollection<TransactionModel> _transactions = new();
@@ -61,12 +63,15 @@ namespace Fin_Manager_v2.ViewModels
 
         public TransactionViewModel(ITransactionService transactionService,
             ITagService tagService,
-            IAccountService accountService)
+            IAccountService accountService,
+            IAuthService authService
+            )
         {
             _transactionService = transactionService;
             _tagService = tagService;
             _accountService = accountService;
-            
+            _authService = authService;
+
             // Get the dispatcher queue for the current thread
             dispatcherQueue = DispatcherQueue.GetForCurrentThread();
             
@@ -106,30 +111,56 @@ namespace Fin_Manager_v2.ViewModels
             try
             {
                 var startDate = new DateTime(SelectedDate?.Year ?? DateTime.Now.Year,
-                                           SelectedDate?.Month ?? DateTime.Now.Month, 1);
+                                             SelectedDate?.Month ?? DateTime.Now.Month, 1);
                 var endDate = startDate.AddMonths(1).AddDays(-1);
 
                 var accountId = SelectedAccountObj?.AccountName == "All Accounts" ? null : SelectedAccountObj?.AccountId;
 
-                var transactions = await _transactionService.GetUserTransactionsAsync(1);
+                // Lấy các giao dịch của người dùng
+                var transactions = await _transactionService.GetUserTransactionsAsync(_authService.GetUserId() ?? 0);
 
-                transactions = transactions
-                    .Where(t => t.Date >= startDate && t.Date <= endDate)
-                    .Where(t => accountId == null || t.AccountId == accountId)
-                    .ToList();
+                // Nếu tài khoản cụ thể được chọn, lọc theo accountId
+                if (accountId != null)
+                {
+                    transactions = transactions.Where(t => t.AccountId == accountId).ToList();
+                }
+                else
+                {
+                    // Nếu "All Accounts" được chọn, không lọc theo accountId, giữ tất cả giao dịch
+                    transactions = transactions.Where(t => t.Date >= startDate && t.Date <= endDate).ToList();
+                }
 
+                // Gán lại cho Transactions
                 Transactions = new ObservableCollection<TransactionModel>(transactions);
 
-                TotalIncome = await _transactionService.GetTotalAmountAsync(1, accountId, "INCOME", startDate, endDate);
-                TotalExpense = await _transactionService.GetTotalAmountAsync(1, accountId, "EXPENSE", startDate, endDate);
-                Balance = TotalIncome - TotalExpense;
+                // Tính toán tổng thu nhập và chi tiêu
+                if (accountId != null) // Tài khoản cụ thể được chọn
+                {
+                    TotalIncome = await _transactionService.GetTotalAmountAsync(_authService.GetUserId() ?? 0, accountId, "INCOME", startDate, endDate);
+                    TotalExpense = await _transactionService.GetTotalAmountAsync(_authService.GetUserId() ?? 0, accountId, "EXPENSE", startDate, endDate);
+                }
+                else // Tính tổng cho "All Accounts"
+                {
+                    TotalIncome = await _transactionService.GetTotalAmountAsync(_authService.GetUserId() ?? 0, null, "INCOME", startDate, endDate);
+                    TotalExpense = await _transactionService.GetTotalAmountAsync(_authService.GetUserId() ?? 0, null, "EXPENSE", startDate, endDate);
+                }
+
+                // Tính balance cho tài khoản được chọn hoặc cho tất cả tài khoản
+                if (SelectedAccountObj != null && accountId != null)
+                {
+                    Balance = SelectedAccountObj.InitialBalance + (TotalIncome - TotalExpense);
+                }
+                else if (SelectedAccountObj?.AccountName == "All Accounts")
+                {
+                    Balance = Accounts.Where(a => a.AccountName != "All Accounts")
+                                      .Sum(a => a.CurrentBalance);
+                }
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"Error loading transactions: {ex.Message}");
             }
         }
-
         private async Task LoadAccountsAsync()
         {
             try
@@ -202,7 +233,6 @@ namespace Fin_Manager_v2.ViewModels
             TransactionDate = DateTimeOffset.Now;
             SelectedTransactionType = "INCOME";
             
-            // Ensure we select a valid account
             var firstRealAccount = Accounts.FirstOrDefault(a => a.AccountName != "All Accounts");
             if (firstRealAccount != null)
             {
@@ -227,7 +257,7 @@ namespace Fin_Manager_v2.ViewModels
                 }
 
                 NewTransaction.AccountId = SelectedAccountObj.AccountId;
-                NewTransaction.UserId = 1;
+                NewTransaction.UserId = _authService.GetUserId() ?? 0;
                 NewTransaction.TransactionType = SelectedTransactionType;
                 NewTransaction.Amount = Convert.ToDecimal(TransactionAmount);
                 NewTransaction.TagId = SelectedTag?.Id ?? 0;

@@ -53,6 +53,7 @@ export class GetTotalAmountDto {
 
     @ApiProperty({ example: 1 })
     @IsNumber()
+    @IsOptional()
     account_id: number;
 
     @ApiProperty({ example: 'INCOME' , enum: TransactionType })
@@ -91,7 +92,11 @@ export class TransactionService {
             throw new Error('Account not found');
         }
         
-        account.current_balance = +account.current_balance  + Number(createTransactionDto.amount);
+        if (createTransactionDto.transaction_type === 'INCOME') {
+            account.current_balance = +account.current_balance + Number(createTransactionDto.amount);
+        } else if (createTransactionDto.transaction_type === 'EXPENSE') {
+            account.current_balance = +account.current_balance - Number(createTransactionDto.amount); 
+        }
     
     
         await this.accountRepository.save(account);
