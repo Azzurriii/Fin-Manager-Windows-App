@@ -20,58 +20,80 @@
         </Grid>
 
         <StackPanel Grid.Column="1" 
-                    HorizontalAlignment="Center" 
-                    VerticalAlignment="Center" 
-                    Margin="20">
-            <TextBlock Text="Sign Up now!" 
-                       Style="{StaticResource SubtitleTextBlockStyle}"
-                       HorizontalAlignment="Center"
-                       FontSize="24"
-                       Margin="0,0,0,20"/>
+            HorizontalAlignment="Center" 
+            VerticalAlignment="Center" 
+            Margin="20" 
+            Width="300"
+            Spacing="15">
 
+            <!-- Title and Slogan -->
+            <TextBlock Text="Sign Up!" 
+               Style="{StaticResource SubtitleTextBlockStyle}"
+               HorizontalAlignment="Center"
+               FontSize="24"
+               Margin="0,0,0,10"/>
+
+            <TextBlock Text="Join Us on Your Path to Financial Freedom!" 
+               Style="{StaticResource CaptionTextBlockStyle}"
+               Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+               TextWrapping="Wrap"
+               HorizontalAlignment="Center"
+               FontSize="14"/>
+
+            <!-- Username Input -->
             <TextBox x:Name="UsernameBox"
-                     PlaceholderText="Username"
-                     Margin="0,0,0,10"
-                     Width="250"
-                     Text="{x:Bind ViewModel.Username, Mode=TwoWay}"/>
+             PlaceholderText="Username"
+             Width="300"
+             Margin="0,0,0,10"
+             Text="{x:Bind ViewModel.Username, Mode=TwoWay}"/>
 
+            <!-- Email Input -->
             <TextBox x:Name="EmailBox"
-                     PlaceholderText="Email"
-                     Margin="0,0,0,10"
-                     Width="250"
-                     Text="{x:Bind ViewModel.Email, Mode=TwoWay}"/>
+             PlaceholderText="Email"
+             Width="300"
+             Margin="0,0,0,10"
+             Text="{x:Bind ViewModel.Email, Mode=TwoWay}"/>
 
+            <!-- Password Input -->
             <PasswordBox x:Name="PasswordBox"
-                         PlaceholderText="Password"
-                         Margin="0,0,0,10"
-                         Width="250"
-                         Password="{x:Bind ViewModel.Password, Mode=TwoWay}"/>
+                 PlaceholderText="Password"
+                 Width="300"
+                 Margin="0,0,0,10"
+                 Password="{x:Bind ViewModel.Password, Mode=TwoWay}"/>
 
+            <!-- Confirm Password Input -->
             <PasswordBox x:Name="ConfirmPasswordBox"
-                         PlaceholderText="Re-enter Password"
-                         Margin="0,0,0,20"
-                         Width="250"
-                         Password="{x:Bind ViewModel.ConfirmPassword, Mode=TwoWay}"/>
+                 PlaceholderText="Re-enter Password"
+                 Width="300"
+                 Margin="0,0,0,10"
+                 Password="{x:Bind ViewModel.ConfirmPassword, Mode=TwoWay}"/>
 
+            <!-- Sign Up Button -->
             <Button Content="Sign Up"
-                    Click="SignUpButton_Click"
-                    HorizontalAlignment="Stretch"
-                    Background="Blue"
-                    Foreground="White"/>
+            Click="SignUpButton_Click"
+            HorizontalAlignment="Stretch"
+            Background="DeepSkyBlue"
+            Foreground="White"
+            Width="300"
+            Height="40"
+            FontSize="16"
+            CornerRadius="5"/>
 
-            <TextBlock
-                Text="Already have an account?" 
-                Style="{StaticResource SubtitleTextBlockStyle}"
-                HorizontalAlignment="Center"
-                FontSize="16"
-                Margin="0,10,0,10"/>
+            <!-- Login Prompt -->
+            <TextBlock Text="Already have an account?" 
+               Style="{StaticResource CaptionTextBlockStyle}"
+               HorizontalAlignment="Center"
+               FontSize="14"
+               Margin="0,10,0,0"/>
 
-            <HyperlinkButton Content="Login now"
-                             Click="LoginButton_Click"
-                             HorizontalAlignment="Stretch"
-                             Margin="0,10,0,0"
-                             Background="DarkCyan"
-                             Foreground="White"/>
+            <!-- Login Button -->
+            <HyperlinkButton Content="Login Now"
+                     Click="LoginButton_Click"
+                     HorizontalAlignment="Center"
+                     Foreground="DarkCyan"
+                     FontSize="14"
+                     />
+
         </StackPanel>
     </Grid>
 </Page>

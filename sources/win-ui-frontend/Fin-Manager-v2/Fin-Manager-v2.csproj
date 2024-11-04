@@ -15,6 +15,9 @@
     <EnableMsixTooling>true</EnableMsixTooling>
     <WindowsSdkPackageVersion>10.0.19041.38</WindowsSdkPackageVersion>
   </PropertyGroup>
+  <ItemGroup>
+    <Content Remove="Assets\Image1.png" />
+  </ItemGroup>
 
   <ItemGroup>
     <None Remove="Views\AccountDetailPage.xaml" />
