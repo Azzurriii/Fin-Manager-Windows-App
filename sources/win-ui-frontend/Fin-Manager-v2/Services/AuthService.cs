@@ -50,10 +50,10 @@ public class AuthService : IAuthService
     }
 
 
-    public async Task<bool> SignUpAsync(UserModel user)
+    public async Task<HttpResponseMessage> SignUpAsync(UserModel user)
     {
         var response = await _httpClient.PostAsJsonAsync("http://localhost:3000/users", user);
-        return response.IsSuccessStatusCode;
+        return response;
     }
 
     public void Logout()

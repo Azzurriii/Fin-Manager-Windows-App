@@ -38,7 +38,7 @@ namespace Fin_Manager_v2.ViewModels
         private DateTimeOffset? _selectedDate;
 
         [ObservableProperty]
-        private ObservableCollection<Account> _accounts = new();
+        private ObservableCollection<AccountModel> _accounts = new();
 
         [ObservableProperty]
         private bool _isAddTransactionDialogOpen;
@@ -59,7 +59,7 @@ namespace Fin_Manager_v2.ViewModels
         private TagModel _selectedTag;
 
         [ObservableProperty]
-        private Account _selectedAccountObj;
+        private AccountModel _selectedAccountObj;
 
         public TransactionViewModel(ITransactionService transactionService,
             ITagService tagService,
@@ -80,7 +80,7 @@ namespace Fin_Manager_v2.ViewModels
 
             // Initialize collections
             Transactions = new ObservableCollection<TransactionModel>();
-            Accounts = new ObservableCollection<Account>();
+            Accounts = new ObservableCollection<AccountModel>();
             AvailableTags = new ObservableCollection<TagModel>();
 
             // Load data asynchronously
@@ -204,10 +204,10 @@ namespace Fin_Manager_v2.ViewModels
                 var accounts = await _accountService.GetAccountsAsync();
                 System.Diagnostics.Debug.WriteLine($"Loaded {accounts?.Count() ?? 0} accounts");
 
-                dispatcherQueue.TryEnqueue(() =>
+                dispatcherQueue.TryEnqueue((DispatcherQueueHandler)(() =>
                 {
                     Accounts.Clear();
-                    var allAccounts = new Account { AccountId = 0, AccountName = "All Accounts" };
+                    var allAccounts = new AccountModel { AccountId = 0, AccountName = "All Accounts" };
                     Accounts.Add(allAccounts);
 
                     if (accounts != null)
@@ -218,9 +218,9 @@ namespace Fin_Manager_v2.ViewModels
                         }
                     }
 
-                    SelectedAccountObj = Accounts.FirstOrDefault();
+                    SelectedAccountObj = Enumerable.FirstOrDefault<AccountModel>(Accounts);
                     System.Diagnostics.Debug.WriteLine($"Final accounts count: {Accounts.Count}");
-                });
+                }));
             }
             catch (Exception ex)
             {
@@ -326,7 +326,7 @@ namespace Fin_Manager_v2.ViewModels
             LoadTransactionsAsync().ConfigureAwait(false);
         }
 
-        partial void OnSelectedAccountObjChanged(Account value)
+        partial void OnSelectedAccountObjChanged(AccountModel value)
         {
             LoadTransactionsAsync().ConfigureAwait(false);
         }

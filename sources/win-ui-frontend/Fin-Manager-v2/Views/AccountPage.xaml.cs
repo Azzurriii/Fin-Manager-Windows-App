@@ -31,7 +31,7 @@ public sealed partial class AccountPage : Page
     {
         if (!isUserSelection) return;
 
-        if (sender is ListView listView && listView.SelectedItem is Account selectedAccount)
+        if (sender is ListView listView && listView.SelectedItem is AccountModel selectedAccount)
         {
             ViewModel.SelectedAccount = selectedAccount;
             DispatcherQueue.TryEnqueue(() =>
@@ -142,12 +142,12 @@ public sealed partial class AccountPage : Page
         }
     }
 
-    private Visibility CollectionVisibility(ObservableCollection<Account> accounts)
+    private Visibility CollectionVisibility(ObservableCollection<AccountModel> accounts)
     {
         return (accounts == null || accounts.Count == 0) ? Visibility.Visible : Visibility.Collapsed;
     }
 
-    private Visibility InverseCollectionVisibility(ObservableCollection<Account> accounts)
+    private Visibility InverseCollectionVisibility(ObservableCollection<AccountModel> accounts)
     {
         return (accounts == null || accounts.Count == 0) ? Visibility.Collapsed : Visibility.Visible;
     }

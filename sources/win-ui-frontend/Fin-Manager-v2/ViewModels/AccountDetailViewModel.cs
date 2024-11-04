@@ -9,9 +9,9 @@ namespace Fin_Manager_v2.ViewModels
 {
     public class AccountDetailViewModel
     {
-        public Account Account { get; set; }
+        public AccountModel Account { get; set; }
 
-        public AccountDetailViewModel(Account account)
+        public AccountDetailViewModel(AccountModel account)
         {
             Account = account;
         }

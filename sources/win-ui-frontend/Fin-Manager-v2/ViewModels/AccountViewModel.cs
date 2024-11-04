@@ -11,10 +11,10 @@ public partial class AccountViewModel : ObservableRecipient
     private readonly IAccountService _accountService;
 
     [ObservableProperty]
-    private ObservableCollection<Account> _accounts;
+    private ObservableCollection<AccountModel> _accounts;
 
     [ObservableProperty]
-    private Account _selectedAccount;
+    private AccountModel _selectedAccount;
 
     [ObservableProperty]
     private bool _isLoading;
@@ -31,7 +31,7 @@ public partial class AccountViewModel : ObservableRecipient
     public AccountViewModel(IAccountService accountService)
     {
         _accountService = accountService ?? throw new ArgumentNullException(nameof(accountService));
-        _accounts = new ObservableCollection<Account>();
+        _accounts = new ObservableCollection<AccountModel>();
         IsLoading = false;
         HasError = false;
         IsInitialized = false;
@@ -112,7 +112,7 @@ public partial class AccountViewModel : ObservableRecipient
         }
     }
 
-    public async Task UpdateAccount(Account account)
+    public async Task UpdateAccount(AccountModel account)
     {
         try
         {

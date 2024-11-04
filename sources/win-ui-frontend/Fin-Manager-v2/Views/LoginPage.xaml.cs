@@ -4,6 +4,7 @@ using System.Text;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Windows.Storage;
+using Fin_Manager_v2.ViewModels;
 
 namespace Fin_Manager_v2.Views
 {

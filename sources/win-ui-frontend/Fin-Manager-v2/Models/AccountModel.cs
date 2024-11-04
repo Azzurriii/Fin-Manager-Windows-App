@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Fin_Manager_v2.Models
 {
-    public class Account
+    public class AccountModel
     {
         [JsonPropertyName("account_id")]
         public int AccountId { get; set; }

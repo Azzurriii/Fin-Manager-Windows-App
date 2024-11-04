@@ -67,7 +67,7 @@
                       Padding="12"
                       Visibility="{x:Bind InverseCollectionVisibility(ViewModel.Accounts), Mode=OneWay}">
                 <ListView.ItemTemplate>
-                    <DataTemplate x:DataType="models:Account">
+                    <DataTemplate x:DataType="models:AccountModel">
                         <Grid Padding="12" 
                               Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                               BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"

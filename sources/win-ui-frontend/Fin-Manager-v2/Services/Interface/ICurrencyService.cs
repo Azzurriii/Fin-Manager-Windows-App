@@ -9,6 +9,6 @@ namespace Fin_Manager_v2.Services.Interface
 {
     public interface ICurrencyService
     {
-        Task<CurrencyResponse> ConvertCurrencyAsync(decimal amount, string fromCurrency, string toCurrency);
+        Task<CurrencyModel> ConvertCurrencyAsync(decimal amount, string fromCurrency, string toCurrency);
     }
 }

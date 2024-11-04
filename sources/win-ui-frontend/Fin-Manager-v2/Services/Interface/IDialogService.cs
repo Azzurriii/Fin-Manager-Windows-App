@@ -1,4 +1,6 @@
-﻿namespace Fin_Manager_v2.Services.Interface;
+﻿using Fin_Manager_v2.Models;
+
+namespace Fin_Manager_v2.Services.Interface;
 
 public interface IDialogService
 {

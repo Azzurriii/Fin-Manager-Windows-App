@@ -19,7 +19,7 @@ namespace Fin_Manager_v2.Services
             _httpClient.BaseAddress = new Uri("http://localhost:3000/");
         }
 
-        public async Task<CurrencyResponse> ConvertCurrencyAsync(decimal amount, string fromCurrency, string toCurrency)
+        public async Task<CurrencyModel> ConvertCurrencyAsync(decimal amount, string fromCurrency, string toCurrency)
         {
             var requestData = new
             {
@@ -31,7 +31,7 @@ namespace Fin_Manager_v2.Services
             var response = await _httpClient.PostAsJsonAsync("currency/convert", requestData);
             response.EnsureSuccessStatusCode();
 
-            return await response.Content.ReadFromJsonAsync<CurrencyResponse>();
+            return await response.Content.ReadFromJsonAsync<CurrencyModel>();
         }
     }
 
