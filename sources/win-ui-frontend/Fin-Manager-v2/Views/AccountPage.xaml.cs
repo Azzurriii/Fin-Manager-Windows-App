@@ -4,6 +4,7 @@ using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
 using Fin_Manager_v2.DTO;
 using Fin_Manager_v2.Models;
+using Fin_Manager_v2.Services;
 using System.Collections.ObjectModel;
 
 namespace Fin_Manager_v2.Views;
@@ -51,85 +52,60 @@ public sealed partial class AccountPage : Page
         await AddAccountDialog.ShowAsync();
     }
 
+
     private async void OnAddAccountDialogPrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
     {
-        var deferral = args.GetDeferral();
+        args.Cancel = true;
 
-        try
+        if (string.IsNullOrWhiteSpace(AccountNameInput.Text))
         {
-            if (string.IsNullOrWhiteSpace(AccountNameInput.Text))
-            {
-                await ShowErrorDialog("Please enter an account name.");
-                args.Cancel = true;
-                return;
-            }
-
-            if (AccountTypeInput.SelectedItem == null)
-            {
-                await ShowErrorDialog("Please select an account type.");
-                args.Cancel = true;
-                return;
-            }
-
-            if (CurrencyInput.SelectedItem == null)
-            {
-                await ShowErrorDialog("Please select a currency.");
-                args.Cancel = true;
-                return;
-            }
-
-            var accountType = (AccountTypeInput.SelectedItem as ComboBoxItem)?.Content.ToString();
-            var currency = (CurrencyInput.SelectedItem as ComboBoxItem)?.Content.ToString();
-            var initialBalance = InitialBalanceInput.Value;
-
-            var newAccount = new CreateFinanceAccountDto
-            {
-                account_name = AccountNameInput.Text.Trim(),
-                account_type = accountType?.Trim(),
-                initial_balance = (decimal)initialBalance,
-                current_balance = (decimal)initialBalance,
-                currency = currency?.Split('-')[0].Trim(),
-            };
-
-            sender.IsPrimaryButtonEnabled = false;
-            sender.IsSecondaryButtonEnabled = false;
-
-            await ViewModel.AddAccountAsync(newAccount);
-
-            if (ViewModel.HasError)
-            {
-                await ShowErrorDialog(ViewModel.ErrorMessage);
-                args.Cancel = true;
-            }
-            else
-            {
-                ViewModel.SelectedAccount = null;
-            }
+            ErrorTextBlock.Text = "Please enter an account name.";
+            ErrorTextBlock.Visibility = Visibility.Visible;
+            return;
         }
-        catch (Exception ex)
+        if (AccountTypeInput.SelectedItem == null)
         {
-            await ShowErrorDialog($"An unexpected error occurred: {ex.Message}");
-            args.Cancel = true;
+            ErrorTextBlock.Text = "Please select an account type.";
+            ErrorTextBlock.Visibility = Visibility.Visible;
+            return;
         }
-        finally
+        if (CurrencyInput.SelectedItem == null)
         {
-            sender.IsPrimaryButtonEnabled = true;
-            sender.IsSecondaryButtonEnabled = true;
-            deferral.Complete();
+            ErrorTextBlock.Text = "Please select a currency.";
+            ErrorTextBlock.Visibility = Visibility.Visible;
+            return;
         }
+
+        args.Cancel = false;
+
+        var newAccount = new CreateFinanceAccountDto
+        {
+            account_name = AccountNameInput.Text.Trim(),
+            account_type = (AccountTypeInput.SelectedItem as ComboBoxItem)?.Content.ToString(),
+            initial_balance = (decimal)InitialBalanceInput.Value,
+            current_balance = (decimal)InitialBalanceInput.Value,
+            currency = (CurrencyInput.SelectedItem as ComboBoxItem)?.Content.ToString()?.Split('-')[0].Trim(),
+        };
+
+        sender.IsPrimaryButtonEnabled = false;
+        sender.IsSecondaryButtonEnabled = false;
+
+        bool isSuccess = await ViewModel.AddAccountAsync(newAccount);
+
+        if (!isSuccess)
+        {
+            await ShowErrorDialog(ViewModel.ErrorMessage);
+        }
+
+        sender.IsPrimaryButtonEnabled = true;
+        sender.IsSecondaryButtonEnabled = true;
     }
 
     private async Task ShowErrorDialog(string message)
     {
-        var errorDialog = new ContentDialog
-        {
-            Title = "Error",
-            Content = message,
-            CloseButtonText = "OK",
-            XamlRoot = this.XamlRoot
-        };
+        var errorDialog = new DialogService();
 
-        await errorDialog.ShowAsync();
+        await errorDialog.ShowErrorAsync("Error", message);
     }
 
     protected override void OnNavigatedTo(NavigationEventArgs e)
@@ -144,11 +120,11 @@ public sealed partial class AccountPage : Page
 
     private Visibility CollectionVisibility(ObservableCollection<AccountModel> accounts)
     {
-        return (accounts == null || accounts.Count == 0) ? Visibility.Visible : Visibility.Collapsed;
+        return ViewModel.CollectionVisibility(accounts);
     }
 
     private Visibility InverseCollectionVisibility(ObservableCollection<AccountModel> accounts)
     {
-        return (accounts == null || accounts.Count == 0) ? Visibility.Collapsed : Visibility.Visible;
+        return ViewModel.InverseCollectionVisibility(accounts);
     }
 }
