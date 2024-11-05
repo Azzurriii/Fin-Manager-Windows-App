@@ -6,9 +6,9 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
-using Fin_Manager_v2.Services.Interface;
 using Microsoft.UI.Dispatching;
 using Fin_Manager_v2.Services;
+using Fin_Manager_v2.Contracts.Services;
 
 namespace Fin_Manager_v2.ViewModels
 {

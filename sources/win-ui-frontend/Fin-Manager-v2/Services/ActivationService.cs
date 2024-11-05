@@ -1,8 +1,6 @@
 ﻿using Fin_Manager_v2.Activation;
 using Fin_Manager_v2.Contracts.Services;
-using Fin_Manager_v2.Services.Interface;
 using Fin_Manager_v2.Views;
-
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 

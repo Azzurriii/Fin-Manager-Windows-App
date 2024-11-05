@@ -1,5 +1,5 @@
+using Fin_Manager_v2.Contracts.Services;
 using Fin_Manager_v2.Models;
-using Fin_Manager_v2.Services.Interface;
 using System.Net.Http.Json;
 
 namespace Fin_Manager_v2.Services;
@@ -7,7 +7,6 @@ namespace Fin_Manager_v2.Services;
 public class TransactionService : ITransactionService
 {
     private readonly HttpClient _httpClient;
-    private const string BaseUrl = "http://localhost:3000";
 
     public TransactionService(HttpClient httpClient)
     {
@@ -29,14 +28,14 @@ public class TransactionService : ITransactionService
                 transaction_date = transaction.Date.ToString("o")
             };
 
-            var response = await _httpClient.PostAsJsonAsync($"{BaseUrl}/transactions", requestBody);
-            
+            var response = await _httpClient.PostAsJsonAsync("transactions", requestBody);
+
             if (!response.IsSuccessStatusCode)
             {
                 var error = await response.Content.ReadAsStringAsync();
                 System.Diagnostics.Debug.WriteLine($"Error creating transaction: {error}");
             }
-            
+
             return response.IsSuccessStatusCode;
         }
         catch (Exception ex)
@@ -59,7 +58,7 @@ public class TransactionService : ITransactionService
                 endDate = endDate.ToString("o")
             };
 
-            var response = await _httpClient.PostAsJsonAsync($"{BaseUrl}/transactions/total-amount", requestBody);
+            var response = await _httpClient.PostAsJsonAsync("transactions/total-amount", requestBody);
             if (response.IsSuccessStatusCode)
             {
                 return await response.Content.ReadFromJsonAsync<decimal>();
@@ -76,7 +75,7 @@ public class TransactionService : ITransactionService
     {
         try
         {
-            var response = await _httpClient.GetFromJsonAsync<List<TransactionModel>>($"{BaseUrl}/transactions/user/{userId}");
+            var response = await _httpClient.GetFromJsonAsync<List<TransactionModel>>($"transactions/user/{userId}");
             return response ?? new List<TransactionModel>();
         }
         catch (Exception ex)

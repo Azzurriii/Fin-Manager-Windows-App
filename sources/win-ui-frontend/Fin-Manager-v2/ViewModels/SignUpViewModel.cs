@@ -2,7 +2,6 @@
 using CommunityToolkit.Mvvm.Input;
 using Fin_Manager_v2.Contracts.Services;
 using Fin_Manager_v2.Models;
-using Fin_Manager_v2.Services.Interface;
 using Fin_Manager_v2.ViewModels;
 using System.Text.RegularExpressions;
 using System.Collections.Generic;

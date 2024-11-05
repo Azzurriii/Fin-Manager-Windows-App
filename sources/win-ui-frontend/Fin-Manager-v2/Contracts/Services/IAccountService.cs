@@ -1,7 +1,7 @@
 ﻿using Fin_Manager_v2.DTO;
 using Fin_Manager_v2.Models;
 
-namespace Fin_Manager_v2.Services.Interface;
+namespace Fin_Manager_v2.Contracts.Services;
 
 public interface IAccountService
 {
