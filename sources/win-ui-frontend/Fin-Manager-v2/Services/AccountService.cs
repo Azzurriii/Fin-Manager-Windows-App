@@ -1,8 +1,8 @@
 ﻿using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using Fin_Manager_v2.Contracts.Services;
 using Fin_Manager_v2.DTO;
 using Fin_Manager_v2.Models;
-using Fin_Manager_v2.Services.Interface;
 
 namespace Fin_Manager_v2.Services;
 
@@ -11,9 +11,9 @@ public class AccountService : IAccountService
     private readonly HttpClient _httpClient;
     private readonly IAuthService _authService;
 
-    public AccountService(IAuthService authService)
+    public AccountService(HttpClient httpClient, IAuthService authService)
     {
-        _httpClient = new HttpClient { BaseAddress = new Uri("http://localhost:3000/") };
+        _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
         _authService = authService ?? throw new ArgumentNullException(nameof(authService));
     }
 

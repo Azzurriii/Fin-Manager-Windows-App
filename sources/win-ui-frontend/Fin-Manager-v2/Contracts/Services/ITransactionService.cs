@@ -1,6 +1,6 @@
 ﻿using Fin_Manager_v2.Models;
-using Fin_Manager_v2.Services.Interface;
 
+namespace Fin_Manager_v2.Contracts.Services;
 public interface ITransactionService
 {
     Task<bool> CreateTransactionAsync(TransactionModel transaction);

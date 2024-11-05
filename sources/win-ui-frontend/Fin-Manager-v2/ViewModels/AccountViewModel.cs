@@ -2,8 +2,8 @@
 using System.Collections.ObjectModel;
 using Fin_Manager_v2.DTO;
 using Fin_Manager_v2.Models;
-using Fin_Manager_v2.Services.Interface;
 using Microsoft.UI.Xaml;
+using Fin_Manager_v2.Contracts.Services;
 
 namespace Fin_Manager_v2.ViewModels;
 

@@ -1,7 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Fin_Manager_v2.Contracts.Services;
 using Fin_Manager_v2.Models;
-using Fin_Manager_v2.Services.Interface;
 
 namespace Fin_Manager_v2.ViewModels;
 
@@ -20,7 +20,7 @@ public partial class CurrencyViewModel : ObservableObject
     private string _selectedToCurrency;
 
     [ObservableProperty]
-    private CurrencyModel _result;
+    private CurrencyExchangeModel _result;
 
     [ObservableProperty]
     private bool _isLoading;

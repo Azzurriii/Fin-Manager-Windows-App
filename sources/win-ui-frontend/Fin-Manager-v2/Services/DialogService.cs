@@ -1,6 +1,6 @@
-﻿using Fin_Manager_v2.Services.Interface;
-using Microsoft.UI.Xaml.Controls;
+﻿using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml;
+using Fin_Manager_v2.Contracts.Services;
 
 namespace Fin_Manager_v2.Services;
 

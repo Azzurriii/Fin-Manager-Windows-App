@@ -4,7 +4,6 @@ using Fin_Manager_v2.Core.Contracts.Services;
 using Fin_Manager_v2.Core.Services;
 using Fin_Manager_v2.Helpers;
 using Fin_Manager_v2.Services;
-using Fin_Manager_v2.Services.Interface;
 using Fin_Manager_v2.ViewModels;
 using Fin_Manager_v2.Views;
 
@@ -60,10 +59,43 @@ public partial class App : Application
             services.AddSingleton<INavigationService, NavigationService>();
             services.AddSingleton<IFileService, FileService>();
             services.AddSingleton<IAuthService, AuthService>();
+            services.AddSingleton<IApiConfiguration, ApiConfiguration>();
+            services.AddSingleton<ITagService, TagService>();
+            services.AddSingleton<ITransactionService, TransactionService>();
+            services.AddSingleton<IAccountService, AccountService>();
+            services.AddSingleton<IDialogService, DialogService>();
+            services.AddSingleton<HttpClient>();
 
             // HTTP and Currency Services
-            services.AddHttpClient<ICurrencyService, CurrencyService>();
-            services.AddSingleton<HttpClient>();
+            services.AddHttpClient<ITransactionService, TransactionService>((provider, client) =>
+            {
+                var config = provider.GetRequiredService<IApiConfiguration>();
+                client.BaseAddress = new Uri(config.BaseUrl);
+            });
+
+            services.AddHttpClient<ITagService, TagService>((provider, client) =>
+            {
+                var config = provider.GetRequiredService<IApiConfiguration>();
+                client.BaseAddress = new Uri(config.BaseUrl);
+            });
+
+            services.AddHttpClient<IAccountService, AccountService>((provider, client) =>
+            {
+                var config = provider.GetRequiredService<IApiConfiguration>();
+                client.BaseAddress = new Uri(config.BaseUrl);
+            });
+
+            services.AddHttpClient<ICurrencyService, CurrencyService>((provider, client) =>
+            {
+                var config = provider.GetRequiredService<IApiConfiguration>();
+                client.BaseAddress = new Uri(config.BaseUrl);
+            });
+
+            services.AddHttpClient<IAuthService, AuthService>((provider, client) =>
+            {
+                var config = provider.GetRequiredService<IApiConfiguration>();
+                client.BaseAddress = new Uri(config.BaseUrl);
+            });
 
             // Views and ViewModels
             services.AddTransient<MonthlyViewViewModel>();
@@ -80,10 +112,6 @@ public partial class App : Application
             services.AddTransient<LoginPage>();
             services.AddTransient<SignUpViewModel>();
             services.AddTransient<SignUpPage>();
-            services.AddSingleton<ITagService, TagService>();
-            services.AddSingleton<ITransactionService, TransactionService>();
-            services.AddSingleton<IAccountService, AccountService>();
-            services.AddSingleton<IDialogService, DialogService>();
         }).
         Build();
 

@@ -1,11 +1,10 @@
 ﻿using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
-using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Fin_Manager_v2.Contracts.Services;
 using Fin_Manager_v2.Models;
-using Fin_Manager_v2.Services.Interface;
 using Windows.Storage;
 
 namespace Fin_Manager_v2.Services;
@@ -17,8 +16,7 @@ public class AuthService : IAuthService
 
     public AuthService(HttpClient httpClient)
     {
-        _httpClient = httpClient;
-        _httpClient = new HttpClient { BaseAddress = new Uri("http://localhost:3000/") };
+        _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
     }
 
     public bool IsAuthenticated => _isAuthenticated;
@@ -28,7 +26,7 @@ public class AuthService : IAuthService
         var loginData = new { username, password };
 
         // Send login request as JSON and get response
-        var response = await _httpClient.PostAsJsonAsync("http://localhost:3000/users/login", loginData);
+        var response = await _httpClient.PostAsJsonAsync("users/login", loginData);
         if (response.IsSuccessStatusCode)
         {
             // Automatically deserialize JSON response to a Dictionary
@@ -49,10 +47,9 @@ public class AuthService : IAuthService
         return false;
     }
 
-
     public async Task<HttpResponseMessage> SignUpAsync(UserModel user)
     {
-        var response = await _httpClient.PostAsJsonAsync("http://localhost:3000/users", user);
+        var response = await _httpClient.PostAsJsonAsync("users", user);
         return response;
     }
 
@@ -70,7 +67,7 @@ public class AuthService : IAuthService
             var accessToken = localSettings.Values["AccessToken"] as string;
 
             // Prepare the request message with authorization header if token is available
-            var requestMessage = new HttpRequestMessage(HttpMethod.Get, "/users/me");
+            var requestMessage = new HttpRequestMessage(HttpMethod.Get, "users/me");
 
             if (!string.IsNullOrWhiteSpace(accessToken))
             {
@@ -112,7 +109,6 @@ public class AuthService : IAuthService
             Console.WriteLine($"Error fetching user ID: {ex.Message}");
         }
     }
-
 
     public string GetAccessToken()
     {
