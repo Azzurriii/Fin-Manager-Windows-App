@@ -20,7 +20,7 @@ public partial class CurrencyViewModel : ObservableObject
     private string _selectedToCurrency;
 
     [ObservableProperty]
-    private CurrencyModel _result;
+    private CurrencyExchangeModel _result;
 
     [ObservableProperty]
     private bool _isLoading;

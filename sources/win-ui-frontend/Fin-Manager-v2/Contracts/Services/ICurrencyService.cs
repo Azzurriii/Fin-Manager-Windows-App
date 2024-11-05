@@ -8,6 +8,6 @@ using System.Threading.Tasks;
 namespace Fin_Manager_v2.Contracts.Services;
 public interface ICurrencyService
 {
-    Task<CurrencyModel> ConvertCurrencyAsync(decimal amount, string fromCurrency, string toCurrency);
+    Task<CurrencyExchangeModel> ConvertCurrencyAsync(decimal amount, string fromCurrency, string toCurrency);
 }
 

@@ -17,7 +17,7 @@ public class CurrencyService : ICurrencyService
         _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
     }
 
-    public async Task<CurrencyModel> ConvertCurrencyAsync(decimal amount, string fromCurrency, string toCurrency)
+    public async Task<CurrencyExchangeModel> ConvertCurrencyAsync(decimal amount, string fromCurrency, string toCurrency)
     {
         var requestData = new
         {
@@ -29,6 +29,6 @@ public class CurrencyService : ICurrencyService
         var response = await _httpClient.PostAsJsonAsync("currency/convert", requestData);
         response.EnsureSuccessStatusCode();
 
-        return await response.Content.ReadFromJsonAsync<CurrencyModel>();
+        return await response.Content.ReadFromJsonAsync<CurrencyExchangeModel>();
     }
 }
