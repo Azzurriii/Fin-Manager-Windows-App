@@ -21,4 +21,7 @@
     <ProjectReference Include="..\Fin-Manager-v2.Core\Fin-Manager-v2.Core.csproj" />
     <ProjectReference Include="..\Fin-Manager-v2\Fin-Manager-v2.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Test\Services\" />
+  </ItemGroup>
 </Project>
