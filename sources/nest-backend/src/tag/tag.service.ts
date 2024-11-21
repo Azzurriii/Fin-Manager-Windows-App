@@ -11,14 +11,14 @@ export class CreateTagDto {
     @IsNotEmpty()
     @ApiProperty({ example: 'Sample tag' })
     name: string;
-}
 
-export class UpdateTagDto {
     @IsString()
     @IsNotEmpty()
-    @ApiProperty({ example: 'Sample tag' })
-    name: string;
+    @ApiProperty({ example: 'expense', enum: ['income', 'expense'] })
+    tagType: string;
 }
+
+export class UpdateTagDto extends CreateTagDto {}
 @Injectable()
 export class TagService {
     constructor(
