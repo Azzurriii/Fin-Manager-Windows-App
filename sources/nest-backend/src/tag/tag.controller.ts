@@ -1,5 +1,5 @@
 import { Controller, Get, Post, Body, Param, Delete, Put } from '@nestjs/common';
-import { CreateTagDto, TagService } from './tag.service';
+import { CreateTagDto, TagService, UpdateTagDto } from './tag.service';
 import { ApiTags } from '@nestjs/swagger';
 
 
@@ -26,5 +26,10 @@ export class TagController {
     @Delete(':id')
     remove(@Param('id') id: string) {
         return this.tagService.remove(+id);
+    }
+
+    @Put(':id')
+    update(@Param('id') id: string, @Body() updateTagDto: UpdateTagDto) {
+        return this.tagService.update(+id, updateTagDto);
     }
 }
