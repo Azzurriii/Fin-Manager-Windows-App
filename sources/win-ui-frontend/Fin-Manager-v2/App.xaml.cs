@@ -1,4 +1,6 @@
-﻿using Fin_Manager_v2.Activation;
+﻿using System.Net.Http;
+
+using Fin_Manager_v2.Activation;
 using Fin_Manager_v2.Contracts.Services;
 using Fin_Manager_v2.Core.Contracts.Services;
 using Fin_Manager_v2.Core.Services;
@@ -10,8 +12,6 @@ using Fin_Manager_v2.Views;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.UI.Xaml;
-using Microsoft.Extensions.DependencyInjection;
-using System.Net.Http;
 
 namespace Fin_Manager_v2;
 
@@ -98,6 +98,8 @@ public partial class App : Application
             });
 
             // Views and ViewModels
+            services.AddTransient<ReportViewModel>();
+            services.AddTransient<ReportPage>();
             services.AddTransient<MonthlyViewViewModel>();
             services.AddTransient<MonthlyViewPage>();
             services.AddTransient<CurrencyViewModel>();

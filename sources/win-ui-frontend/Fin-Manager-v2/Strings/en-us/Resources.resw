@@ -135,4 +135,7 @@
   <data name="Shell_MonthlyView.Content" xml:space="preserve">
     <value>MonthlyView</value>
   </data>
+  <data name="Shell_Report.Content" xml:space="preserve">
+    <value>Report</value>
+  </data>
 </root>

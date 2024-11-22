@@ -1,0 +1,100 @@
+﻿<Page
+    x:Class="Fin_Manager_v2.Views.ReportPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:lvc="using:LiveChartsCore.SkiaSharpView.WinUI">
+
+	<Grid>
+		<Grid.RowDefinitions>
+			<RowDefinition Height="Auto"/>
+			<RowDefinition Height="*"/>
+		</Grid.RowDefinitions>
+
+		<!-- Controls -->
+		<StackPanel Orientation="Horizontal" Margin="10" Grid.Row="0">
+			<ComboBox Header="Time Period" Width="150" Margin="5"
+                      SelectedItem="{x:Bind ViewModel.SelectedTimePeriod, Mode=TwoWay}">
+				<x:String>Day</x:String>
+				<x:String>Month</x:String>
+				<x:String>Quarter</x:String>
+				<x:String>Year</x:String>
+			</ComboBox>
+			<DatePicker Header="Start Date" Margin="5"/>
+			<DatePicker Header="End Date" Margin="5"/>
+			<ComboBox Header="Account" Width="150" Margin="5"/>
+		</StackPanel>
+
+		<!-- Content -->
+		<Grid Grid.Row="1" Margin="10">
+			<Grid.RowDefinitions>
+				<RowDefinition Height="Auto"/>
+				<RowDefinition Height="*"/>
+				<RowDefinition Height="*"/>
+			</Grid.RowDefinitions>
+
+			<!-- Summary -->
+			<Border BorderBrush="Gray" BorderThickness="1" Padding="10" Margin="0,0,0,10" CornerRadius="10">
+				<StackPanel>
+					<TextBlock Text="Summary" Style="{ThemeResource SubtitleTextBlockStyle}"/>
+					<Grid>
+						<Grid.ColumnDefinitions>
+							<ColumnDefinition Width="*"/>
+							<ColumnDefinition Width="*"/>
+							<ColumnDefinition Width="*"/>
+						</Grid.ColumnDefinitions>
+						<StackPanel Grid.Column="0" Margin="5">
+							<TextBlock Text="Total Income" Style="{ThemeResource BodyTextBlockStyle}"/>
+							<TextBlock Text="{x:Bind ViewModel.TotalIncome, Mode=OneWay}" Style="{ThemeResource TitleTextBlockStyle}" Foreground="Green"/>
+						</StackPanel>
+						<StackPanel Grid.Column="1" Margin="5">
+							<TextBlock Text="Total Expense" Style="{ThemeResource BodyTextBlockStyle}"/>
+							<TextBlock Text="{x:Bind ViewModel.TotalExpense, Mode=OneWay}" Style="{ThemeResource TitleTextBlockStyle}" Foreground="Red"/>
+						</StackPanel>
+						<StackPanel Grid.Column="2" Margin="5">
+							<TextBlock Text="Balance" Style="{ThemeResource BodyTextBlockStyle}"/>
+							<TextBlock Text="{x:Bind ViewModel.Balance, Mode=OneWay}" Style="{ThemeResource TitleTextBlockStyle}"/>
+						</StackPanel>
+					</Grid>
+				</StackPanel>
+			</Border>
+
+			<!-- Overview Chart -->
+			<Border Grid.Row="1" BorderBrush="Gray" BorderThickness="1" Padding="10" Margin="0,0,0,10" CornerRadius="8">
+				<Grid>
+					<TextBlock Text="Overview" Style="{ThemeResource SubtitleTextBlockStyle}"/>
+					<lvc:CartesianChart 
+						Series="{x:Bind ViewModel.OverviewSeries, Mode=OneWay}"
+						XAxes="{x:Bind ViewModel.XAxes, Mode=OneWay}"
+						TooltipPosition="Top"
+						LegendPosition="Top"
+						Margin="0,30,0,0">
+					</lvc:CartesianChart>
+				</Grid>
+			</Border>
+
+			<!-- Income and Expense Charts -->
+			<Grid Grid.Row="2">
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition Width="*"/>
+					<ColumnDefinition Width="*"/>
+				</Grid.ColumnDefinitions>
+
+				<!-- Income Chart -->
+				<Border Grid.Column="0" BorderBrush="Gray" BorderThickness="1" Padding="10" Margin="0,0,5,0" CornerRadius="10">
+					<Grid>
+						<TextBlock Text="Income" Style="{ThemeResource SubtitleTextBlockStyle}"/>
+						<lvc:PieChart Series="{x:Bind ViewModel.IncomeSeries, Mode=OneWay}" InitialRotation="-90"/>
+					</Grid>
+				</Border>
+
+				<!-- Expense Chart -->
+				<Border Grid.Column="1" BorderBrush="Gray" BorderThickness="1" Padding="10" Margin="5,0,0,0" CornerRadius="10">
+					<Grid>
+						<TextBlock Text="Expense" Style="{ThemeResource SubtitleTextBlockStyle}"/>
+						<lvc:PieChart Series="{x:Bind ViewModel.ExpenseSeries, Mode=OneWay}" InitialRotation="-90"/>
+					</Grid>
+				</Border>
+			</Grid>
+		</Grid>
+	</Grid>
+</Page>
