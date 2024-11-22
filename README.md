@@ -38,4 +38,4 @@ git clone https://github.com/Azzurriii/Fin-Manager-Windows-App.git
 4. Build and run the application.
 
 ## License
-This project is licensed under the MIT License - see the [LICENSE](https://opensource.org/license/mit) file for details.
+This project is licensed under the 	WTFPL - see the [WTFPL](https://choosealicense.com/licenses/wtfpl/) page for details.
