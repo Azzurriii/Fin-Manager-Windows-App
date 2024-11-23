@@ -8,4 +8,5 @@ public interface ITagService
     Task<TagModel?> GetTagAsync(int id);
     Task<TagModel> CreateTagAsync(string name);
     Task DeleteTagAsync(int id);
+    Task<List<TagModel>> GetTagsByTypeAsync(string type);
 }

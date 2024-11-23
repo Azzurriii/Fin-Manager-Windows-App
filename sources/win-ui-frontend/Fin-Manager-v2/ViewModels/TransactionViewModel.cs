@@ -102,7 +102,7 @@ namespace Fin_Manager_v2.ViewModels
             {
                 await Task.WhenAll(
                     LoadAccountsAsync(),
-                    LoadTagsAsync()
+                    LoadTagsByTypeAsync("INCOME")
                 );
                 await LoadTransactionsAsync();
             }
@@ -205,8 +205,9 @@ namespace Fin_Manager_v2.ViewModels
             }
             else if (SelectedAccountObj?.AccountName == "All Accounts")
             {
-                Balance = Accounts.Where(a => a.AccountName != "All Accounts")
-                                 .Sum(a => a.CurrentBalance);
+                Balance = Accounts
+                    .Where(a => a.AccountName != "All Accounts")
+                    .Sum(a => a.CurrentBalance);
             }
         }
 
@@ -242,33 +243,6 @@ namespace Fin_Manager_v2.ViewModels
             }
         }
 
-        private async Task LoadTagsAsync()
-        {
-            try
-            {
-                var tags = await _tagService.GetTagsAsync();
-                System.Diagnostics.Debug.WriteLine($"Loaded {tags?.Count() ?? 0} tags");
-
-                _dispatcherQueue.TryEnqueue(() =>
-                {
-                    AvailableTags.Clear();
-                    if (tags != null)
-                    {
-                        foreach (var tag in tags)
-                        {
-                            AvailableTags.Add(tag);
-                        }
-                    }
-                    System.Diagnostics.Debug.WriteLine($"AvailableTags count: {AvailableTags.Count}");
-                });
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"Error loading tags: {ex.Message}");
-                System.Diagnostics.Debug.WriteLine($"Stack trace: {ex.StackTrace}");
-            }
-        }
-
         [RelayCommand]
         private void OpenAddTransaction()
         {
@@ -288,6 +262,7 @@ namespace Fin_Manager_v2.ViewModels
                 SelectedAccountObj = firstRealAccount;
             }
 
+            LoadTagsByTypeAsync("INCOME").ConfigureAwait(false);
             SelectedTag = null;
             IsAddTransactionDialogOpen = true;
         }
@@ -313,7 +288,6 @@ namespace Fin_Manager_v2.ViewModels
                     return;
                 }
 
-                // Cập nhật các giá trị cho NewTransaction
                 NewTransaction.AccountId = SelectedAccountObj.AccountId;
                 NewTransaction.UserId = _authService.GetUserId() ?? 0;
                 NewTransaction.TransactionType = SelectedTransactionType;
@@ -325,12 +299,12 @@ namespace Fin_Manager_v2.ViewModels
                 bool success;
                 if (IsEditMode)
                 {
-                    // Gọi API update nếu đang ở chế độ edit
+                    // Edit existing transaction
                     success = await _transactionService.UpdateTransactionAsync(EditingTransactionId, NewTransaction);
                 }
                 else
                 {
-                    // Gọi API create nếu đang thêm mới
+                    // Create new transaction
                     success = await _transactionService.CreateTransactionAsync(NewTransaction);
                 }
 
@@ -348,9 +322,25 @@ namespace Fin_Manager_v2.ViewModels
                 }
                 else
                 {
-                    await _dialogService.ShowErrorAsync(
-                        IsEditMode ? "Update Failed" : "Create Failed",
-                        "An error occurred. Please try again.");
+                    if(SelectedAccountObj.AccountId == 0)
+                    {
+                        await _dialogService.ShowErrorAsync(
+                            "Create Failed",
+                            "Please select an account to add a transaction.");
+                    }
+                    else if (SelectedTag == null)
+                    {
+                        await _dialogService.ShowErrorAsync(
+                            "Create Failed",
+                            "Please select a tag to add a transaction.");
+                    }
+                    else
+                    {
+                        await _dialogService.ShowErrorAsync(
+                            IsEditMode ? "Update Failed" : "Create Failed",
+                            "An error occurred. Please try again.");
+                    }
+                    
                 }
             }
             catch (Exception ex)
@@ -439,6 +429,32 @@ namespace Fin_Manager_v2.ViewModels
         partial void OnIsEditModeChanged(bool value)
         {
             OnPropertyChanged(nameof(DialogTitle));
+        }
+
+        private async Task LoadTagsByTypeAsync(string type)
+        {
+            try
+            {
+                var tags = await _tagService.GetTagsByTypeAsync(type);
+                _dispatcherQueue.TryEnqueue(() =>
+                {
+                    AvailableTags.Clear();
+                    foreach (var tag in tags)
+                    {
+                        AvailableTags.Add(tag);
+                    }
+                    SelectedTag = null;
+                });
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error loading tags by type: {ex.Message}");
+            }
+        }
+
+        partial void OnSelectedTransactionTypeChanged(string value)
+        {
+            LoadTagsByTypeAsync(value).ConfigureAwait(false);
         }
     }
 }
