@@ -2,20 +2,9 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Between, Repository } from 'typeorm';
 import { Transaction } from './entity/transaction.entity';
-
-// src/transaction/dto/create-transaction.dto.ts
-import { ApiProperty } from '@nestjs/swagger';
-import {
-  IsNumber,
-  IsString,
-  IsEnum,
-  IsDate,
-  IsOptional,
-} from 'class-validator';
 import { FinanceAccount } from 'src/account/entity/account.entity';
 import { GetTotalAmountDto } from './dto/get-total-amount.dto';
 import { UpdateTransactionDto } from './dto/update-transaction.dto';
-import { log } from 'console';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
 
 export enum TransactionType {

@@ -19,7 +19,7 @@
         <!-- Add Transaction Dialog -->
         <TeachingTip x:Name="AddTransactionDialog"
              IsOpen="{x:Bind ViewModel.IsAddTransactionDialogOpen, Mode=TwoWay}"
-             Title="Add New Transaction"
+             Title="{x:Bind ViewModel.DialogTitle, Mode=OneWay}"
              Closing="AddTransactionDialog_Closing"
              IsLightDismissEnabled="True"
              PlacementMargin="20"
@@ -73,10 +73,10 @@
                               DisplayMemberPath="TagName"
                               Width="200"/>
 
-                    <!-- Add Transaction Button -->
-                    <Button Content="Add Transaction" 
+                    <!-- Save Transaction Button -->
+                    <Button Content="Save Transaction" 
                             Style="{StaticResource AccentButtonStyle}"
-                            Command="{x:Bind ViewModel.CreateTransactionCommand}"
+                            Command="{x:Bind ViewModel.SaveTransactionCommand}"
                             HorizontalAlignment="Right"/>
                 </StackPanel>
             </TeachingTip.Content>
@@ -85,6 +85,7 @@
 
     <Grid x:Name="ContentArea" Padding="20">
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
@@ -123,8 +124,15 @@
             </Button>
         </Grid>
 
+        <!-- Help Text -->
+        <TextBlock Grid.Row="1" 
+                   Text="Right-click for edit or delete transaction"
+                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                   FontStyle="Italic"
+                   Margin="0,0,0,8"/>
+
         <!-- Summary Cards -->
-        <Grid Grid.Row="1" Margin="0,0,0,20">
+        <Grid Grid.Row="2" Margin="0,0,0,20">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="*"/>
@@ -201,75 +209,96 @@
             </Border>
         </Grid>
 
-        <ListView Grid.Row="2" 
-          ItemsSource="{x:Bind ViewModel.Transactions, Mode=OneWay}"
-          Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-          CornerRadius="8"
-          Padding="4">
+        <!-- Transaction List -->
+        <ListView Grid.Row="3" 
+                  ItemsSource="{x:Bind ViewModel.Transactions, Mode=OneWay}"
+                  SelectionMode="None"
+                  x:Name="TransactionListView">
             <ListView.ItemTemplate>
                 <DataTemplate x:DataType="models:TransactionModel">
-                    <Grid Padding="12">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
+                    <Border Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                            BorderThickness="1"
+                            CornerRadius="8"
+                            Margin="0,0,0,8">
+                        <Grid Padding="16" 
+                              Tapped="Transaction_Tapped"
+                              Background="Transparent">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
 
-                        <!-- Transaction Type Icon -->
-                        <FontIcon Grid.Column="0" 
-                         Margin="0,0,12,0"
-                         Glyph="&#xE10F;"
-                         Foreground="{x:Bind TransactionType, Converter={StaticResource TypeToColorConverter}}"/>
+                            <!-- Transaction Type Icon -->
+                            <FontIcon Grid.Column="0" 
+                                     Margin="0,0,16,0"
+                                     Glyph="&#xE10F;"
+                                     FontSize="20"
+                                     Foreground="{x:Bind TransactionType, Converter={StaticResource TypeToColorConverter}}"/>
 
-                        <!-- Transaction Details -->
-                        <Grid Grid.Column="1">
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                            </Grid.RowDefinitions>
+                            <!-- Transaction Details -->
+                            <Grid Grid.Column="1">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
 
-                            <!-- Description Row -->
-                            <TextBlock Grid.Row="0" 
-                             Text="{x:Bind Description}" 
-                             Style="{StaticResource BodyStrongTextBlockStyle}"
-                             TextWrapping="Wrap"
-                             MaxLines="2"/>
+                                <!-- Description Row -->
+                                <TextBlock Grid.Row="0" 
+                                          Text="{x:Bind Description}" 
+                                          Style="{StaticResource BodyStrongTextBlockStyle}"
+                                          TextWrapping="Wrap"
+                                          MaxLines="2"/>
 
-                            <!-- Account and Tag Row -->
-                            <StackPanel Grid.Row="1" 
-                              Orientation="Horizontal" 
-                              Spacing="8"
-                              Margin="0,4,0,0">
-                                <TextBlock Text="{x:Bind Account}" 
-                                 Style="{StaticResource CaptionTextBlockStyle}"
-                                 Foreground="{ThemeResource SystemAccentColor}"/>
-                                <TextBlock Text="•" 
-                                 Style="{StaticResource CaptionTextBlockStyle}" 
-                                 Opacity="0.6"/>
-                                <TextBlock Text="{x:Bind TagName}" 
-                                 Style="{StaticResource CaptionTextBlockStyle}"
-                                 Foreground="{ThemeResource SystemAccentColorLight1}"/>
+                                <!-- Account and Tag Row -->
+                                <StackPanel Grid.Row="1" 
+                                          Orientation="Horizontal" 
+                                          Spacing="8"
+                                          Margin="0,4,0,0">
+                                    <TextBlock Text="{x:Bind Account}" 
+                                             Style="{StaticResource CaptionTextBlockStyle}"
+                                             Foreground="{ThemeResource SystemAccentColor}"/>
+                                    <TextBlock Text="•" 
+                                             Style="{StaticResource CaptionTextBlockStyle}" 
+                                             Opacity="0.6"/>
+                                    <TextBlock Text="{x:Bind TagName}" 
+                                             Style="{StaticResource CaptionTextBlockStyle}"
+                                             Foreground="{ThemeResource SystemAccentColorLight1}"/>
+                                </StackPanel>
+
+                                <!-- Date Row -->
+                                <TextBlock Grid.Row="2"
+                                         Text="{x:Bind FormattedDate}" 
+                                         Style="{StaticResource CaptionTextBlockStyle}" 
+                                         Opacity="0.6"
+                                         Margin="0,2,0,0"/>
+                            </Grid>
+
+                            <!-- Amount -->
+                            <StackPanel Grid.Column="2" 
+                                      VerticalAlignment="Center"
+                                      MinWidth="100">
+                                <TextBlock Text="{x:Bind Amount}"
+                                         Foreground="{x:Bind TransactionType, Converter={StaticResource TypeToColorConverter}}"
+                                         Style="{StaticResource SubtitleTextBlockStyle}"
+                                         FontWeight="SemiBold"
+                                         TextAlignment="Right"/>
                             </StackPanel>
 
-                            <!-- Date Row -->
-                            <TextBlock Grid.Row="2"
-                             Text="{x:Bind FormattedDate}" 
-                             Style="{StaticResource CaptionTextBlockStyle}" 
-                             Opacity="0.6"
-                             Margin="0,2,0,0"/>
+                            <Grid.ContextFlyout>
+                                <MenuFlyout>
+                                    <MenuFlyoutItem Text="Edit"
+                                                  Icon="Edit"
+                                                  Click="EditMenuItem_Click"/>
+                                    <MenuFlyoutItem Text="Delete"
+                                                  Icon="Delete"
+                                                  Click="DeleteMenuItem_Click"/>
+                                </MenuFlyout>
+                            </Grid.ContextFlyout>
                         </Grid>
-
-                        <!-- Amount -->
-                        <StackPanel Grid.Column="2" 
-                          VerticalAlignment="Center">
-                            <TextBlock Text="{x:Bind Amount}"
-                             Foreground="{x:Bind TransactionType, Converter={StaticResource TypeToColorConverter}}"
-                             Style="{StaticResource SubtitleTextBlockStyle}"
-                             FontWeight="SemiBold"
-                             TextAlignment="Right"/>
-                        </StackPanel>
-                    </Grid>
+                    </Border>
                 </DataTemplate>
             </ListView.ItemTemplate>
         </ListView>

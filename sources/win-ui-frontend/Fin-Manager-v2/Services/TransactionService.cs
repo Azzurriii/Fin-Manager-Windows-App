@@ -84,4 +84,50 @@ public class TransactionService : ITransactionService
             return new List<TransactionModel>();
         }
     }
+
+    public async Task<bool> UpdateTransactionAsync(int id, TransactionModel transaction)
+    {
+        try
+        {
+            var requestBody = new
+            {
+                account_id = transaction.AccountId,
+                user_id = transaction.UserId,
+                transaction_type = transaction.TransactionType,
+                amount = transaction.Amount,
+                tag_id = transaction.TagId,
+                description = transaction.Description,
+                transaction_date = transaction.Date.ToString("o")
+            };
+
+            var response = await _httpClient.PutAsJsonAsync($"transactions/{id}", requestBody);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync();
+                System.Diagnostics.Debug.WriteLine($"Error updating transaction: {error}");
+            }
+
+            return response.IsSuccessStatusCode;
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Error updating transaction: {ex.Message}");
+            return false;
+        }
+    }
+
+    public async Task<bool> DeleteTransactionAsync(int id)
+    {
+        try
+        {
+            var response = await _httpClient.DeleteAsync($"transactions/{id}");
+            return response.IsSuccessStatusCode;
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Error deleting transaction: {ex.Message}");
+            return false;
+        }
+    }
 }
