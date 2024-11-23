@@ -1,6 +1,6 @@
 import { Controller, Get, Post, Body, Param, Delete, Put } from '@nestjs/common';
 import { CreateTagDto, TagService, UpdateTagDto } from './tag.service';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiParam, ApiTags } from '@nestjs/swagger';
 
 
 @ApiTags('tags')
@@ -16,6 +16,12 @@ export class TagController {
     @Get()
     findAll() {
         return this.tagService.findAll();
+    }
+
+    @Get('type/:type')
+    @ApiParam({ name: 'type', type: 'string', description: 'The type of the tag' })
+    findByType(@Param('type') type: string) {
+        return this.tagService.findByType(type);
     }
 
     @Get(':id')

@@ -4,7 +4,7 @@ export class SeedTags1730539221221 implements MigrationInterface {
 
     public async up(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.query(`
-            INSERT INTO tag (name, "tagType") VALUES 
+            INSERT INTO tag (name, type) VALUES 
             ('Salary', 'income'),              -- Lương
             ('Freelance', 'income'),           -- Thu nhập từ công việc tự do
             ('Bonus', 'income'),               -- Thưởng
