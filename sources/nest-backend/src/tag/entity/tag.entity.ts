@@ -9,5 +9,5 @@ export class Tag {
     name: string;
 
     @Column()
-    tagType: string;
+    type: string;
 }

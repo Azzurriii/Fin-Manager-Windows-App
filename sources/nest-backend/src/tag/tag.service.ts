@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-
 import { Repository } from 'typeorm';
 import { IsString, IsNotEmpty } from 'class-validator';
 import { Tag } from './entity/tag.entity';
@@ -15,7 +14,7 @@ export class CreateTagDto {
     @IsString()
     @IsNotEmpty()
     @ApiProperty({ example: 'expense', enum: ['income', 'expense'] })
-    tagType: string;
+    type: string;
 }
 
 export class UpdateTagDto extends CreateTagDto {}
@@ -33,6 +32,10 @@ export class TagService {
 
     async findAll(): Promise<Tag[]> {
         return this.tagRepository.find();
+    }
+
+    async findByType(type: string): Promise<Tag[]> {
+        return this.tagRepository.find({ where: { type } });
     }
 
     async findOne(id: number): Promise<Tag> {

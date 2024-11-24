@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Microsoft.UI.Dispatching;
 using Fin_Manager_v2.Services;
 using Fin_Manager_v2.Contracts.Services;
+using Microsoft.UI.Xaml.Controls;
 
 namespace Fin_Manager_v2.ViewModels
 {
@@ -63,6 +64,14 @@ namespace Fin_Manager_v2.ViewModels
         [ObservableProperty]
         private AccountModel _selectedAccountObj;
 
+        [ObservableProperty]
+        private bool _isEditMode;
+
+        [ObservableProperty]
+        private int _editingTransactionId;
+
+        public string DialogTitle => IsEditMode ? "Edit Transaction" : "Add New Transaction";
+
         public TransactionViewModel(ITransactionService transactionService,
             ITagService tagService,
             IAccountService accountService,
@@ -93,7 +102,7 @@ namespace Fin_Manager_v2.ViewModels
             {
                 await Task.WhenAll(
                     LoadAccountsAsync(),
-                    LoadTagsAsync()
+                    LoadTagsByTypeAsync("INCOME")
                 );
                 await LoadTransactionsAsync();
             }
@@ -196,8 +205,9 @@ namespace Fin_Manager_v2.ViewModels
             }
             else if (SelectedAccountObj?.AccountName == "All Accounts")
             {
-                Balance = Accounts.Where(a => a.AccountName != "All Accounts")
-                                 .Sum(a => a.CurrentBalance);
+                Balance = Accounts
+                    .Where(a => a.AccountName != "All Accounts")
+                    .Sum(a => a.CurrentBalance);
             }
         }
 
@@ -233,33 +243,6 @@ namespace Fin_Manager_v2.ViewModels
             }
         }
 
-        private async Task LoadTagsAsync()
-        {
-            try
-            {
-                var tags = await _tagService.GetTagsAsync();
-                System.Diagnostics.Debug.WriteLine($"Loaded {tags?.Count() ?? 0} tags");
-
-                _dispatcherQueue.TryEnqueue(() =>
-                {
-                    AvailableTags.Clear();
-                    if (tags != null)
-                    {
-                        foreach (var tag in tags)
-                        {
-                            AvailableTags.Add(tag);
-                        }
-                    }
-                    System.Diagnostics.Debug.WriteLine($"AvailableTags count: {AvailableTags.Count}");
-                });
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"Error loading tags: {ex.Message}");
-                System.Diagnostics.Debug.WriteLine($"Stack trace: {ex.StackTrace}");
-            }
-        }
-
         [RelayCommand]
         private void OpenAddTransaction()
         {
@@ -279,12 +262,13 @@ namespace Fin_Manager_v2.ViewModels
                 SelectedAccountObj = firstRealAccount;
             }
 
+            LoadTagsByTypeAsync("INCOME").ConfigureAwait(false);
             SelectedTag = null;
             IsAddTransactionDialogOpen = true;
         }
 
         [RelayCommand]
-        private async Task CreateTransactionAsync()
+        private async Task SaveTransactionAsync()
         {
             try
             {
@@ -304,22 +288,6 @@ namespace Fin_Manager_v2.ViewModels
                     return;
                 }
 
-                if (SelectedAccountObj == null || SelectedAccountObj.AccountId == 0)
-                {
-                    await _dialogService.ShowErrorAsync(
-                        "Invalid Account",
-                        "Please select a valid account for the transaction.");
-                    return;
-                }
-
-                if (SelectedTag == null)
-                {
-                    await _dialogService.ShowErrorAsync(
-                        "No Tag Selected",
-                        "Please select a tag for the transaction.");
-                    return;
-                }
-
                 NewTransaction.AccountId = SelectedAccountObj.AccountId;
                 NewTransaction.UserId = _authService.GetUserId() ?? 0;
                 NewTransaction.TransactionType = SelectedTransactionType;
@@ -328,24 +296,58 @@ namespace Fin_Manager_v2.ViewModels
                 NewTransaction.Description = NewTransaction.Description.Trim();
                 NewTransaction.Date = TransactionDate.DateTime.ToUniversalTime();
 
-                var result = await _transactionService.CreateTransactionAsync(NewTransaction);
-                if (result)
+                bool success;
+                if (IsEditMode)
+                {
+                    // Edit existing transaction
+                    success = await _transactionService.UpdateTransactionAsync(EditingTransactionId, NewTransaction);
+                }
+                else
+                {
+                    // Create new transaction
+                    success = await _transactionService.CreateTransactionAsync(NewTransaction);
+                }
+
+                if (success)
                 {
                     await LoadTransactionsAsync();
                     IsAddTransactionDialogOpen = false;
+                    IsEditMode = false;
+                    // Reset form
+                    NewTransaction = new TransactionModel();
+                    TransactionAmount = 0;
+                    TransactionDate = DateTimeOffset.Now;
+                    SelectedTransactionType = "INCOME";
+                    SelectedTag = null;
                 }
-            }
-            catch (ArgumentException ex)
-            {
-                await _dialogService.ShowErrorAsync(
-                    "Invalid Input",
-                    "Please check your input and try again.");
+                else
+                {
+                    if(SelectedAccountObj.AccountId == 0)
+                    {
+                        await _dialogService.ShowErrorAsync(
+                            "Create Failed",
+                            "Please select an account to add a transaction.");
+                    }
+                    else if (SelectedTag == null)
+                    {
+                        await _dialogService.ShowErrorAsync(
+                            "Create Failed",
+                            "Please select a tag to add a transaction.");
+                    }
+                    else
+                    {
+                        await _dialogService.ShowErrorAsync(
+                            IsEditMode ? "Update Failed" : "Create Failed",
+                            "An error occurred. Please try again.");
+                    }
+                    
+                }
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Error creating transaction: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Error saving transaction: {ex.Message}");
                 await _dialogService.ShowErrorAsync(
-                    "Create Transaction Failed",
+                    IsEditMode ? "Update Failed" : "Create Failed",
                     "An unexpected error occurred. Please try again later.");
             }
         }
@@ -366,6 +368,93 @@ namespace Fin_Manager_v2.ViewModels
         partial void OnSelectedAccountObjChanged(AccountModel value)
         {
             LoadTransactionsAsync().ConfigureAwait(false);
+        }
+
+        [RelayCommand]
+        public void EditTransaction(TransactionModel transaction)
+        {
+            IsEditMode = true;
+            EditingTransactionId = transaction.TransactionId;
+            
+            // Populate the dialog with existing values
+            NewTransaction = new TransactionModel
+            {
+                Description = transaction.Description,
+                Amount = transaction.Amount,
+                TransactionType = transaction.TransactionType,
+                TagId = transaction.TagId,
+                AccountId = transaction.AccountId,
+                UserId = transaction.UserId,
+                Date = transaction.Date
+            };
+            
+            TransactionAmount = Convert.ToDouble(transaction.Amount);
+            TransactionDate = new DateTimeOffset(transaction.Date);
+            SelectedTransactionType = transaction.TransactionType;
+            SelectedAccountObj = Accounts.FirstOrDefault(a => a.AccountId == transaction.AccountId);
+            SelectedTag = AvailableTags.FirstOrDefault(t => t.Id == transaction.TagId);
+            
+            IsAddTransactionDialogOpen = true;
+        }
+
+        [RelayCommand]
+        public async Task DeleteTransactionAsync(TransactionModel transaction)
+        {
+            var dialog = new ContentDialog
+            {
+                Title = "Confirm Delete",
+                Content = "Are you sure you want to delete this transaction?",
+                PrimaryButtonText = "Delete",
+                CloseButtonText = "Cancel",
+                XamlRoot = App.MainWindow.Content.XamlRoot
+            };
+
+            var result = await dialog.ShowAsync();
+            if (result == ContentDialogResult.Primary)
+            {
+                var success = await _transactionService.DeleteTransactionAsync(transaction.TransactionId);
+                if (success)
+                {
+                    await LoadTransactionsAsync();
+                }
+                else
+                {
+                    await _dialogService.ShowErrorAsync(
+                        "Delete Failed",
+                        "Failed to delete the transaction. Please try again.");
+                }
+            }
+        }
+
+        partial void OnIsEditModeChanged(bool value)
+        {
+            OnPropertyChanged(nameof(DialogTitle));
+        }
+
+        private async Task LoadTagsByTypeAsync(string type)
+        {
+            try
+            {
+                var tags = await _tagService.GetTagsByTypeAsync(type);
+                _dispatcherQueue.TryEnqueue(() =>
+                {
+                    AvailableTags.Clear();
+                    foreach (var tag in tags)
+                    {
+                        AvailableTags.Add(tag);
+                    }
+                    SelectedTag = null;
+                });
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error loading tags by type: {ex.Message}");
+            }
+        }
+
+        partial void OnSelectedTransactionTypeChanged(string value)
+        {
+            LoadTagsByTypeAsync(value).ConfigureAwait(false);
         }
     }
 }
