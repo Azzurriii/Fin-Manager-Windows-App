@@ -5,6 +5,7 @@ import { Transaction } from './entity/transaction.entity';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
 import { GetTotalAmountDto } from './dto/get-total-amount.dto';
 import { UpdateTransactionDto } from './dto/update-transaction.dto';
+
 @ApiTags('transactions')
 @Controller('transactions')
 export class TransactionController {

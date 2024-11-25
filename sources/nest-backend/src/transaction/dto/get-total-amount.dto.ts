@@ -1,8 +1,8 @@
-import { IsNumber } from "class-validator";
-import { IsEnum } from "class-validator";
-import { ApiProperty } from "@nestjs/swagger";
-import { IsDate, IsOptional } from "class-validator";
-import { TransactionType } from "../transaction.service";
+import { IsNumber } from 'class-validator';
+import { IsEnum } from 'class-validator';
+import { ApiProperty } from '@nestjs/swagger';
+import { IsDate, IsOptional } from 'class-validator';
+import { TransactionType } from '../transaction.service';
 
 export class GetTotalAmountDto {
   @ApiProperty({ example: 1 })
@@ -29,4 +29,3 @@ export class GetTotalAmountDto {
   @IsOptional()
   endDate?: Date;
 }
-        

@@ -78,6 +78,8 @@
                                 <ColumnDefinition Width="Auto"/>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
 
                             <!-- Account Icon -->
@@ -104,6 +106,28 @@
                                       Style="{StaticResource SubtitleTextBlockStyle}"
                                       VerticalAlignment="Center"
                                       Margin="12,0,0,0"/>
+
+                            <!-- Edit Button -->
+                            <Button Grid.Column="3"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                    Margin="8,0,0,0"
+                                    Click="OnUpdateAccountClick">
+                                <FontIcon Glyph="&#xE70F;" 
+                                         FontSize="16" 
+                                         Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                            </Button>
+
+                            <!-- Delete Button -->
+                            <Button Grid.Column="4"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                    Margin="8,0,0,0"
+                                    Click="OnDeleteAccountClick">
+                                <FontIcon Glyph="&#xE74D;" 
+                                         FontSize="16" 
+                                         Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                            </Button>
                         </Grid>
                     </DataTemplate>
                 </ListView.ItemTemplate>
@@ -125,8 +149,8 @@
 
         <!-- Add Account Dialog -->
         <ContentDialog x:Name="AddAccountDialog" 
-                      Title="Add New Account"
-                      PrimaryButtonText="Add" 
+                      Title="{x:Bind DialogTitle, Mode=OneWay}"
+                      PrimaryButtonText="Save" 
                       SecondaryButtonText="Cancel"
                       PrimaryButtonClick="OnAddAccountDialogPrimaryButtonClick"
                       DefaultButton="Primary"
@@ -134,11 +158,13 @@
             <StackPanel Spacing="16">
                 <TextBox Header="Account Name" 
                          x:Name="AccountNameInput"
-                         PlaceholderText="Enter account name"/>
+                         PlaceholderText="Enter account name"
+                         Text="{Binding AccountName}"/>
 
                 <ComboBox Header="Account Type" 
                           x:Name="AccountTypeInput"
                           PlaceholderText="Select account type"
+                          SelectedItem="{Binding AccountType}"
                           Width="300">
                     <ComboBoxItem Content="Checking"/>
                     <ComboBoxItem Content="Savings"/>
@@ -153,11 +179,23 @@
                           SpinButtonPlacementMode="Compact"
                           SmallChange="1"
                           LargeChange="10"
-                          Minimum="0"/>
+                          Minimum="0"
+                          Value="{Binding InitialBalance}"/>
+
+                <NumberBox Header="Current Balance"
+                  x:Name="CurrentBalanceInput"
+                  PlaceholderText="0.00"
+                  SpinButtonPlacementMode="Compact"
+                  SmallChange="1"
+                  LargeChange="10"
+                  Minimum="0"
+                  Value="{Binding CurrentBalance}"
+                  Visibility="{x:Bind IsUpdateMode, Mode=OneWay}"/>
 
                 <ComboBox Header="Currency" 
                           x:Name="CurrencyInput"
                           PlaceholderText="Select currency"
+                          SelectedItem="{Binding Currency}"
                           Width="300">
                     <ComboBoxItem Content="VND - Vietnamese Dong"/>
                     <ComboBoxItem Content="USD - US Dollar"/>

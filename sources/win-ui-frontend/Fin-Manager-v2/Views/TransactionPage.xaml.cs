@@ -1,4 +1,6 @@
-﻿using Fin_Manager_v2.ViewModels;
+﻿using Fin_Manager_v2.Models;
+using Fin_Manager_v2.ViewModels;
+using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 
 namespace Fin_Manager_v2.Views
@@ -29,6 +31,33 @@ namespace Fin_Manager_v2.Views
         private void AddTransactionDialog_Closing(TeachingTip sender, TeachingTipClosingEventArgs args)
         {
             ViewModel.IsAddTransactionDialogOpen = false;
+        }
+
+        private void Transaction_Tapped(object sender, Microsoft.UI.Xaml.Input.TappedRoutedEventArgs e)
+        {
+            if (sender is FrameworkElement element && 
+                element.DataContext is TransactionModel transaction)
+            {
+                ViewModel.EditTransaction(transaction);
+            }
+        }
+
+        private void EditMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is MenuFlyoutItem menuItem && 
+                menuItem.DataContext is TransactionModel transaction)
+            {
+                ViewModel.EditTransaction(transaction);
+            }
+        }
+
+        private async void DeleteMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is MenuFlyoutItem menuItem && 
+                menuItem.DataContext is TransactionModel transaction)
+            {
+                await ViewModel.DeleteTransactionCommand.ExecuteAsync(transaction);
+            }
         }
     }
 }

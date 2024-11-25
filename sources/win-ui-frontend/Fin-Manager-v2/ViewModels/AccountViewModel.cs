@@ -4,6 +4,7 @@ using Fin_Manager_v2.DTO;
 using Fin_Manager_v2.Models;
 using Microsoft.UI.Xaml;
 using Fin_Manager_v2.Contracts.Services;
+using Windows.Services.Maps;
 
 namespace Fin_Manager_v2.ViewModels;
 
@@ -94,6 +95,59 @@ public partial class AccountViewModel : ObservableRecipient
         ErrorMessage = $"{title}: {message}";
     }
 
+    private string _errorText;
+    public string ErrorText
+    {
+        get => _errorText;
+        set
+        {
+            if (_errorText != value)
+            {
+                _errorText = value;
+                OnPropertyChanged();
+            }
+        }
+    }
+
+    public async Task<bool> AddOrUpdateAccountAsync(string accountName, string accountType, decimal initialBalance, string currency, AccountModel currentEditingAccount)
+    {
+        if (string.IsNullOrEmpty(accountName) || string.IsNullOrEmpty(accountType) || string.IsNullOrEmpty(currency))
+        {
+            ErrorText = "Please fill in all required fields.";
+            return false;
+        }
+
+        if (currentEditingAccount != null)
+        {
+            var account = new UpdateFinanceAccountDto
+            {
+                account_id = currentEditingAccount.AccountId,
+                account_name = accountName,
+                account_type = accountType,
+                initial_balance = initialBalance,
+                current_balance = currentEditingAccount.CurrentBalance,
+                currency = currency,
+            };
+
+            await UpdateAccountAsync(account);
+        }
+        else
+        {
+            var newAccount = new CreateFinanceAccountDto
+            {
+                account_name = accountName,
+                account_type = accountType,
+                initial_balance = initialBalance,
+                currency = currency,
+                current_balance = initialBalance,
+            };
+
+            await AddAccountAsync(newAccount);
+        }
+
+        return true;
+    }
+
     public async Task<bool> AddAccountAsync(CreateFinanceAccountDto accountDto)
     {
         ResetError();
@@ -129,6 +183,17 @@ public partial class AccountViewModel : ObservableRecipient
         }
     }
 
+    public async Task DeleteAccountAsync(AccountModel account)
+    {
+        if (Accounts.Contains(account))
+        {
+            Accounts.Remove(account);
+
+            await _accountService.DeleteAccountAsync(account.AccountId);
+        }
+    }
+
+
     private bool ValidateAccountDto(CreateFinanceAccountDto accountDto)
     {
         if (string.IsNullOrWhiteSpace(accountDto.account_name))
@@ -152,24 +217,14 @@ public partial class AccountViewModel : ObservableRecipient
         return true;
     }
 
-    public async Task UpdateAccount(AccountModel account)
+    public async Task UpdateAccountAsync(UpdateFinanceAccountDto account)
     {
         try
         {
             var success = await _accountService.UpdateAccountAsync(account);
             if (success)
             {
-                var existingAccount = Accounts.FirstOrDefault(a => a.AccountId == account.AccountId);
-                if (existingAccount != null)
-                {
-                    existingAccount.AccountName = account.AccountName;
-                    existingAccount.AccountType = account.AccountType;
-                    existingAccount.InitialBalance = account.InitialBalance;
-                    existingAccount.CurrentBalance = account.CurrentBalance;
-                    existingAccount.UpdateAt = DateTime.Now;
-
-                    OnPropertyChanged(nameof(Accounts));
-                }
+                LoadAccountsAsync();
             }
             else
             {

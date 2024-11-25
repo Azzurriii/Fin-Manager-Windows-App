@@ -1,4 +1,5 @@
 ﻿using System.Net.Http.Json;
+using System.Security.Cryptography.X509Certificates;
 using Fin_Manager_v2.Contracts.Services;
 using Fin_Manager_v2.Models;
 
@@ -52,6 +53,20 @@ public class TagService : ITagService
         var response = await _httpClient.PostAsJsonAsync("tags", new { name });
         return await response.Content.ReadFromJsonAsync<TagModel>()
                ?? throw new Exception("Failed to create tag");
+    }
+
+    public async Task<List<TagModel>> GetTagsByTypeAsync(string type)
+    {
+        try 
+        {
+            return await _httpClient.GetFromJsonAsync<List<TagModel>>($"tags/type/{type}")
+                   ?? new List<TagModel>();
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Error getting tags by type: {ex.Message}");
+            return new List<TagModel>();
+        }
     }
 
     public async Task DeleteTagAsync(int id)
