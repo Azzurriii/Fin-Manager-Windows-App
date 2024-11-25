@@ -95,6 +95,59 @@ public partial class AccountViewModel : ObservableRecipient
         ErrorMessage = $"{title}: {message}";
     }
 
+    private string _errorText;
+    public string ErrorText
+    {
+        get => _errorText;
+        set
+        {
+            if (_errorText != value)
+            {
+                _errorText = value;
+                OnPropertyChanged();
+            }
+        }
+    }
+
+    public async Task<bool> AddOrUpdateAccountAsync(string accountName, string accountType, decimal initialBalance, string currency, AccountModel currentEditingAccount)
+    {
+        if (string.IsNullOrEmpty(accountName) || string.IsNullOrEmpty(accountType) || string.IsNullOrEmpty(currency))
+        {
+            ErrorText = "Please fill in all required fields.";
+            return false;
+        }
+
+        if (currentEditingAccount != null)
+        {
+            var account = new UpdateFinanceAccountDto
+            {
+                account_id = currentEditingAccount.AccountId,
+                account_name = accountName,
+                account_type = accountType,
+                initial_balance = initialBalance,
+                current_balance = currentEditingAccount.CurrentBalance,
+                currency = currency,
+            };
+
+            await UpdateAccountAsync(account);
+        }
+        else
+        {
+            var newAccount = new CreateFinanceAccountDto
+            {
+                account_name = accountName,
+                account_type = accountType,
+                initial_balance = initialBalance,
+                currency = currency,
+                current_balance = initialBalance,
+            };
+
+            await AddAccountAsync(newAccount);
+        }
+
+        return true;
+    }
+
     public async Task<bool> AddAccountAsync(CreateFinanceAccountDto accountDto)
     {
         ResetError();

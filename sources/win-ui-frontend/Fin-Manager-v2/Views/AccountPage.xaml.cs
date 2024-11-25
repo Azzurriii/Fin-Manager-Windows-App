@@ -92,41 +92,17 @@ public sealed partial class AccountPage : Page
         var currencyItem = CurrencyInput.SelectedItem as ComboBoxItem;
         var currency = currencyItem?.Content as string;
 
-        if (string.IsNullOrEmpty(accountName) || string.IsNullOrEmpty(accountType) || string.IsNullOrEmpty(currency))
+        bool isSuccess = await ViewModel.AddOrUpdateAccountAsync(accountName, accountType, (decimal)initialBalance, currency, _currentEditingAccount);
+
+        if (!isSuccess)
         {
             ErrorTextBlock.Visibility = Visibility.Visible;
-            return;
-        }
-
-        if (_currentEditingAccount != null)
-        {
-            var account = new UpdateFinanceAccountDto
-            {
-                account_id = _currentEditingAccount.AccountId,
-                account_name = accountName,
-                account_type = accountType,
-                initial_balance = (decimal)initialBalance,
-                current_balance = _currentEditingAccount.CurrentBalance,
-                currency = currency,
-            };
-
-            await ViewModel.UpdateAccountAsync(account);
         }
         else
         {
-            var newAccount = new CreateFinanceAccountDto
-            {
-                account_name = accountName,
-                account_type = accountType,
-                initial_balance = (decimal)initialBalance,
-                currency = currency,
-                current_balance = (decimal)InitialBalanceInput.Value,
-            };
-
-            await ViewModel.AddAccountAsync(newAccount);
+            ErrorTextBlock.Visibility = Visibility.Collapsed;
+            AddAccountDialog.Hide();
         }
-
-        AddAccountDialog.Hide();
     }
 
 
