@@ -1,4 +1,3 @@
-// src/transaction/transaction.module.ts
 import { forwardRef, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { TransactionService } from './transaction.service';

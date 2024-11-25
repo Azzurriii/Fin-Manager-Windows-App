@@ -2,81 +2,14 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Between, Repository } from 'typeorm';
 import { Transaction } from './entity/transaction.entity';
-
-// src/transaction/dto/create-transaction.dto.ts
-import { ApiProperty } from '@nestjs/swagger';
-import {
-  IsNumber,
-  IsString,
-  IsEnum,
-  IsDate,
-  IsOptional,
-} from 'class-validator';
 import { FinanceAccount } from 'src/account/entity/account.entity';
-import { log } from 'console';
+import { CreateTransactionDto } from './dto/create-transaction.dto';
+import { GetTotalAmountDto } from './dto/get-total-amount.dto';
 
 export enum TransactionType {
   INCOME = 'INCOME',
   EXPENSE = 'EXPENSE',
 }
-
-export class CreateTransactionDto {
-  @ApiProperty({ example: 1 })
-  @IsNumber()
-  account_id: number;
-
-  @ApiProperty({ example: 1 })
-  @IsNumber()
-  user_id: number;
-
-  @ApiProperty({ example: 'INCOME', enum: TransactionType })
-  @IsEnum(TransactionType)
-  transaction_type: TransactionType;
-
-  @ApiProperty({ example: 100.0 })
-  @IsNumber()
-  amount: number;
-
-  @ApiProperty({ example: 1 })
-  @IsNumber()
-  tag_id: number;
-
-  @ApiProperty({ example: 'Sample transaction' })
-  @IsOptional()
-  @IsString()
-  description?: string;
-
-  @ApiProperty({ example: '2023-10-05T14:48:00.000Z' })
-  @IsDate()
-  transaction_date?: Date;
-}
-
-export class GetTotalAmountDto {
-  @ApiProperty({ example: 1 })
-  @IsNumber()
-  user_id: number;
-
-  @ApiProperty({ example: 1 })
-  @IsNumber()
-  @IsOptional()
-  account_id: number;
-
-  @ApiProperty({ example: 'INCOME', enum: TransactionType })
-  @IsEnum(TransactionType)
-  @IsOptional()
-  transaction_type?: TransactionType;
-
-  @ApiProperty({ example: '2023-10-05T14:48:00.000Z' })
-  @IsDate()
-  @IsOptional()
-  startDate?: Date;
-
-  @ApiProperty({ example: '2023-11-05T14:48:00.000Z' })
-  @IsDate()
-  @IsOptional()
-  endDate?: Date;
-}
-
 @Injectable()
 export class TransactionService {
   constructor(
