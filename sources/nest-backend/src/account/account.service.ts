@@ -5,10 +5,11 @@ import { Repository } from 'typeorm';
 import { FinanceAccount } from './entity/account.entity';
 import { IsNotEmpty, IsString, IsNumber } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
+import { UpdateFinanceAccountDto } from './dto/update-finance-account.dto';
 export class CreateFinanceAccountDto {
   @IsNotEmpty()
   @IsString()
-  @ApiProperty({ example: 'Sample account' }) 
+  @ApiProperty({ example: 'Sample account' })
   account_name: string; // Updated to match entity
 
   @IsNotEmpty()
@@ -31,7 +32,6 @@ export class CreateFinanceAccountDto {
   @ApiProperty({ example: 'USD' })
   currency: string;
 }
-
 
 @Injectable()
 export class FinanceAccountService {
@@ -59,5 +59,35 @@ export class FinanceAccountService {
       user_id: userId,
     });
     return this.financeAccountRepository.save(newAccount);
+  }
+
+  async delete(userId: number, accountId: number): Promise<boolean> {
+    const account = await this.financeAccountRepository.findOne({
+      where: { account_id: accountId, user_id: userId },
+    });
+
+    if (!account) {
+      return false;
+    }
+
+    await this.financeAccountRepository.remove(account);
+    return true;
+  }
+
+  async updateAccount(
+    updateFinanceAccountDto: UpdateFinanceAccountDto,
+  ): Promise<boolean> {
+    const { account_id, ...updateData } = updateFinanceAccountDto;
+
+    const account = await this.financeAccountRepository.findOne({
+      where: { account_id },
+    });
+    if (!account) {
+      throw new Error('Account not found.');
+    }
+
+    Object.assign(account, updateData);
+    await this.financeAccountRepository.save(account);
+    return true;
   }
 }
