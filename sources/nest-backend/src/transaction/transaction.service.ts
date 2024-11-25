@@ -127,7 +127,14 @@ export class TransactionService {
   }
 
   async findTransactions(query: GetTotalAmountDto): Promise<Transaction[]> {
-    return this.transactionRepository.find({ where: query });
+    return this.transactionRepository.find({ where: 
+      {
+        user_id: query.user_id,
+        account_id: query.account_id,
+        transaction_date: Between(query.startDate, query.endDate),
+        transaction_type: query.transaction_type,
+      }
+     });
   }
 
   async getTotalAmountByDate(
