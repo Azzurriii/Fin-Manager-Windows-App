@@ -125,6 +125,70 @@ async getTotalAmountByDate(getTotalAmountDto: GetTotalAmountDto): Promise<number
         },
     });
 
+<<<<<<< Updated upstream
     return transactions.reduce((total, transaction) => total + 1*transaction.amount, 0);
+=======
+    return transactions.reduce(
+      (total, transaction) => total + 1 * transaction.amount,
+      0,
+    );
+  }
+
+  async findTransactions(query: GetTotalAmountDto): Promise<Transaction[]> {
+    const { user_id, account_id, startDate, endDate, transaction_type } = query;
+
+    const conditions = {
+      user_id,
+      account_id,
+      transaction_date: Between(startDate, endDate),
+      transaction_type,
+    };
+
+    return this.transactionRepository.find({ where: conditions });
+  }
+
+  async updateTransaction(
+    id: number,
+    updateTransactionDto: UpdateTransactionDto,
+  ): Promise<Transaction> {
+    const transaction = await this.transactionRepository.findOne({
+      where: { transaction_id: id },
+    });
+
+    if (!transaction) {
+      throw new Error('Transaction not found');
+    }
+
+    // Update the transaction
+    Object.assign(transaction, updateTransactionDto);
+    return this.transactionRepository.save(transaction);
+  }
+
+  async deleteTransaction(id: number): Promise<void> {
+    const transaction = await this.transactionRepository.findOne({
+      where: { transaction_id: id },
+    });
+
+    if (!transaction) {
+      throw new Error('Transaction not found');
+    }
+
+    // If it's an income, subtract from balance. If expense, add back to balance
+    const account = await this.accountRepository.findOne({
+      where: { account_id: transaction.account_id },
+    });
+
+    if (account) {
+      if (transaction.transaction_type === TransactionType.INCOME) {
+        account.current_balance -= Number(transaction.amount);
+      } else if (transaction.transaction_type === TransactionType.EXPENSE) {
+        account.current_balance += Number(transaction.amount);
+      }
+      await this.accountRepository.save(account);
+    }
+
+    await this.transactionRepository.remove(transaction);
+  }
+>>>>>>> Stashed changes
 }
 }
