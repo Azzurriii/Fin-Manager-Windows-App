@@ -41,10 +41,17 @@ public class AccountService : IAccountService
         return response.IsSuccessStatusCode;
     }
 
-    public async Task<bool> UpdateAccountAsync(AccountModel account)
+    public async Task<bool> UpdateAccountAsync(UpdateFinanceAccountDto account)
     {
         SetAuthorizationHeader();
-        var response = await _httpClient.PutAsJsonAsync($"finance-accounts/{account.AccountId}", account);
+        var response = await _httpClient.PutAsJsonAsync($"finance-accounts/{account.account_id}", account);
+        return response.IsSuccessStatusCode;
+    }
+
+    public async Task<bool> DeleteAccountAsync(int accountId)
+    {
+        SetAuthorizationHeader();
+        var response = await _httpClient.DeleteAsync($"finance-accounts/{accountId}");
         return response.IsSuccessStatusCode;
     }
 }

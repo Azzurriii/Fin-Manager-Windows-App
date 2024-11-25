@@ -2,7 +2,7 @@
 FROM node:18-alpine
 
 # Tạo thư mục làm việc trong container
-WORKDIR /usr/src/app
+WORKDIR            /usr/src/app
 
 # Sao chép package.json và package-lock.json (nếu có)
 COPY package*.json ./

@@ -12,7 +12,38 @@ namespace Fin_Manager_v2.Views;
 public sealed partial class AccountPage : Page
 {
     private bool isUserSelection = false;
+
+    private AccountModel _currentEditingAccount;
+
     public AccountViewModel ViewModel { get; }
+
+    private string _dialogTitle = "Add New Account";
+    public string DialogTitle
+    {
+        get => _dialogTitle;
+        set
+        {
+            if (_dialogTitle != value)
+            {
+                _dialogTitle = value;
+                //OnPropertyChanged(nameof(DialogTitle));
+            }
+        }
+    }
+
+    private Visibility _isUpdateMode = Visibility.Collapsed;
+    public Visibility IsUpdateMode
+    {
+        get => _isUpdateMode;
+        set
+        {
+            if (_isUpdateMode != value)
+            {
+                _isUpdateMode = value;
+                //OnPropertyChanged(nameof(IsUpdateMode));
+            }
+        }
+    }
 
     public AccountPage()
     {
@@ -44,62 +75,128 @@ public sealed partial class AccountPage : Page
 
     private async void OnAddAccountClick(object sender, RoutedEventArgs e)
     {
-        AccountNameInput.Text = string.Empty;
-        AccountTypeInput.SelectedItem = null;
-        InitialBalanceInput.Value = 0;
-        CurrencyInput.SelectedItem = null;
 
-        await AddAccountDialog.ShowAsync();
+        _currentEditingAccount = null;
+        DialogTitle = "Add New Account";
+        IsUpdateMode = Visibility.Collapsed;
+        PopulateDialogFields(null);
+        AddAccountDialog.ShowAsync();
     }
-
 
     private async void OnAddAccountDialogPrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
     {
-        args.Cancel = true;
+        var accountName = AccountNameInput.Text;
+        var accountTypeItem = AccountTypeInput.SelectedItem as ComboBoxItem;
+        var accountType = accountTypeItem?.Content as string;
+        var initialBalance = InitialBalanceInput.Value;
+        var currencyItem = CurrencyInput.SelectedItem as ComboBoxItem;
+        var currency = currencyItem?.Content as string;
 
-        if (string.IsNullOrWhiteSpace(AccountNameInput.Text))
+        if (string.IsNullOrEmpty(accountName) || string.IsNullOrEmpty(accountType) || string.IsNullOrEmpty(currency))
         {
-            ErrorTextBlock.Text = "Please enter an account name.";
-            ErrorTextBlock.Visibility = Visibility.Visible;
-            return;
-        }
-        if (AccountTypeInput.SelectedItem == null)
-        {
-            ErrorTextBlock.Text = "Please select an account type.";
-            ErrorTextBlock.Visibility = Visibility.Visible;
-            return;
-        }
-        if (CurrencyInput.SelectedItem == null)
-        {
-            ErrorTextBlock.Text = "Please select a currency.";
             ErrorTextBlock.Visibility = Visibility.Visible;
             return;
         }
 
-        args.Cancel = false;
-
-        var newAccount = new CreateFinanceAccountDto
+        if (_currentEditingAccount != null)
         {
-            account_name = AccountNameInput.Text.Trim(),
-            account_type = (AccountTypeInput.SelectedItem as ComboBoxItem)?.Content.ToString(),
-            initial_balance = (decimal)InitialBalanceInput.Value,
-            current_balance = (decimal)InitialBalanceInput.Value,
-            currency = (CurrencyInput.SelectedItem as ComboBoxItem)?.Content.ToString()?.Split('-')[0].Trim(),
-        };
+            var account = new UpdateFinanceAccountDto
+            {
+                account_id = _currentEditingAccount.AccountId,
+                account_name = accountName,
+                account_type = accountType,
+                initial_balance = (decimal)initialBalance,
+                current_balance = _currentEditingAccount.CurrentBalance,
+                currency = currency,
+            };
 
-        sender.IsPrimaryButtonEnabled = false;
-        sender.IsSecondaryButtonEnabled = false;
-
-        bool isSuccess = await ViewModel.AddAccountAsync(newAccount);
-
-        if (!isSuccess)
+            await ViewModel.UpdateAccountAsync(account);
+        }
+        else
         {
-            await ShowErrorDialog(ViewModel.ErrorMessage);
+            var newAccount = new CreateFinanceAccountDto
+            {
+                account_name = accountName,
+                account_type = accountType,
+                initial_balance = (decimal)initialBalance,
+                currency = currency,
+                current_balance = (decimal)InitialBalanceInput.Value,
+            };
+
+            await ViewModel.AddAccountAsync(newAccount);
         }
 
-        sender.IsPrimaryButtonEnabled = true;
-        sender.IsSecondaryButtonEnabled = true;
+        AddAccountDialog.Hide();
     }
+
+
+    private async void OnDeleteAccountClick(object sender, RoutedEventArgs e)
+    {
+        var button = sender as Button;
+        var account = button?.DataContext as AccountModel;
+
+        if (account != null)
+        {
+            var dialog = new ContentDialog
+            {
+                Title = "Delete Account",
+                Content = $"Are you sure you want to delete the account \"{account.AccountName}\"?",
+                PrimaryButtonText = "Delete",
+                CloseButtonText = "Cancel",
+                XamlRoot = button.XamlRoot
+            };
+
+            dialog.PrimaryButtonClick += async (_, _) =>
+            {
+                await ViewModel.DeleteAccountAsync(account);
+            };
+
+            await dialog.ShowAsync();
+        }
+    }
+
+    private async void OnUpdateAccountClick(object sender, RoutedEventArgs e)
+    {
+        var button = sender as Button;
+        var account = button?.DataContext as AccountModel;
+        if (account != null)
+        {
+            _currentEditingAccount = account;
+            DialogTitle = "Update Account";
+            IsUpdateMode = Visibility.Visible;
+            PopulateDialogFields(account);
+            AddAccountDialog.ShowAsync();
+        }
+    }
+
+    private void PopulateDialogFields(AccountModel? account)
+    {
+        if (account != null)
+        {
+            IsUpdateMode = Visibility.Visible;
+            AccountNameInput.Text = account.AccountName;
+            AccountTypeInput.SelectedItem = AccountTypeInput.Items
+                .OfType<ComboBoxItem>()
+                .FirstOrDefault(item => item.Content as string == account.AccountType);
+            InitialBalanceInput.Value = (double)account.InitialBalance;
+            CurrencyInput.SelectedItem = CurrencyInput.Items
+                .OfType<ComboBoxItem>()
+                .FirstOrDefault(item => item.Content as string == account.Currency);
+            CurrentBalanceInput.Value = (double)account.CurrentBalance;
+        }
+        else
+        {
+            IsUpdateMode = Visibility.Collapsed;
+            AccountNameInput.Text = string.Empty;
+            AccountTypeInput.SelectedItem = null;
+            InitialBalanceInput.Value = 0;
+            CurrencyInput.SelectedItem = null;
+            CurrentBalanceInput.Value = 0;
+        }
+
+        ErrorTextBlock.Visibility = Visibility.Collapsed;
+    }
+
 
     private async Task ShowErrorDialog(string message)
     {
