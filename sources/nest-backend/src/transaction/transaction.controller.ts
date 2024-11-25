@@ -1,10 +1,10 @@
-import { Controller, Get, Post, Body, Param } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete, Put } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBody } from '@nestjs/swagger';
 import { TransactionService } from './transaction.service';
 import { Transaction } from './entity/transaction.entity';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
 import { GetTotalAmountDto } from './dto/get-total-amount.dto';
-
+import { UpdateTransactionDto } from './dto/update-transaction.dto';
 @ApiTags('transactions')
 @Controller('transactions')
 export class TransactionController {
@@ -37,5 +37,17 @@ export class TransactionController {
     @ApiOperation({ summary: 'Get total amount by date' })
     async getTotalAmountByDate(@Body() getTotalAmountDto: GetTotalAmountDto): Promise<number> {
         return this.transactionService.getTotalAmountByDate(getTotalAmountDto);
+    }
+
+    @Delete(':id')
+    @ApiOperation({ summary: 'Delete a transaction by ID' })
+    async delete(@Param('id') id: string): Promise<void> {
+        return this.transactionService.deleteTransaction(+id);
+    }
+
+    @Put(':id')
+    @ApiOperation({ summary: 'Update a transaction by ID' })
+    async update(@Param('id') id: string, @Body() updateTransactionDto: UpdateTransactionDto): Promise<Transaction> {
+        return this.transactionService.updateTransaction(+id, updateTransactionDto);
     }
 }
