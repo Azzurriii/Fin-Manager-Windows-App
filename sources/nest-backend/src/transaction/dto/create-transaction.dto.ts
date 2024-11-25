@@ -1,13 +1,5 @@
-import { IsEnum } from 'class-validator';
-
-import { IsNumber } from 'class-validator';
-
-import { IsOptional } from 'class-validator';
-
-import { IsString } from 'class-validator';
-
+import { IsEnum, IsNumber, IsDate, IsOptional, IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsDate } from 'class-validator';
 import { TransactionType } from '../transaction.service';
 
 export class CreateTransactionDto {
@@ -36,7 +28,7 @@ export class CreateTransactionDto {
   @IsString()
   description?: string;
 
-  @ApiProperty({ example: '2024-11-01T14:48:00.000Z' })
+  @ApiProperty({ example: '2024-11-01' })
   @IsDate()
   transaction_date?: Date;
 }

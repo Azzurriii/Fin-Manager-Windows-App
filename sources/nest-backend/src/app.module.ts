@@ -12,6 +12,7 @@ import { BaseModule } from './base/base.module';
 import { FinanceAccountModule } from './account/account.module';
 import { Tag } from './tag/entity/tag.entity';
 import { TagModule } from './tag/tag.module';
+import { ReportModule } from './report/report.module';
 
 @Module({
   imports: [
@@ -39,6 +40,7 @@ import { TagModule } from './tag/tag.module';
     BaseModule,
     FinanceAccountModule,
     TagModule,
+    ReportModule,
   ],
   controllers: [AppController],
   providers: [AppService],

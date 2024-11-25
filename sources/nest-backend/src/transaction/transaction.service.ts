@@ -3,9 +3,9 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Between, Repository } from 'typeorm';
 import { Transaction } from './entity/transaction.entity';
 import { FinanceAccount } from 'src/account/entity/account.entity';
+import { CreateTransactionDto } from './dto/create-transaction.dto';
 import { GetTotalAmountDto } from './dto/get-total-amount.dto';
 import { UpdateTransactionDto } from './dto/update-transaction.dto';
-import { CreateTransactionDto } from './dto/create-transaction.dto';
 
 export enum TransactionType {
   INCOME = 'INCOME',
@@ -61,6 +61,17 @@ export class TransactionService {
     return this.transactionRepository.find({ where: { user_id } });
   }
 
+  async findTransactions(query: GetTotalAmountDto): Promise<Transaction[]> {
+    return this.transactionRepository.find({
+      where: {
+        user_id: query.user_id,
+        account_id: query.account_id,
+        transaction_date: Between(query.startDate, query.endDate),
+        transaction_type: query.transaction_type,
+      },
+    });
+  }
+
   async getTotalAmountByDate(
     getTotalAmountDto: GetTotalAmountDto,
   ): Promise<number> {
@@ -82,11 +93,11 @@ export class TransactionService {
   }
 
   async updateTransaction(
-    id: number, 
-    updateTransactionDto: UpdateTransactionDto
+    id: number,
+    updateTransactionDto: UpdateTransactionDto,
   ): Promise<Transaction> {
     const transaction = await this.transactionRepository.findOne({
-      where: { transaction_id: id }
+      where: { transaction_id: id },
     });
 
     if (!transaction) {
@@ -100,7 +111,7 @@ export class TransactionService {
 
   async deleteTransaction(id: number): Promise<void> {
     const transaction = await this.transactionRepository.findOne({
-      where: { transaction_id: id }
+      where: { transaction_id: id },
     });
 
     if (!transaction) {
@@ -109,7 +120,7 @@ export class TransactionService {
 
     // If it's an income, subtract from balance. If expense, add back to balance
     const account = await this.accountRepository.findOne({
-      where: { account_id: transaction.account_id }
+      where: { account_id: transaction.account_id },
     });
 
     if (account) {
