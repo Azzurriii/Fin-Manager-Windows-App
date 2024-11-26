@@ -12,15 +12,76 @@
 
 		<!-- Controls -->
 		<StackPanel Orientation="Horizontal" Margin="10" Grid.Row="0">
-			<ComboBox Header="Time Period" Width="150" Margin="5"
-                      SelectedItem="{x:Bind ViewModel.SelectedTimePeriod, Mode=TwoWay}">
+			<ComboBox x:Name="TimePeriodComboBox" 
+					  Header="Time Period" 
+					  Width="150" 
+					  Margin="5"
+					  SelectedItem="{x:Bind ViewModel.SelectedTimePeriod, Mode=TwoWay}">
 				<x:String>Day</x:String>
 				<x:String>Month</x:String>
 				<x:String>Quarter</x:String>
 				<x:String>Year</x:String>
 			</ComboBox>
-			<DatePicker Header="Start Date" Margin="5"/>
-			<DatePicker Header="End Date" Margin="5"/>
+
+			<!-- Day Selection -->
+			<CalendarDatePicker Header="Select Date" 
+								  Margin="5"
+								  Visibility="{x:Bind ViewModel.IsDayPeriod, Mode=OneWay}"/>
+
+			<!-- Month Selection -->
+			<StackPanel Orientation="Horizontal" 
+						Visibility="{x:Bind ViewModel.IsMonthPeriod, Mode=OneWay}">
+				<ComboBox Header="Month" 
+						  Width="120" 
+						  Margin="5"
+						  SelectedItem="{x:Bind ViewModel.SelectedMonth, Mode=TwoWay}">
+					<x:String>January</x:String>
+                    <x:String>February</x:String>
+                    <x:String>March</x:String>
+                    <x:String>April</x:String>
+                    <x:String>May</x:String>
+                    <x:String>June</x:String>
+                    <x:String>July</x:String>
+                    <x:String>August</x:String>
+                    <x:String>September</x:String>
+                    <x:String>October</x:String>
+                    <x:String>November</x:String>
+                    <x:String>December</x:String>
+				</ComboBox>
+				<NumberBox Header="Year"
+						  Width="100"
+						  Margin="5"
+						  Value="{x:Bind ViewModel.SelectedYear, Mode=TwoWay}"
+						  SpinButtonPlacementMode="Compact"/>
+			</StackPanel>
+
+			<!-- Quarter Selection -->
+			<StackPanel Orientation="Horizontal" 
+						Visibility="{x:Bind ViewModel.IsQuarterPeriod, Mode=OneWay}">
+				<ComboBox Header="Quarter" 
+						  Width="120" 
+						  Margin="5"
+						  SelectedItem="{x:Bind ViewModel.SelectedQuarter, Mode=TwoWay}">
+					<x:String>Q1</x:String>
+					<x:String>Q2</x:String>
+					<x:String>Q3</x:String>
+					<x:String>Q4</x:String>
+				</ComboBox>
+				<NumberBox Header="Year"
+						  Width="100"
+						  Margin="5"
+						  Value="{x:Bind ViewModel.SelectedYear, Mode=TwoWay}"
+						  SpinButtonPlacementMode="Compact"/>
+			</StackPanel>
+
+			<!-- Year Selection -->
+			<NumberBox Header="Year"
+					  Width="100"
+					  Margin="5"
+					  Visibility="{x:Bind ViewModel.IsYearPeriod, Mode=OneWay}"
+					  Value="{x:Bind ViewModel.SelectedYear, Mode=TwoWay}"
+					  SpinButtonPlacementMode="Compact"/>
+
 			<ComboBox Header="Account" Width="150" Margin="5"/>
 		</StackPanel>
 

@@ -10,7 +10,34 @@ namespace Fin_Manager_v2.ViewModels;
 public partial class ReportViewModel : ObservableRecipient
 {
     [ObservableProperty]
-    private string selectedTimePeriod = "Month";
+    private string _selectedTimePeriod = "Year";
+
+    [ObservableProperty]
+    private string _selectedMonth = DateTime.Now.ToString("MMMM");
+
+    [ObservableProperty]
+    private string _selectedQuarter = $"Q{(DateTime.Now.Month + 2) / 3}";
+
+    [ObservableProperty]
+    private int _selectedYear = DateTime.Now.Year;
+
+    [ObservableProperty]
+    private DateTimeOffset _selectedDate = DateTimeOffset.Now;
+
+    // Visibility control properties
+    public bool IsDayPeriod => SelectedTimePeriod == "Day";
+    public bool IsMonthPeriod => SelectedTimePeriod == "Month";
+    public bool IsQuarterPeriod => SelectedTimePeriod == "Quarter";
+    public bool IsYearPeriod => SelectedTimePeriod == "Year";
+
+    partial void OnSelectedTimePeriodChanged(string value)
+    {
+        OnPropertyChanged(nameof(IsDayPeriod));
+        OnPropertyChanged(nameof(IsMonthPeriod));
+        OnPropertyChanged(nameof(IsQuarterPeriod));
+        OnPropertyChanged(nameof(IsYearPeriod));
+        UpdateChartData();
+    }
 
     [ObservableProperty]
     private string totalIncome = "$5,000";
@@ -120,5 +147,10 @@ public partial class ReportViewModel : ObservableRecipient
                 Fill = new SolidColorPaint(SKColors.Crimson)
             }
         };
+    }
+
+    private void UpdateChartData()
+    {
+        // Sẽ implement sau để cập nhật dữ liệu chart dựa trên period được chọn
     }
 }
