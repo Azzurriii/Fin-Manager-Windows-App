@@ -72,7 +72,7 @@ export class ReportService {
       });
     }
 
-    return months;
+    return {months};
   }
 
   async getByCategory(query: CategoryReportDto, type: TransactionType) {
@@ -99,12 +99,11 @@ export class ReportService {
         const tagId = parseInt(category, 10);
         const tag = await this.tagService.findOne(tagId);
         return {
-          tag_id: tagId,
+          tagId: tagId,
           tagName: tag?.name || 'Uncategorized',
           amount,
         };
       })
     );
   }
-  
 }

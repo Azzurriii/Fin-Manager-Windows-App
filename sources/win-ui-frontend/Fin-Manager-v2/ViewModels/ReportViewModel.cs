@@ -1,18 +1,18 @@
-﻿using System.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
+using Fin_Manager_v2.Contracts.Services;
 using LiveChartsCore;
+using LiveChartsCore.Kernel.Sketches;
 using LiveChartsCore.SkiaSharpView;
 using LiveChartsCore.SkiaSharpView.Painting;
-using LiveChartsCore.Kernel.Sketches;
 using SkiaSharp;
-using Fin_Manager_v2.Contracts.Services;
+using System.Diagnostics;
 
 namespace Fin_Manager_v2.ViewModels;
 
 public partial class ReportViewModel : ObservableRecipient
 {
     private readonly IReportService _reportService;
-    
+
     [ObservableProperty]
     private string _selectedTimePeriod = "Year";
 
@@ -81,10 +81,10 @@ public partial class ReportViewModel : ObservableRecipient
         try
         {
             var (startDate, endDate) = _reportService.GetDateRangeFromPeriod(
-                SelectedTimePeriod, 
-                SelectedDate, 
-                SelectedMonth, 
-                SelectedQuarter, 
+                SelectedTimePeriod,
+                SelectedDate,
+                SelectedMonth,
+                SelectedQuarter,
                 SelectedYear);
 
             // Update Summary
@@ -133,7 +133,7 @@ public partial class ReportViewModel : ObservableRecipient
             IncomeSeries = incomeCategories.Select(x => new PieSeries<double>
             {
                 Values = new[] { (double)x.Amount },
-                Name = x.Tag,
+                Name = x.TagName,
                 Fill = new SolidColorPaint(SKColors.Green.WithAlpha((byte)(155 + Random.Shared.Next(100))))
             });
 
@@ -142,7 +142,7 @@ public partial class ReportViewModel : ObservableRecipient
             ExpenseSeries = expenseCategories.Select(x => new PieSeries<double>
             {
                 Values = new[] { (double)x.Amount },
-                Name = x.Tag,
+                Name = x.TagName,
                 Fill = new SolidColorPaint(SKColors.Red.WithAlpha((byte)(155 + Random.Shared.Next(100))))
             });
         }
