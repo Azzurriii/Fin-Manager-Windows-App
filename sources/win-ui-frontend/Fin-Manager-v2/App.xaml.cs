@@ -64,6 +64,7 @@ public partial class App : Application
             services.AddSingleton<ITransactionService, TransactionService>();
             services.AddSingleton<IAccountService, AccountService>();
             services.AddSingleton<IDialogService, DialogService>();
+            services.AddSingleton<IBudgetService, BudgetService>();
             services.AddSingleton<HttpClient>();
 
             // HTTP and Currency Services
@@ -98,6 +99,8 @@ public partial class App : Application
             });
 
             // Views and ViewModels
+            services.AddTransient<BudgetViewModel>();
+            services.AddTransient<BudgetPage>();
             services.AddTransient<ReportViewModel>();
             services.AddTransient<ReportPage>();
             services.AddTransient<MonthlyViewViewModel>();

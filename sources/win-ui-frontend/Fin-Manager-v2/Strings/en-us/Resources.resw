@@ -138,4 +138,7 @@
   <data name="Shell_Report.Content" xml:space="preserve">
     <value>Report</value>
   </data>
+  <data name="Shell_Budget.Content" xml:space="preserve">
+    <value>Budget</value>
+  </data>
 </root>
