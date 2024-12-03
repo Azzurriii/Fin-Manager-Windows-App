@@ -22,6 +22,7 @@ public class PageService : IPageService
         Configure<LoginViewModel, LoginPage>();
         Configure<SignUpViewModel, SignUpPage>();
         Configure<ReportViewModel, ReportPage>();
+        Configure<BudgetViewModel, BudgetPage>();
     }
 
     public Type GetPageType(string key)

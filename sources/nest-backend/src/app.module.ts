@@ -13,6 +13,7 @@ import { FinanceAccountModule } from './account/account.module';
 import { Tag } from './tag/entity/tag.entity';
 import { TagModule } from './tag/tag.module';
 import { ReportModule } from './report/report.module';
+import { BudgetModule } from './budget/budget.module';
 
 @Module({
   imports: [
@@ -41,6 +42,7 @@ import { ReportModule } from './report/report.module';
     FinanceAccountModule,
     TagModule,
     ReportModule,
+    BudgetModule,
   ],
   controllers: [AppController],
   providers: [AppService],
