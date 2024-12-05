@@ -130,4 +130,24 @@ public class TransactionService : ITransactionService
             return false;
         }
     }
+
+    public async Task<List<TransactionModel>> GetTransactionsByQueryAsync(QueryDto query)
+{
+    try
+    {
+        var response = await _httpClient.PostAsJsonAsync("transactions/query", query);
+        if (response.IsSuccessStatusCode)
+        {
+            return await response.Content.ReadFromJsonAsync<List<TransactionModel>>() ?? new List<TransactionModel>();
+        }
+        return new List<TransactionModel>();
+    }
+    catch (Exception ex)
+    {
+        System.Diagnostics.Debug.WriteLine($"Error getting transactions by query: {ex.Message}");
+        return new List<TransactionModel>();
+    }
+}
+
+    
 }

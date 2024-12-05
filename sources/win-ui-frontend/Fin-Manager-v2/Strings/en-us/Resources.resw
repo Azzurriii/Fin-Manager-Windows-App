@@ -133,7 +133,7 @@
     <value>Currency</value>
   </data>
   <data name="Shell_MonthlyView.Content" xml:space="preserve">
-    <value>MonthlyView</value>
+    <value>History</value>
   </data>
   <data name="Shell_Report.Content" xml:space="preserve">
     <value>Report</value>

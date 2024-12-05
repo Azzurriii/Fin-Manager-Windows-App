@@ -4,9 +4,116 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:converters="using:Fin_Manager_v2.Converters"
     mc:Ignorable="d">
 
-    <Grid x:Name="ContentArea">
-        
+    <Page.Resources>
+        <converters:TransactionTypeToColorConverter x:Key="TypeToColorConverter"/>
+        <converters:DateFormatterConverter x:Key="DateFormatter"/>
+    </Page.Resources>
+
+    <Grid x:Name="ContentArea" Padding="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Controls Section -->
+        <Grid Grid.Row="0" Margin="0,0,0,20">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
+                <CalendarDatePicker Header="Start Date"
+                                  Date="{x:Bind ViewModel.StartDate, Mode=TwoWay}"/>
+                
+                <CalendarDatePicker Header="End Date"
+                                  Date="{x:Bind ViewModel.EndDate, Mode=TwoWay}"/>
+            </StackPanel>
+
+            <ComboBox Grid.Column="1"
+                      Header="Account"
+                      ItemsSource="{x:Bind ViewModel.Accounts, Mode=OneWay}"
+                      SelectedItem="{x:Bind ViewModel.SelectedAccount, Mode=TwoWay}"
+                      DisplayMemberPath="AccountName"
+                      MinWidth="150"
+                      Margin="12,0,0,0"/>
+
+            <ListBox Grid.Column="2"
+                    ItemsSource="{x:Bind ViewModel.AvailableTags, Mode=OneWay}"
+                    SelectionMode="Multiple"
+                    SelectionChanged="{x:Bind ViewModel.OnTagSelectionChanged}"
+                    MinWidth="200"
+                    MaxHeight="300"
+                    Margin="12,0,0,0">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding TagName}"/>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+
+            <StackPanel Grid.Column="3" 
+                        Orientation="Horizontal" 
+                        HorizontalAlignment="Right"
+                        Spacing="24">
+                <TextBlock>
+                    <Run Text="Thu: "/>
+                    <Run Text="{x:Bind ViewModel.TotalIncome, Mode=OneWay}"/>
+                    <Run Text=" đ"/>
+                </TextBlock>
+                <TextBlock>
+                    <Run Text="Chi: "/>
+                    <Run Text="{x:Bind ViewModel.TotalExpense, Mode=OneWay}"/>
+                    <Run Text=" đ"/>
+                </TextBlock>
+                <TextBlock>
+                    <Run Text="Số dư: "/>
+                    <Run Text="{x:Bind ViewModel.Balance, Mode=OneWay}"/>
+                    <Run Text=" đ"/>
+                </TextBlock>
+            </StackPanel>
+        </Grid>
+
+        <!-- Transaction List -->
+        <ListView Grid.Row="1" 
+                  ItemsSource="{x:Bind ViewModel.Transactions, Mode=OneWay}"
+                  SelectionMode="None">
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <Grid Padding="12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <FontIcon Grid.Column="0" 
+                                 Glyph="&#xE10F;"
+                                 Foreground="{Binding TransactionType, Converter={StaticResource TypeToColorConverter}}"/>
+
+                        <StackPanel Grid.Column="1" Margin="12,0">
+                            <TextBlock Text="{Binding Description}" 
+                                     Style="{ThemeResource BodyStrongTextBlockStyle}"/>
+                            <TextBlock Text="{Binding TagName}" 
+                                     Style="{ThemeResource CaptionTextBlockStyle}"
+                                     Opacity="0.6"/>
+                            <TextBlock Text="{Binding Date, Converter={StaticResource DateFormatter}}"
+                                     Style="{ThemeResource CaptionTextBlockStyle}"
+                                     Opacity="0.6"/>
+                        </StackPanel>
+
+                        <TextBlock Grid.Column="2"
+                                 Text="{Binding FormattedAmount}"
+                                 Style="{ThemeResource BodyStrongTextBlockStyle}"
+                                 Foreground="{Binding TransactionType, Converter={StaticResource TypeToColorConverter}}"/>
+                    </Grid>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
     </Grid>
 </Page>

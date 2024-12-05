@@ -8,4 +8,5 @@ public interface ITransactionService
     Task<decimal> GetTotalAmountAsync(int userId, int? accountId, string transactionType, DateTime startDate, DateTime endDate);
     Task<bool> UpdateTransactionAsync(int id, TransactionModel transaction);
     Task<bool> DeleteTransactionAsync(int id);
+    Task<List<TransactionModel>> GetTransactionsByQueryAsync(QueryDto query);
 }
