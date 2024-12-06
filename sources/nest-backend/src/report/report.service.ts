@@ -41,6 +41,14 @@ export class ReportService {
   }
 
   async getOverview(query: BaseReportDto) {
+    console.log('Overview Query:', query);
+    console.log('Query types:', {
+      startDate: typeof query.startDate,
+      endDate: typeof query.endDate,
+      user_id: typeof query.user_id,
+      account_id: typeof query.account_id
+    });
+
     const months = [];
     const startYear = query.startDate.getFullYear();
 
@@ -67,12 +75,12 @@ export class ReportService {
 
       months.push({
         month: startOfMonth.toLocaleString('default', { month: 'short' }),
-        totalIncome,
-        totalExpense,
+        totalIncome: totalIncome,
+        totalExpense: totalExpense,
       });
     }
 
-    return {months};
+    return months;
   }
 
   async getByCategory(query: CategoryReportDto, type: TransactionType) {
