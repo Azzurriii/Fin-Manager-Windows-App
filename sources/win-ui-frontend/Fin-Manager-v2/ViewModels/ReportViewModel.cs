@@ -28,21 +28,6 @@ public partial class ReportViewModel : ObservableRecipient
     [ObservableProperty]
     private DateTimeOffset _selectedDate = DateTimeOffset.Now;
 
-    // Visibility control properties
-    public bool IsDayPeriod => SelectedTimePeriod == "Day";
-    public bool IsMonthPeriod => SelectedTimePeriod == "Month";
-    public bool IsQuarterPeriod => SelectedTimePeriod == "Quarter";
-    public bool IsYearPeriod => SelectedTimePeriod == "Year";
-
-    partial void OnSelectedTimePeriodChanged(string value)
-    {
-        OnPropertyChanged(nameof(IsDayPeriod));
-        OnPropertyChanged(nameof(IsMonthPeriod));
-        OnPropertyChanged(nameof(IsQuarterPeriod));
-        OnPropertyChanged(nameof(IsYearPeriod));
-        UpdateChartData();
-    }
-
     [ObservableProperty]
     private string totalIncome = "0";
 
@@ -62,7 +47,7 @@ public partial class ReportViewModel : ObservableRecipient
     private IEnumerable<ISeries> expenseSeries = Array.Empty<ISeries>();
 
     [ObservableProperty]
-    private IEnumerable<ICartesianAxis> xAxes = Array.Empty<ICartesianAxis>();
+    private IEnumerable<ICartesianAxis> xAxes = new[] { new Axis { Labels = Array.Empty<string>() } };
 
     [ObservableProperty]
     private int userId = 1;
@@ -70,9 +55,23 @@ public partial class ReportViewModel : ObservableRecipient
     [ObservableProperty]
     private int accountId = 1;
 
+    public bool IsDayPeriod => SelectedTimePeriod == "Day";
+    public bool IsMonthPeriod => SelectedTimePeriod == "Month";
+    public bool IsQuarterPeriod => SelectedTimePeriod == "Quarter";
+    public bool IsYearPeriod => SelectedTimePeriod == "Year";
+
     public ReportViewModel(IReportService reportService)
     {
         _reportService = reportService;
+        UpdateChartData();
+    }
+
+    partial void OnSelectedTimePeriodChanged(string value)
+    {
+        OnPropertyChanged(nameof(IsDayPeriod));
+        OnPropertyChanged(nameof(IsMonthPeriod));
+        OnPropertyChanged(nameof(IsQuarterPeriod));
+        OnPropertyChanged(nameof(IsYearPeriod));
         UpdateChartData();
     }
 
@@ -87,68 +86,93 @@ public partial class ReportViewModel : ObservableRecipient
                 SelectedQuarter,
                 SelectedYear);
 
-            // Update Summary
+            // 1. Update Summary - Wait for completion
+            Debug.WriteLine("Fetching summary data...");
             var summary = await _reportService.GetSummaryAsync(UserId, AccountId, startDate, endDate);
-            TotalIncome = summary.TotalIncome.ToString("C");
-            TotalExpense = summary.TotalExpense.ToString("C");
-            Balance = summary.Balance.ToString("C");
+            Debug.WriteLine("Summary data received");
+            TotalIncome = summary.TotalIncome.ToString("N");
+            TotalExpense = summary.TotalExpense.ToString("N");
+            Balance = summary.Balance.ToString("N");
 
-            // Update Overview Chart
-            var overview = await _reportService.GetOverviewAsync(UserId, AccountId, startDate, endDate);
-            var months = overview.Select(x => x.Month).ToArray();
-            var incomeValues = overview.Select(x => (double)x.TotalIncome).ToArray();
-            var expenseValues = overview.Select(x => (double)x.TotalExpense).ToArray();
+            await Task.Delay(100); // Wait before next API call
+
+            // 2. Update Overview Chart - Wait for completion
+            Debug.WriteLine("Fetching overview data...");
+            var overviewData = await _reportService.GetOverviewAsync(UserId, AccountId, startDate, endDate);
+            Debug.WriteLine($"Received {overviewData.Count} overview records");
+
+            var months = overviewData.Select(x => x.Month ?? "").ToArray();
+            var incomeSeries = overviewData.Select(x => x.TotalIncome).ToArray();
+            var expenseSeries = overviewData.Select(x => x.TotalExpense).ToArray();
+
+            XAxes = new[] 
+            { 
+                new Axis 
+                { 
+                    Labels = months 
+                } 
+            };
 
             OverviewSeries = new ISeries[]
             {
-                new ColumnSeries<double>
+                new LineSeries<decimal>
                 {
+                    Values = incomeSeries,
                     Name = "Income",
-                    Values = incomeValues,
-                    Fill = new SolidColorPaint(SKColors.Green),
+                    Fill = null,
+                    Stroke = new SolidColorPaint(SKColors.Green, 2),
+                    GeometryStroke = new SolidColorPaint(SKColors.Green, 2),
+                    GeometrySize = 8
                 },
-                new ColumnSeries<double>
+                new LineSeries<decimal>
                 {
+                    Values = expenseSeries,
                     Name = "Expense",
-                    Values = expenseValues,
-                    Fill = new SolidColorPaint(SKColors.Red),
+                    Fill = null,
+                    Stroke = new SolidColorPaint(SKColors.Red, 2),
+                    GeometryStroke = new SolidColorPaint(SKColors.Red, 2),
+                    GeometrySize = 8
                 }
-            };
+            }.ToList(); // Force evaluation
 
-            XAxes = new ICartesianAxis[]
-            {
-                new Axis
+            await Task.Delay(100); // Wait before next API call
+
+            // 3. Update Income Pie Chart - Wait for completion
+            Debug.WriteLine("Fetching income categories...");
+            var incomeCategories = await _reportService.GetCategoryReportAsync(UserId, AccountId, "INCOME", startDate, endDate);
+            Debug.WriteLine($"Received {incomeCategories.Count} income categories");
+            
+            var incomePieSeries = incomeCategories
+                .Select(x => new PieSeries<double>
                 {
-                    Labels = months,
-                    LabelsRotation = 0,
-                    ForceStepToMin = true,
-                    MinStep = 1,
-                    TextSize = 12,
-                    SeparatorsPaint = new SolidColorPaint(SKColors.LightGray) { StrokeThickness = 1 }
-                }
-            };
+                    Values = new[] { (double)x.Amount },
+                    Name = x.TagName,
+                    Fill = new SolidColorPaint(SKColors.Green.WithAlpha((byte)(155 + Random.Shared.Next(100))))
+                })
+                .ToList(); // Force evaluation
 
-            // Update Income Pie Chart
-            var incomeCategories = await _reportService.GetCategoryReportAsync(UserId, AccountId, "income", startDate, endDate);
-            IncomeSeries = incomeCategories.Select(x => new PieSeries<double>
-            {
-                Values = new[] { (double)x.Amount },
-                Name = x.TagName,
-                Fill = new SolidColorPaint(SKColors.Green.WithAlpha((byte)(155 + Random.Shared.Next(100))))
-            });
+            IncomeSeries = incomePieSeries;
 
-            // Update Expense Pie Chart
-            var expenseCategories = await _reportService.GetCategoryReportAsync(UserId, AccountId, "expense", startDate, endDate);
-            ExpenseSeries = expenseCategories.Select(x => new PieSeries<double>
-            {
-                Values = new[] { (double)x.Amount },
-                Name = x.TagName,
-                Fill = new SolidColorPaint(SKColors.Red.WithAlpha((byte)(155 + Random.Shared.Next(100))))
-            });
+            await Task.Delay(100); // Wait before next API call
+
+            // 4. Update Expense Pie Chart - Wait for completion
+            Debug.WriteLine("Fetching expense categories...");
+            var expenseCategories = await _reportService.GetCategoryReportAsync(UserId, AccountId, "EXPENSE", startDate, endDate);
+            Debug.WriteLine($"Received {expenseCategories.Count} expense categories");
+            
+            var expensePieSeries = expenseCategories
+                .Select(x => new PieSeries<double>
+                {
+                    Values = new[] { (double)x.Amount },
+                    Name = x.TagName,
+                    Fill = new SolidColorPaint(SKColors.Red.WithAlpha((byte)(155 + Random.Shared.Next(100))))
+                })
+                .ToList(); // Force evaluation
+
+            ExpenseSeries = expensePieSeries;
         }
         catch (Exception ex)
         {
-            // Handle error appropriately
             Debug.WriteLine($"Error updating chart data: {ex.Message}");
         }
     }
