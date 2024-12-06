@@ -6,7 +6,11 @@ export class CategoryReportDto {
   @IsNumber()
   user_id: number;
 
-  @ApiProperty({ example: 1 })
+  @ApiProperty({ 
+    example: 1, 
+    required: false, 
+    description: 'Optional account ID. If not provided, will include all accounts' 
+  })
   @IsNumber()
   @IsOptional()
   account_id?: number;

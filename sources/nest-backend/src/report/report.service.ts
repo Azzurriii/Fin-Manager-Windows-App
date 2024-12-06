@@ -19,14 +19,14 @@ export class ReportService {
     const [totalIncome, totalExpense] = await Promise.all([
       this.transactionService.getTotalAmountByDate({
         user_id,
-        account_id,
+        ...(account_id && { account_id }),
         transaction_type: TransactionType.INCOME,
         startDate,
         endDate,
       }),
       this.transactionService.getTotalAmountByDate({
         user_id,
-        account_id,
+        ...(account_id && { account_id }),
         transaction_type: TransactionType.EXPENSE,
         startDate,
         endDate,
@@ -59,14 +59,14 @@ export class ReportService {
       const [totalIncome, totalExpense] = await Promise.all([
         this.transactionService.getTotalAmountByDate({
           user_id: query.user_id,
-          account_id: query.account_id,
+          ...(query.account_id && { account_id: query.account_id }),
           transaction_type: TransactionType.INCOME,
           startDate: startOfMonth,
           endDate: endOfMonth,
         }),
         this.transactionService.getTotalAmountByDate({
           user_id: query.user_id,
-          account_id: query.account_id,
+          ...(query.account_id && { account_id: query.account_id }),
           transaction_type: TransactionType.EXPENSE,
           startDate: startOfMonth,
           endDate: endOfMonth,
@@ -88,7 +88,7 @@ export class ReportService {
   
     const transactions = await this.transactionService.findTransactions({
       user_id,
-      account_id,
+      ...(account_id && { account_id }),
       transaction_type: type,
       startDate,
       endDate,
