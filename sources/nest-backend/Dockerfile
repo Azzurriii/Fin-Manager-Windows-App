@@ -1,23 +1,22 @@
-# Sử dụng Node.js làm base image
 FROM node:18-alpine
 
-# Tạo thư mục làm việc trong container
-WORKDIR            /usr/src/app
+WORKDIR /usr/src/app
 
-# Sao chép package.json và package-lock.json (nếu có)
+# Install netcat
+RUN apk add --no-cache netcat-openbsd
+
+# Copy package.json first
 COPY package*.json ./
 
-# Cài đặt dependencies
-RUN npm install
+# Install dependencies
+RUN yarn install
 
-# Sao chép source code vào container
+# Copy source code
 COPY . .
 
-# Build ứng dụng
-RUN npm run build
+# Build application
+RUN yarn build
 
-# Expose cổng mà ứng dụng sẽ chạy
 EXPOSE 3000
 
-# Chạy ứng dụng
-CMD ["npm", "run", "start:prod"]
+CMD ["yarn", "start:prod"]
