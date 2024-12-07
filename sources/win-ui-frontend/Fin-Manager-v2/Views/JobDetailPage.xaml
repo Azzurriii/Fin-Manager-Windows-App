@@ -1,0 +1,97 @@
+<Page
+    x:Class="Fin_Manager_v2.Views.JobDetailPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Fin_Manager_v2.Views"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <Grid Padding="24,32" CornerRadius="12">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Title -->
+        <TextBlock Grid.Row="0" 
+                 Text="Chi tiết công việc" 
+                 Style="{StaticResource TitleTextBlockStyle}" 
+                 Margin="0,0,0,24"/>
+
+        <!-- Job Details Card -->
+        <Border Grid.Row="1"
+                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                BorderThickness="1"
+                CornerRadius="8"
+                Padding="24">
+            <StackPanel Spacing="16">
+                <Grid RowSpacing="16" ColumnSpacing="24">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Text="Job Name:" 
+                             Style="{StaticResource BodyStrongTextBlockStyle}" 
+                             Grid.Row="0" Grid.Column="0"/>
+                    <TextBlock Text="{x:Bind ViewModel.Job.JobName}" 
+                             Grid.Row="0" Grid.Column="1"/>
+
+                    <TextBlock Text="Mô tả:" 
+                             Style="{StaticResource BodyStrongTextBlockStyle}" 
+                             Grid.Row="1" Grid.Column="0"/>
+                    <TextBlock Text="{x:Bind ViewModel.Job.Description}" 
+                             Grid.Row="1" Grid.Column="1"/>
+
+                    <TextBlock Text="Amount:" 
+                             Style="{StaticResource BodyStrongTextBlockStyle}" 
+                             Grid.Row="2" Grid.Column="0"/>
+                    <TextBlock Text="{x:Bind ViewModel.Job.Amount, Converter={StaticResource CurrencyFormatterConverter}}" 
+                             Grid.Row="2" Grid.Column="1"/>
+
+                    <TextBlock Text="Loại lặp lại:" 
+                             Style="{StaticResource BodyStrongTextBlockStyle}" 
+                             Grid.Row="3" Grid.Column="0"/>
+                    <TextBlock Text="{x:Bind ViewModel.Job.RecurringType}" 
+                             Grid.Row="3" Grid.Column="1"/>
+
+                    <TextBlock Text="Ngày lặp lại tiếp theo:" 
+                             Style="{StaticResource BodyStrongTextBlockStyle}" 
+                             Grid.Row="4" Grid.Column="0"/>
+                    <TextBlock Text="{x:Bind ViewModel.Job.NextRunDate}" 
+                             Grid.Row="4" Grid.Column="1"/>
+
+                    <TextBlock Text="Loại giao dịch:" 
+                             Style="{StaticResource BodyStrongTextBlockStyle}" 
+                             Grid.Row="5" Grid.Column="0"/>
+                    <TextBlock Text="{x:Bind ViewModel.Job.TransactionType}" 
+                             Grid.Row="5" Grid.Column="1"/>
+                </Grid>
+            </StackPanel>
+        </Border>
+
+        <!-- Action Buttons -->
+        <StackPanel Grid.Row="2" 
+                    Orientation="Horizontal" 
+                    Spacing="12" 
+                    Margin="0,24,0,0">
+            <Button Content="Quay lại" 
+                    Click="OnBackButtonClick"
+                    Style="{StaticResource AccentButtonStyle}"/>
+            <Button Content="Xóa" 
+                    Click="OnDeleteButtonClick"
+                    Style="{StaticResource DangerButtonStyle}"/>
+        </StackPanel>
+    </Grid>
+</Page>

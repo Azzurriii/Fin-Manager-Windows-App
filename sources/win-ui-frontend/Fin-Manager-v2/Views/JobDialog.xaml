@@ -1,0 +1,54 @@
+<ContentDialog
+    x:Class="Fin_Manager_v2.Controls.JobDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Title="Thêm Công việc Mới"
+    PrimaryButtonText="Thêm"
+    CloseButtonText="Hủy"
+    DefaultButton="Primary"
+    PrimaryButtonClick="ContentDialog_PrimaryButtonClick">
+
+    <StackPanel Spacing="10">
+        <TextBox x:Name="JobNameBox" 
+                 Header="Tên công việc"
+                 PlaceholderText="Nhập tên công việc"/>
+        
+        <TextBox x:Name="DescriptionBox"
+                 Header="Mô tả"
+                 PlaceholderText="Nhập mô tả công việc"
+                 TextWrapping="Wrap"
+                 AcceptsReturn="True"
+                 Height="80"/>
+
+        <TextBox x:Name="AmountBox"
+                 Header="Số tiền"
+                 PlaceholderText="Nhập số tiền"/>
+
+        <DatePicker x:Name="ScheduleDatePicker"
+                    Header="Ngày bắt đầu"/>
+
+        <ComboBox x:Name="RecurringTypeComboBox"
+                  Header="Loại lặp lại"
+                  PlaceholderText="Chọn loại lặp lại">
+            <ComboBoxItem Content="DAILY"/>
+            <ComboBoxItem Content="WEEKLY"/>
+            <ComboBoxItem Content="MONTHLY"/>
+            <ComboBoxItem Content="YEARLY"/>
+        </ComboBox>
+
+        <ComboBox x:Name="TransactionTypeComboBox"
+                  Header="Loại giao dịch"
+                  PlaceholderText="Chọn loại giao dịch">
+            <ComboBoxItem Content="INCOME"/>
+            <ComboBoxItem Content="EXPENSE"/>
+        </ComboBox>
+
+        <TextBlock x:Name="ErrorTextBlock"
+                   Foreground="Red"
+                   Visibility="Collapsed"
+                   TextWrapping="Wrap"/>
+    </StackPanel>
+</ContentDialog>

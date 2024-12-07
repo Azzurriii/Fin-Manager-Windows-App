@@ -141,4 +141,7 @@
   <data name="Shell_Budget.Content" xml:space="preserve">
     <value>Budget</value>
   </data>
+  <data name="Shell_Job.Content" xml:space="preserve">
+    <value>Job</value>
+  </data>
 </root>

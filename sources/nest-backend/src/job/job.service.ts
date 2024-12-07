@@ -5,6 +5,7 @@ import { Job } from './entities/job.entity';
 import { TransactionService } from '../transaction/transaction.service';
 import { RecurringType } from './dto/create-job.dto';
 import { CreateJobDto } from './dto/create-job.dto';
+import { UpdateJobDto } from './dto/update-job.dto';
 
 @Injectable()
 export class JobService {
@@ -77,5 +78,29 @@ export class JobService {
       job.next_run_date = nextJobDate;
       await this.jobRepository.save(job);
     }
+  }
+
+  async getJobs(id: number) {
+    return this.jobRepository.find({ where: { user_id: id } });
+  }
+
+
+  async deleteJob(id: number) {
+    return this.jobRepository.delete(id);
+  }
+
+
+  async updateJob(id: number, updateJobDto: UpdateJobDto) {
+    return this.jobRepository.update(id, updateJobDto);
+  }
+
+
+  async getJobsByUserId(id: number) {
+    return this.jobRepository.find({ where: { user_id: id } });
+  }
+
+
+  async getJobsByMe(id: number) {
+    return this.jobRepository.find({ where: { user_id: id } }); 
   }
 }
