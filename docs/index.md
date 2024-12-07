@@ -399,32 +399,6 @@ public class CurrencyConverterViewModel : ObservableObject
 }
 ```
 
-## System Requirements
-
-### Performance Metrics
-- Response Time: < 200ms for API calls
-- Concurrent Users: 1000+
-- Data Processing: 10,000 transactions/second
-
-### Security Requirements
-- JWT Token Expiration: 24 hours
-- Password Requirements:
-  - Minimum 8 characters
-  - At least one uppercase letter
-  - At least one number
-  - At least one special character
-- Rate Limiting: 100 requests/minute per user
-
-### Hardware Requirements
-- Frontend:
-  - Windows 10/11
-  - 4GB RAM minimum
-  - 1GB storage
-- Backend:
-  - 2 vCPUs minimum
-  - 4GB RAM minimum
-  - 20GB SSD storage
-
 ## Error Handling
 
 ### Global Error Handler
