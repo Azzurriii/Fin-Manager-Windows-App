@@ -34,6 +34,11 @@ FinManager is a desktop software designed to assist users in managing their pers
 ```
 git clone https://github.com/Azzurriii/Fin-Manager-Windows-App.git
 ```
+2. Start the server
+```
+cd nest-backend
+docker-compose up --build
+```
 3. Open the project in Visual Studio.
 4. Build and run the application.
 
