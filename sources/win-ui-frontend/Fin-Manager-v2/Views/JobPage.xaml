@@ -30,8 +30,9 @@
         <Grid Grid.Row="1">
             <ListView x:Name="JobsList"
                       ItemsSource="{x:Bind ViewModel.Jobs, Mode=OneWay}"
+                      SelectedItem="{x:Bind ViewModel.SelectedJob, Mode=TwoWay}"
                       SelectionMode="Single"
-                      SelectionChanged="OnJobSelected"
+                      SelectionChanged="ListView_SelectionChanged"
                       Visibility="{x:Bind InverseCollectionVisibility(ViewModel.Jobs), Mode=OneWay}">
                 <ListView.ItemTemplate>
                     <DataTemplate x:DataType="models:JobModel">
@@ -56,11 +57,11 @@
 
                             <!-- Action Buttons -->
                             <Button Grid.Column="2" 
-                                    Content="Chi tiết"
+                                    Content="Update"
                                     Click="OnViewJobClick"
                                     Style="{StaticResource AccentButtonStyle}"/>
                             <Button Grid.Column="3" 
-                                    Content="Xóa" 
+                                    Content="Delete" 
                                     Click="OnDeleteJobClick"
                                     Style="{StaticResource ButtonRevealStyle}"/>
                         </Grid>
@@ -70,7 +71,7 @@
         </Grid>
 
         <!-- Empty state message -->
-        <TextBlock Text="Không có công việc nào"
+        <TextBlock Text="No jobs found"
                    HorizontalAlignment="Center"
                    VerticalAlignment="Center"
                    Visibility="{x:Bind CollectionVisibility(ViewModel.Jobs), Mode=OneWay}"/>
@@ -83,7 +84,7 @@
                 Click="OnAddJobClick">
             <StackPanel Orientation="Horizontal" Spacing="8">
                 <FontIcon Glyph="&#xE710;" FontSize="16"/>
-                <TextBlock Text="Thêm công việc mới"/>
+                <TextBlock Text="Add a new job"/>
             </StackPanel>
         </Button>
     </Grid>

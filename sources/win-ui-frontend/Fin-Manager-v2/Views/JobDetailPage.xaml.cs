@@ -31,6 +31,22 @@ public sealed partial class JobDetailPage : Page
         }
     }
 
+    private async void OnSaveButtonClick(object sender, RoutedEventArgs e)
+    {
+        var result = await _dialogService.ShowConfirmAsync(
+            "Cập nhật công việc",
+            "Bạn có chắc chắn muốn lưu các thay đổi?");
+
+        if (result)
+        {
+            var success = await ViewModel.UpdateJobAsync();
+            if (success)
+            {
+                Frame.GoBack();
+            }
+        }
+    }
+
     private void OnBackButtonClick(object sender, RoutedEventArgs e)
     {
         Frame.GoBack();

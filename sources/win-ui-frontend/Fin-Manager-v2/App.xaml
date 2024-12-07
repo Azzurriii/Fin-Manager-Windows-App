@@ -12,6 +12,10 @@
                 <ResourceDictionary Source="/Styles/TextBlock.xaml" />
             </ResourceDictionary.MergedDictionaries>
             <converters:CurrencyFormatterConverter x:Key="CurrencyFormatterConverter"/>
+            <Style x:Key="DangerButtonStyle" TargetType="Button" BasedOn="{StaticResource DefaultButtonStyle}">
+                <Setter Property="Background" Value="#d9534f"/>
+                <Setter Property="Foreground" Value="White"/>
+            </Style>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

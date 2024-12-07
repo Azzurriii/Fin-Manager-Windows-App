@@ -55,7 +55,7 @@ public partial class JobViewModel : ObservableRecipient
             var token = _authService.GetAccessToken();
             if (string.IsNullOrEmpty(token))
             {
-                throw new InvalidOperationException("Chưa đăng nh�p");
+                throw new InvalidOperationException("Chưa đăng nhập");
             }
 
             await LoadJobsAsync();
@@ -161,8 +161,59 @@ public partial class JobViewModel : ObservableRecipient
         }
     }
 
-    private bool ValidateJobDto(CreateJobDto jobDto)
+    public async Task UpdateJobAsync(UpdateJobDto jobDto)
     {
+        try
+        {
+            IsLoading = true;
+            HasError = false;
+
+            if (!ValidateJobDto(jobDto))
+                return;
+
+            var success = await _jobService.UpdateJobAsync(SelectedJob.JobId, jobDto);
+            if (success)
+            {
+                await LoadJobsAsync();
+                await _dialogService.ShowSuccessAsync("Thành công", "Cập nhật công việc thành công");
+            }
+            else
+            {
+                HasError = true;
+                ErrorMessage = "Không thể cập nhật công việc";
+                await _dialogService.ShowErrorAsync("Lỗi", ErrorMessage);
+            }
+        }
+        catch (Exception ex)
+        {
+            HasError = true;
+            ErrorMessage = "Không thể cập nhật công việc";
+            await _dialogService.ShowErrorAsync("Lỗi", ex.Message);
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+
+    private bool ValidateJobDto(UpdateJobDto jobDto)
+    {
+        if (string.IsNullOrWhiteSpace(jobDto.JobName))
+        {
+            SetError("Lỗi", "Vui lòng nhập tên công việc");
+            return false;
+        }
+
+        if (jobDto.Amount <= 0)
+        {
+            SetError("Lỗi", "Số tiền phải lớn hơn 0");
+            return false;
+        }
+
+        return true;
+    }
+
+    private bool ValidateJobDto(CreateJobDto jobDto){
         if (string.IsNullOrWhiteSpace(jobDto.JobName))
         {
             SetError("Lỗi", "Vui lòng nhập tên công việc");

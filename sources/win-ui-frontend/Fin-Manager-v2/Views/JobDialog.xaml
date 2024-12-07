@@ -5,34 +5,34 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
-    Title="Thêm Công việc Mới"
-    PrimaryButtonText="Thêm"
-    CloseButtonText="Hủy"
+    Title="Add a new job"
+    PrimaryButtonText="Add"
+    CloseButtonText="Cancel"
     DefaultButton="Primary"
     PrimaryButtonClick="ContentDialog_PrimaryButtonClick">
 
     <StackPanel Spacing="10">
         <TextBox x:Name="JobNameBox" 
-                 Header="Tên công việc"
-                 PlaceholderText="Nhập tên công việc"/>
+                 Header="Job Name"
+                 PlaceholderText="Enter job name"/>
         
         <TextBox x:Name="DescriptionBox"
-                 Header="Mô tả"
-                 PlaceholderText="Nhập mô tả công việc"
+                 Header="Description"
+                 PlaceholderText="Enter job description"
                  TextWrapping="Wrap"
                  AcceptsReturn="True"
                  Height="80"/>
 
         <TextBox x:Name="AmountBox"
-                 Header="Số tiền"
-                 PlaceholderText="Nhập số tiền"/>
+                 Header="Amount"
+                 PlaceholderText="Enter amount"/>
 
         <DatePicker x:Name="ScheduleDatePicker"
-                    Header="Ngày bắt đầu"/>
+                    Header="Start Date"/>
 
         <ComboBox x:Name="RecurringTypeComboBox"
-                  Header="Loại lặp lại"
-                  PlaceholderText="Chọn loại lặp lại">
+                  Header="Recurring Type"
+                  PlaceholderText="Select recurring type">
             <ComboBoxItem Content="DAILY"/>
             <ComboBoxItem Content="WEEKLY"/>
             <ComboBoxItem Content="MONTHLY"/>
@@ -40,8 +40,8 @@
         </ComboBox>
 
         <ComboBox x:Name="TransactionTypeComboBox"
-                  Header="Loại giao dịch"
-                  PlaceholderText="Chọn loại giao dịch">
+                  Header="Transaction Type"
+                  PlaceholderText="Select transaction type">
             <ComboBoxItem Content="INCOME"/>
             <ComboBoxItem Content="EXPENSE"/>
         </ComboBox>

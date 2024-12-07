@@ -21,14 +21,6 @@ export class UpdateJobDto extends PartialType(CreateJobDto) {
   @IsString()
   job_name: string;
 
-  @ApiProperty({ example: '2024-01-01' })
-  @IsDate()
-  next_run_date: Date;
-
-  @ApiProperty({ example: 'true' })
-  @IsBoolean()
-  status: boolean;
-
   @ApiProperty({ example: '1' })
   @IsNumber()
   tag_id: number;
@@ -47,5 +39,5 @@ export class UpdateJobDto extends PartialType(CreateJobDto) {
 
   @ApiProperty({ example: 'description' })
   @IsString()
-  description: string;
+  job_description: string;
 }

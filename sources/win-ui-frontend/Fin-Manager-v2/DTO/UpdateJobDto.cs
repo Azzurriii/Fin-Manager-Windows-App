@@ -4,13 +4,11 @@ namespace Fin_Manager_v2.DTO;
 
 public class UpdateJobDto
 {
-    [JsonPropertyName("job_id")]
-    public int JobId { get; set; }
 
     [JsonPropertyName("job_name")]
     public string JobName { get; set; } = string.Empty;
 
-    [JsonPropertyName("description")]
+    [JsonPropertyName("job_description")]
     public string Description { get; set; } = string.Empty;
 
     [JsonPropertyName("tag_id")]
@@ -23,7 +21,8 @@ public class UpdateJobDto
     public int UserId { get; set; }
 
     [JsonPropertyName("schedule_date")]
-    public DateTime ScheduleDate { get; set; }
+    public string ScheduleDate { get; set; } = string.Empty;
+
 
     [JsonPropertyName("amount")]
     public decimal Amount { get; set; }

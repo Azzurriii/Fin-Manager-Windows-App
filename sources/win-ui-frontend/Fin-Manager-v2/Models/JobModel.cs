@@ -26,7 +26,7 @@ public class JobModel
     public int UserId { get; set; }
 
     [JsonPropertyName("schedule_date")]
-    public DateTime ScheduleDate { get; set; }
+    public DateTimeOffset ScheduleDate { get; set; }
 
     [JsonPropertyName("amount")]
     public decimal Amount { get; set; }
@@ -35,13 +35,13 @@ public class JobModel
     public string RecurringType { get; set; } = string.Empty;
 
     [JsonPropertyName("next_run_date")]
-    public DateTime NextRunDate { get; set; }
+    public DateTimeOffset NextRunDate { get; set; }
 
     [JsonPropertyName("create_at")]
-    public DateTime CreateAt { get; set; }
+    public DateTimeOffset    CreateAt { get; set; }
 
     [JsonPropertyName("update_at")]
-    public DateTime UpdateAt { get; set; }
+    public DateTimeOffset UpdateAt { get; set; } 
 
     [JsonPropertyName("status")]
     public bool Status { get; set; }

@@ -91,6 +91,8 @@ export class JobService {
 
 
   async updateJob(id: number, updateJobDto: UpdateJobDto) {
+    console.log(`[JobService] updateJob(${id})`);
+    console.log(updateJobDto);
     return this.jobRepository.update(id, updateJobDto);
   }
 

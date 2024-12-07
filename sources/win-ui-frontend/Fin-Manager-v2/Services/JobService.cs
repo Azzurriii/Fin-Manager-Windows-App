@@ -53,11 +53,19 @@ public class JobService : IJobService
         return response.IsSuccessStatusCode;
     }
 
-    public async Task<bool> UpdateJobAsync(UpdateJobDto job)
+    public async Task<bool> UpdateJobAsync(int jobId, UpdateJobDto updateJobDto)
     {
         SetAuthorizationHeader();
-        var response = await _httpClient.PutAsJsonAsync($"{_baseUrl}/jobs/{job.JobId}", job);
-        return response.IsSuccessStatusCode;
+        try
+        {
+            var response = await _httpClient.PutAsJsonAsync($"{_baseUrl}/jobs/{jobId}", updateJobDto);
+            return response.IsSuccessStatusCode;
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Error in UpdateJobAsync: {ex.Message}");
+            return false;
+        }
     }
 
     public async Task<bool> DeleteJobAsync(int jobId)

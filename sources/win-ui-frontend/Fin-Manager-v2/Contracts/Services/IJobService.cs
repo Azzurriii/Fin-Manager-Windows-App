@@ -7,7 +7,7 @@ public interface IJobService
 {
     Task<List<JobModel>> GetJobsAsync();
     Task<bool> CreateJobAsync(CreateJobDto jobDto);
-    Task<bool> UpdateJobAsync(UpdateJobDto job);
+    Task<bool> UpdateJobAsync(int jobId, UpdateJobDto updateJobDto);
     Task<bool> DeleteJobAsync(int jobId);
-    Task<List<JobModel>> GetJobsByUserIdAsync(int jobId);
+    Task<List<JobModel>> GetJobsByUserIdAsync(int userId);
 }

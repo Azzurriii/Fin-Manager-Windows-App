@@ -5,7 +5,12 @@
     xmlns:local="using:Fin_Manager_v2.Views"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:converters="using:Fin_Manager_v2.Converters"
     mc:Ignorable="d">
+
+    <Page.Resources>
+        <converters:DecimalToDoubleConverter x:Key="DecimalToDoubleConverter"/>
+    </Page.Resources>
 
     <Grid Padding="24,32" CornerRadius="12">
         <Grid.RowDefinitions>
@@ -16,7 +21,7 @@
 
         <!-- Title -->
         <TextBlock Grid.Row="0" 
-                 Text="Chi tiết công việc" 
+                 Text=" Update your job" 
                  Style="{StaticResource TitleTextBlockStyle}" 
                  Margin="0,0,0,24"/>
 
@@ -42,41 +47,58 @@
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
 
+                    <!-- Job Name -->
                     <TextBlock Text="Job Name:" 
                              Style="{StaticResource BodyStrongTextBlockStyle}" 
                              Grid.Row="0" Grid.Column="0"/>
-                    <TextBlock Text="{x:Bind ViewModel.Job.JobName}" 
+                    <TextBox Text="{x:Bind ViewModel.Job.JobName, Mode=TwoWay}" 
                              Grid.Row="0" Grid.Column="1"/>
 
-                    <TextBlock Text="Mô tả:" 
+                    <!-- Description -->
+                    <TextBlock Text="Description:" 
                              Style="{StaticResource BodyStrongTextBlockStyle}" 
                              Grid.Row="1" Grid.Column="0"/>
-                    <TextBlock Text="{x:Bind ViewModel.Job.Description}" 
+                    <TextBox Text="{x:Bind ViewModel.Job.Description, Mode=TwoWay}"
+                             TextWrapping="Wrap"
+                             AcceptsReturn="True"
+                             Height="60"
                              Grid.Row="1" Grid.Column="1"/>
 
+                    <!-- Amount -->
                     <TextBlock Text="Amount:" 
                              Style="{StaticResource BodyStrongTextBlockStyle}" 
                              Grid.Row="2" Grid.Column="0"/>
-                    <TextBlock Text="{x:Bind ViewModel.Job.Amount, Converter={StaticResource CurrencyFormatterConverter}}" 
-                             Grid.Row="2" Grid.Column="1"/>
+                    <NumberBox Value="{x:Bind ViewModel.Job.Amount, Mode=TwoWay, Converter={StaticResource DecimalToDoubleConverter}}"
+                              Grid.Row="2" Grid.Column="1"/>
 
-                    <TextBlock Text="Loại lặp lại:" 
+                    <!-- Recurring Type -->
+                    <TextBlock Text="Recurring Type:" 
                              Style="{StaticResource BodyStrongTextBlockStyle}" 
                              Grid.Row="3" Grid.Column="0"/>
-                    <TextBlock Text="{x:Bind ViewModel.Job.RecurringType}" 
-                             Grid.Row="3" Grid.Column="1"/>
+                    <ComboBox SelectedItem="{x:Bind ViewModel.Job.RecurringType, Mode=TwoWay}"
+                             Grid.Row="3" Grid.Column="1">
+                        <ComboBoxItem Content="DAILY"/>
+                        <ComboBoxItem Content="WEEKLY"/>
+                        <ComboBoxItem Content="MONTHLY"/>
+                        <ComboBoxItem Content="YEARLY"/>
+                    </ComboBox>
 
-                    <TextBlock Text="Ngày lặp lại tiếp theo:" 
+                    <!-- Next Run Date -->
+                    <TextBlock Text="Next Run Date:" 
                              Style="{StaticResource BodyStrongTextBlockStyle}" 
                              Grid.Row="4" Grid.Column="0"/>
-                    <TextBlock Text="{x:Bind ViewModel.Job.NextRunDate}" 
-                             Grid.Row="4" Grid.Column="1"/>
+                    <DatePicker Date="{x:Bind ViewModel.Job.NextRunDate, Mode=TwoWay}"
+                               Grid.Row="4" Grid.Column="1"/>
 
-                    <TextBlock Text="Loại giao dịch:" 
+                    <!-- Transaction Type -->
+                    <TextBlock Text="Transaction Type:" 
                              Style="{StaticResource BodyStrongTextBlockStyle}" 
                              Grid.Row="5" Grid.Column="0"/>
-                    <TextBlock Text="{x:Bind ViewModel.Job.TransactionType}" 
-                             Grid.Row="5" Grid.Column="1"/>
+                    <ComboBox SelectedItem="{x:Bind ViewModel.Job.TransactionType, Mode=TwoWay}"
+                             Grid.Row="5" Grid.Column="1">
+                        <ComboBoxItem Content="INCOME"/>
+                        <ComboBoxItem Content="EXPENSE"/>
+                    </ComboBox>
                 </Grid>
             </StackPanel>
         </Border>
@@ -86,12 +108,27 @@
                     Orientation="Horizontal" 
                     Spacing="12" 
                     Margin="0,24,0,0">
-            <Button Content="Quay lại" 
-                    Click="OnBackButtonClick"
+            <Button Content="Save" 
+                    Click="OnSaveButtonClick"
                     Style="{StaticResource AccentButtonStyle}"/>
-            <Button Content="Xóa" 
+            <Button Content="Back" 
+                    Click="OnBackButtonClick"/>
+            <Button Content="Delete" 
                     Click="OnDeleteButtonClick"
-                    Style="{StaticResource DangerButtonStyle}"/>
+                    Foreground="White"
+                    Background="#d9534f"/>
         </StackPanel>
+
+        <!-- Loading and Error States -->
+        <ProgressRing Grid.Row="1" 
+                      IsActive="{x:Bind ViewModel.IsLoading, Mode=OneWay}"
+                      HorizontalAlignment="Center"
+                      VerticalAlignment="Center"/>
+        
+        <InfoBar Grid.Row="1"
+                 IsOpen="{x:Bind ViewModel.HasError, Mode=OneWay}"
+                 Severity="Error"
+                 Message="{x:Bind ViewModel.ErrorMessage, Mode=OneWay}"
+                 VerticalAlignment="Top"/>
     </Grid>
 </Page>

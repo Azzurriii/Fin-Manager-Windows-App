@@ -16,7 +16,7 @@ public sealed partial class JobPage : Page
     private JobModel _currentEditingJob;
     public JobViewModel ViewModel { get; }
 
-    private string _dialogTitle = "Thêm công việc mới";
+    private string _dialogTitle = "Add a new job";
     public string DialogTitle
     {
         get => _dialogTitle;
@@ -111,7 +111,7 @@ public sealed partial class JobPage : Page
             var dialog = new ContentDialog
             {
                 Title = "Xóa công việc",
-                Content = $"B��n có chắc chắn muốn xóa công việc \"{job.JobName}\" không?",
+                Content = $"Bn có chắc chắn muốn xóa công việc \"{job.JobName}\" không?",
                 PrimaryButtonText = "Xóa",
                 CloseButtonText = "Hủy",
                 XamlRoot = button.XamlRoot
@@ -154,5 +154,13 @@ public sealed partial class JobPage : Page
     private Visibility InverseCollectionVisibility(ObservableCollection<JobModel> jobs)
     {
         return ViewModel.InverseCollectionVisibility(jobs);
+    }
+
+    private void ListView_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (ViewModel.SelectedJob != null)
+        {
+            Frame.Navigate(typeof(JobDetailPage));
+        }
     }
 }
