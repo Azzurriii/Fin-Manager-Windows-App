@@ -47,7 +47,7 @@
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
 
-                    <!-- Job Name -->
+                    <!-- Job Name --> 
                     <TextBlock Text="Job Name:" 
                              Style="{StaticResource BodyStrongTextBlockStyle}" 
                              Grid.Row="0" Grid.Column="0"/>
