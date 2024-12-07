@@ -17,17 +17,10 @@
 					  Width="150" 
 					  Margin="5"
 					  SelectedItem="{x:Bind ViewModel.SelectedTimePeriod, Mode=TwoWay}">
-				<x:String>Day</x:String>
 				<x:String>Month</x:String>
 				<x:String>Quarter</x:String>
 				<x:String>Year</x:String>
 			</ComboBox>
-
-			<!-- Day Selection -->
-			<CalendarDatePicker Header="Select Date" 
-								  Width="150"
-								  Margin="5"
-								  Visibility="{x:Bind ViewModel.IsDayPeriod, Mode=OneWay}"/>
 
 			<!-- Month Selection -->
 			<StackPanel Orientation="Horizontal" 

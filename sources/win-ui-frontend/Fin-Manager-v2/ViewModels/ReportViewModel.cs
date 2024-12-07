@@ -7,7 +7,6 @@ using LiveChartsCore.SkiaSharpView;
 using LiveChartsCore.SkiaSharpView.Painting;
 using SkiaSharp;
 using System.Diagnostics;
-using Microsoft.UI.Xaml;
 using System.Collections.ObjectModel;
 namespace Fin_Manager_v2.ViewModels;
 
@@ -68,10 +67,14 @@ public partial class ReportViewModel : ObservableRecipient
     [ObservableProperty]
     private SolidColorPaint _legendTextPaint;
 
-    public bool IsDayPeriod => SelectedTimePeriod == "Day";
-    public bool IsMonthPeriod => SelectedTimePeriod == "Month";
-    public bool IsQuarterPeriod => SelectedTimePeriod == "Quarter";
-    public bool IsYearPeriod => SelectedTimePeriod == "Year";
+    [ObservableProperty]
+    private bool _isMonthPeriod;
+
+    [ObservableProperty]
+    private bool _isQuarterPeriod;
+
+    [ObservableProperty]
+    private bool _isYearPeriod;
 
     public ReportViewModel(
         IReportService reportService,
@@ -118,6 +121,7 @@ public partial class ReportViewModel : ObservableRecipient
             var accountsList = await _accountService.GetAccountsAsync();
             
             Accounts.Clear();
+
             // Add "All Accounts" option
             var allAccounts = new AccountModel { AccountId = 0, AccountName = "All Accounts" };
             Accounts.Add(allAccounts);
@@ -146,10 +150,30 @@ public partial class ReportViewModel : ObservableRecipient
 
     partial void OnSelectedTimePeriodChanged(string value)
     {
-        OnPropertyChanged(nameof(IsDayPeriod));
-        OnPropertyChanged(nameof(IsMonthPeriod));
-        OnPropertyChanged(nameof(IsQuarterPeriod));
-        OnPropertyChanged(nameof(IsYearPeriod));
+        IsMonthPeriod = value == "Month";
+        IsQuarterPeriod = value == "Quarter";
+        IsYearPeriod = value == "Year";
+        UpdateChartData();
+    }
+
+    partial void OnSelectedMonthChanged(string value)
+    {
+        if (IsMonthPeriod)
+        {
+            UpdateChartData();
+        }
+    }
+
+    partial void OnSelectedQuarterChanged(string value)
+    {
+        if (IsQuarterPeriod)
+        {
+            UpdateChartData();
+        }
+    }
+
+    partial void OnSelectedYearChanged(int value)
+    {
         UpdateChartData();
     }
 
@@ -261,7 +285,7 @@ public partial class ReportViewModel : ObservableRecipient
 
     private List<PieSeries<double>> ConvertToPieSeries(List<CategoryReportModel> categories, SKColor baseColor)
     {
-        // Định nghĩa một mảng lớn các màu tương phản
+        // Tag color 
         var colors = new SKColor[]
         {
             // Basic colors
