@@ -1,5 +1,15 @@
 # Fin-Manager Documentation
 
+## Overview
+Fin-Manager is a comprehensive financial management application built with a NestJS backend and WinUI frontend. The application enables users to manage their financial transactions, accounts, and perform detailed financial analysis.
+
+## Technical Stack
+- Backend: NestJS with TypeScript
+- Frontend: WinUI 3 (Windows App SDK)
+- Database: PostgreSQL
+- Authentication: JWT-based
+- Deployment: Docker, MSIX packaging
+
 ## Version History
 * **Version 1.0** - Initial release (Oct.2024)
 * **Version 1.1** - Updated advanced feature (Dec.2024)
