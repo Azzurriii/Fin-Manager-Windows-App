@@ -8,11 +8,14 @@ using LiveChartsCore.SkiaSharpView.Painting;
 using SkiaSharp;
 using System.Diagnostics;
 using Microsoft.UI.Xaml;
+using System.Collections.ObjectModel;
 namespace Fin_Manager_v2.ViewModels;
 
 public partial class ReportViewModel : ObservableRecipient
 {
     private readonly IReportService _reportService;
+    private readonly IAuthService _authService;
+    private readonly IAccountService _accountService;
 
     [ObservableProperty]
     private string _selectedTimePeriod = "Year";
@@ -51,10 +54,16 @@ public partial class ReportViewModel : ObservableRecipient
     private IEnumerable<ICartesianAxis> xAxes = new[] { new Axis { Labels = Array.Empty<string>() } };
 
     [ObservableProperty]
-    private int userId = 1;
+    private int userId;
 
     [ObservableProperty]
-    private int accountId = 1;
+    private int? accountId;
+
+    [ObservableProperty]
+    private ObservableCollection<AccountModel> accounts = new();
+
+    [ObservableProperty]
+    private AccountModel selectedAccountObj;
 
     [ObservableProperty]
     private SolidColorPaint _legendTextPaint;
@@ -64,10 +73,74 @@ public partial class ReportViewModel : ObservableRecipient
     public bool IsQuarterPeriod => SelectedTimePeriod == "Quarter";
     public bool IsYearPeriod => SelectedTimePeriod == "Year";
 
-    public ReportViewModel(IReportService reportService)
+    public ReportViewModel(
+        IReportService reportService,
+        IAuthService authService,
+        IAccountService accountService)
     {
         _reportService = reportService;
+        _authService = authService;
+        _accountService = accountService;
+        
+        InitializeUserAndAccountsAsync();
         LegendTextPaint = new SolidColorPaint(new SKColor(0, 120, 215));
+    }
+
+    private async void InitializeUserAndAccountsAsync()
+    {
+        try
+        {
+            // Get current user ID from stored value
+            var storedUserId = _authService.GetUserId();
+            if (!storedUserId.HasValue)
+            {
+                await _authService.FetchUserIdAsync();
+                storedUserId = _authService.GetUserId();
+            }
+
+            if (storedUserId.HasValue)
+            {
+                UserId = storedUserId.Value;
+                await LoadAccountsAsync();
+                UpdateChartData();
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Error initializing user and accounts: {ex.Message}");
+        }
+    }
+
+    private async Task LoadAccountsAsync()
+    {
+        try
+        {
+            var accountsList = await _accountService.GetAccountsAsync();
+            
+            Accounts.Clear();
+            // Add "All Accounts" option
+            var allAccounts = new AccountModel { AccountId = 0, AccountName = "All Accounts" };
+            Accounts.Add(allAccounts);
+
+            if (accountsList != null)
+            {
+                foreach (var account in accountsList)
+                {
+                    Accounts.Add(account);
+                }
+            }
+
+            SelectedAccountObj = Accounts.FirstOrDefault();
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Error loading accounts: {ex.Message}");
+        }
+    }
+
+    partial void OnSelectedAccountObjChanged(AccountModel value)
+    {
+        AccountId = value?.AccountName == "All Accounts" ? null : value?.AccountId;
         UpdateChartData();
     }
 
@@ -122,7 +195,7 @@ public partial class ReportViewModel : ObservableRecipient
 
     private async Task<SummaryModel> FetchSummaryAsync(DateTime startDate, DateTime endDate)
     {
-        Debug.WriteLine("Fetching summary data...");
+        Debug.WriteLine($"Fetching summary data for account {AccountId}...");
         var summary = await _reportService.GetSummaryAsync(UserId, AccountId, startDate, endDate);
         Debug.WriteLine("Summary data received");
         return summary;
@@ -130,7 +203,7 @@ public partial class ReportViewModel : ObservableRecipient
 
     private async Task<List<OverviewModel>> FetchOverviewAsync(DateTime startDate, DateTime endDate)
     {
-        Debug.WriteLine("Fetching overview data...");
+        Debug.WriteLine($"Fetching overview data for account {AccountId}...");
         var overviewData = await _reportService.GetOverviewAsync(UserId, AccountId, startDate, endDate);
         Debug.WriteLine($"Received {overviewData.Count} overview records");
         return overviewData;
@@ -138,7 +211,7 @@ public partial class ReportViewModel : ObservableRecipient
 
     private async Task<List<CategoryReportModel>> FetchCategoryReportAsync(string type, DateTime startDate, DateTime endDate)
     {
-        Debug.WriteLine($"Fetching {type.ToLower()} categories...");
+        Debug.WriteLine($"Fetching {type.ToLower()} categories for account {AccountId}...");
         var categories = await _reportService.GetCategoryReportAsync(UserId, AccountId, type, startDate, endDate);
         Debug.WriteLine($"Received {categories.Count} {type.ToLower()} categories");
         return categories;
@@ -188,11 +261,57 @@ public partial class ReportViewModel : ObservableRecipient
 
     private List<PieSeries<double>> ConvertToPieSeries(List<CategoryReportModel> categories, SKColor baseColor)
     {
-        return categories.Select(x => new PieSeries<double>
+        // Định nghĩa một mảng lớn các màu tương phản
+        var colors = new SKColor[]
+        {
+            // Basic colors
+            SKColors.MediumSeaGreen,
+            SKColors.Crimson,
+            SKColors.DodgerBlue,
+            SKColors.Orange,
+            SKColors.Purple,
+            SKColors.Gold,
+            
+            // Subtle colors
+            SKColors.DeepPink,
+            SKColors.Teal,
+            SKColors.Brown,
+            SKColors.SlateBlue,
+            SKColors.OrangeRed,
+            SKColors.ForestGreen,
+            
+            // Supplemental colors
+            SKColors.MediumVioletRed,
+            SKColors.Chocolate,
+            SKColors.DarkCyan,
+            SKColors.Tomato,
+            SKColors.DarkOliveGreen,
+            
+            // Special colors
+            SKColors.Indigo,
+            SKColors.Sienna,
+            SKColors.DarkOrchid,
+            SKColors.SteelBlue,
+            SKColors.Maroon,
+            SKColors.DarkGoldenrod,
+            
+            // Neutral colors
+            SKColors.DimGray,
+            SKColors.RosyBrown,
+            SKColors.CadetBlue,
+            SKColors.Peru,
+            SKColors.MediumPurple,
+            SKColors.DarkKhaki
+        };
+
+        return categories.Select((x, index) => new PieSeries<double>
         {
             Values = new[] { (double)x.Amount },
             Name = x.TagName,
-            Fill = new SolidColorPaint(baseColor.WithAlpha((byte)(155 + Random.Shared.Next(100))))
+            Fill = new SolidColorPaint(
+                colors[index % colors.Length]
+                .WithAlpha((byte)230)
+            )
         }).ToList();
     }
 }

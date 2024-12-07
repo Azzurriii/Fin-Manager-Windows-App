@@ -54,4 +54,10 @@ public class AccountService : IAccountService
         var response = await _httpClient.DeleteAsync($"finance-accounts/{accountId}");
         return response.IsSuccessStatusCode;
     }
+
+    public async Task<AccountModel?> GetDefaultAccountAsync()
+    {
+        var accounts = await GetAccountsAsync();
+        return accounts.FirstOrDefault();
+    }
 }

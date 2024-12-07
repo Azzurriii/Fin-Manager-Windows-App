@@ -30,7 +30,7 @@ public class ReportService : IReportService
         };
     }
 
-    public async Task<SummaryModel> GetSummaryAsync(int userId, int accountId, DateTime startDate, DateTime endDate)
+    public async Task<SummaryModel> GetSummaryAsync(int userId, int? accountId, DateTime startDate, DateTime endDate)
     {
         try
         {
@@ -51,7 +51,7 @@ public class ReportService : IReportService
         }
     }
 
-    public async Task<List<OverviewModel>> GetOverviewAsync(int userId, int accountId, DateTime startDate, DateTime endDate)
+    public async Task<List<OverviewModel>> GetOverviewAsync(int userId, int? accountId, DateTime startDate, DateTime endDate)
     {
         try
         {
@@ -72,7 +72,7 @@ public class ReportService : IReportService
         }
     }
 
-    public async Task<List<CategoryReportModel>> GetCategoryReportAsync(int userId, int accountId, string type, DateTime startDate, DateTime endDate)
+    public async Task<List<CategoryReportModel>> GetCategoryReportAsync(int userId, int? accountId, string type, DateTime startDate, DateTime endDate)
     {
         var query = $"user_id={userId}&account_id={accountId}&startDate={startDate:yyyy-MM-dd}&endDate={endDate:yyyy-MM-dd}";
         var response = await _httpClient.GetAsync($"report/category/{type}?{query}");
