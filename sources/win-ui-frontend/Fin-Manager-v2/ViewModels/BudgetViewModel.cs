@@ -15,7 +15,7 @@ public partial class BudgetViewModel : ObservableRecipient
 {
     private readonly IBudgetService _budgetService;
     private readonly IAccountService _accountService;
-
+    private readonly IDialogService _dialogService;
     public ObservableCollection<BudgetModel> Budgets { get; set; } = new ObservableCollection<BudgetModel>();
     public ObservableCollection<AccountModel> Accounts { get; set; } = new ObservableCollection<AccountModel>();
 
@@ -40,10 +40,11 @@ public partial class BudgetViewModel : ObservableRecipient
         set => SetProperty(ref _selectedBudget, value);
     }
 
-    public BudgetViewModel(IBudgetService budgetService, IAccountService accountService)
+    public BudgetViewModel(IBudgetService budgetService, IAccountService accountService, IDialogService dialogService)
     {
         _budgetService = budgetService;
         _accountService = accountService;
+        _dialogService = dialogService;
 
         LoadBudgets();
         LoadAccounts();
@@ -70,6 +71,10 @@ public partial class BudgetViewModel : ObservableRecipient
         NewBudget = new CreateBudgetDto();
     }
 
+    /// <summary>
+    /// Save the new budget.
+    /// </summary>
+    /// <returns>A task representing the asynchronous operation.</returns>
     public async Task SaveBudget()
     {
         if (NewBudget == null)
@@ -93,7 +98,8 @@ public partial class BudgetViewModel : ObservableRecipient
         }
         else
         {
-            //await _dialogService.ShowErrorDialog("Failed to add budget. Please try again.");
+            await _dialogService.ShowErrorAsync("Error", "Cannot Add Budget");
+
         }
     }
 
@@ -114,6 +120,10 @@ public partial class BudgetViewModel : ObservableRecipient
         }
     }
 
+    /// <summary>
+    /// Load the budgets.
+    /// </summary>
+    /// <returns>A task representing the asynchronous operation.</returns>
     public async void LoadBudgets()
     {
         var budgets = await _budgetService.GetBudgetsAsync();

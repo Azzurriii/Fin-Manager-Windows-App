@@ -1,11 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Between, Repository } from 'typeorm';
+import { Between, FindOptionsWhere, In, Repository } from 'typeorm';
 import { Transaction } from './entity/transaction.entity';
 import { FinanceAccount } from 'src/account/entity/account.entity';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
 import { GetTotalAmountDto } from './dto/get-total-amount.dto';
 import { UpdateTransactionDto } from './dto/update-transaction.dto';
+import { QueryDto } from './dto/query.dto';
 
 export enum TransactionType {
   INCOME = 'INCOME',
@@ -66,7 +67,7 @@ export class TransactionService {
       where: {
         user_id: query.user_id,
         account_id: query.account_id,
-        transaction_date: Between(query.startDate, query.endDate),
+        transaction_date: Between(new Date(query.startDate), new Date(query.endDate)),
         transaction_type: query.transaction_type,
       },
     });
@@ -133,5 +134,17 @@ export class TransactionService {
     }
 
     await this.transactionRepository.remove(transaction);
+  }
+
+
+  async findByQuery(query: QueryDto): Promise<Transaction[]> {
+
+    const findOptions: FindOptionsWhere<Transaction> = {
+      user_id: query.userId,
+      account_id: query.accountId,
+      transaction_date: Between(new Date(query.startDate),new Date(query.endDate)),
+      tag_id: In(query.tagIds),
+    };
+    return this.transactionRepository.find({ where: findOptions });
   }
 }

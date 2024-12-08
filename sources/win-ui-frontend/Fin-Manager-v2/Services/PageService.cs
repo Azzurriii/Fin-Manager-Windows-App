@@ -23,6 +23,7 @@ public class PageService : IPageService
         Configure<SignUpViewModel, SignUpPage>();
         Configure<ReportViewModel, ReportPage>();
         Configure<BudgetViewModel, BudgetPage>();
+        Configure<JobViewModel, JobPage>();
     }
 
     public Type GetPageType(string key)
