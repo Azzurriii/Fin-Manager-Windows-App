@@ -41,31 +41,7 @@ public sealed partial class BudgetPage : Page
 
     private async void SaveBudget(object sender, RoutedEventArgs e)
     {
-        UpdateAllBindings(this);
-
         await ViewModel.SaveBudget();
-    }
-
-    private void UpdateAllBindings(DependencyObject parent)
-    {
-        if (parent == null) return;
-
-        for (int i = 0; i < VisualTreeHelper.GetChildrenCount(parent); i++)
-        {
-            var child = VisualTreeHelper.GetChild(parent, i);
-
-            if (child is FrameworkElement element)
-            {
-                if (element is TextBox textBox)
-                {
-                    var bindingExpression = textBox.GetBindingExpression(TextBox.TextProperty);
-                    bindingExpression?.UpdateSource();
-                }
-            }
-
-            // Đệ quy xử lý children
-            UpdateAllBindings(child);
-        }
     }
 
 

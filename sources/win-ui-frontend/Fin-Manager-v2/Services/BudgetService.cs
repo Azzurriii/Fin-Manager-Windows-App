@@ -52,13 +52,7 @@ namespace Fin_Manager_v2.Services
             {
                 SetAuthorizationHeader();
                 var response = await _httpClient.GetAsync("http://localhost:3000/budget");
-                //if (response.IsSuccessStatusCode)
-                //{
-                //    var json = await response.Content.ReadAsStringAsync();
-                //    return JsonSerializer.Deserialize<List<BudgetModel>>(json) ?? new List<BudgetModel>();
-                //}
 
-                //return new List<BudgetModel>();
                 response.EnsureSuccessStatusCode();
 
                 // Đọc nội dung JSON

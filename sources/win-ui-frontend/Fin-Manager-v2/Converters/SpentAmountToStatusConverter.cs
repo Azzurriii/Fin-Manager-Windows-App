@@ -10,7 +10,6 @@ namespace Fin_Manager_v2.Converters
     {
         public object Convert(object value, Type targetType, object parameter, string language)
         {
-            // Trường hợp value là BudgetModel
             if (value is BudgetModel budget)
             {
                 var budgetAmount = budget.BudgetAmount ?? 0;
@@ -18,22 +17,22 @@ namespace Fin_Manager_v2.Converters
 
                 if (budgetAmount == 0)
                 {
-                    return "Chưa có ngân sách.";
+                    return "No budget available.";
                 }
 
                 var difference = budgetAmount - spentAmount;
 
                 if (difference > 0)
                 {
-                    return $"Bạn còn {difference:C} trước khi chạm mức ngân sách.";
+                    return $"You have {difference:C} remaining before reaching the budget limit.";
                 }
                 else if (difference == 0)
                 {
-                    return "Bạn đã sử dụng đúng mức ngân sách.";
+                    return "You have used the exact budget amount.";
                 }
                 else
                 {
-                    return $"Bạn đã vượt ngân sách {Math.Abs(difference):C}.";
+                    return $"You have exceeded the budget by {Math.Abs(difference):C}.";
                 }
             }
 

@@ -93,7 +93,6 @@ public partial class BudgetViewModel : ObservableRecipient
         }
         else
         {
-            // Xử lý trường hợp thêm không thành công
             //await _dialogService.ShowErrorDialog("Failed to add budget. Please try again.");
         }
     }
