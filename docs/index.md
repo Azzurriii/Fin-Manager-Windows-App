@@ -453,4 +453,4 @@ public class ErrorHandlingViewModel : ObservableObject
 * **Email:** vtthanh04.qb@gmail.com
 * **Phone:** +84 832314242
 
-<script src="/assets/js/mermaid-init.js"></script>
+<script src="/assets/js/mermaid.js"></script>
