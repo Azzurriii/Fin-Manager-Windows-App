@@ -1,5 +1,3 @@
-# Fin-Manager Documentation
-
 ## Overview
 Fin-Manager is a comprehensive financial management application built with a NestJS backend and WinUI frontend. The application enables users to manage their financial transactions, accounts, and perform detailed financial analysis.
 
@@ -18,16 +16,7 @@ Fin-Manager is a comprehensive financial management application built with a Nes
 
 ### 1.1. Architecture
 
-The authentication and authorization flow is designed to ensure secure access to the application. The flow is as follows:
-
-<div class="mermaid">
-graph TD
-    A[Frontend Auth Flow] --> B[AuthService]
-    B --> C[JWT Token Handler]
-    C --> D[Backend Auth Controller]
-    D --> E[Auth Guards]
-    E --> F[Database]
-</div>
+The authentication and authorization flow is designed to ensure secure access to the application.
 
 ### 1.2. Implementation Details
 
@@ -205,16 +194,6 @@ public class TransactionService : ITransactionService
 ## 3. Financial Reporting
 
 ### 3.1. Report Generation Flow
-
-The report generation process involves several steps:
-
-<div class="mermaid">
-graph LR
-    A[Data Collection] --> B[Aggregation]
-    B --> C[Analysis]
-    C --> D[Report Generation]
-    D --> E[Export Handling]
-</div>
 
 ### 3.2. Implementation
 
@@ -452,5 +431,3 @@ public class ErrorHandlingViewModel : ObservableObject
 * **Name:** Vo Tuan Thanh
 * **Email:** vtthanh04.qb@gmail.com
 * **Phone:** +84 832314242
-
-<script src="/assets/js/mermaid.js"></script>
