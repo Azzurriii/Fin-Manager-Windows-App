@@ -77,6 +77,22 @@ public class BudgetService : IBudgetService
         }
     }
 
+    public async Task<bool> DeleteBudgetAsync(int budgetId)
+    {
+        try
+        {
+            SetAuthorizationHeader();
+            var response = await _httpClient.DeleteAsync($"http://localhost:3000/budget/{budgetId}");
+
+            return response.IsSuccessStatusCode;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error in DeleteBudgetAsync: {ex.Message}");
+            return false;
+        }
+    }
+
     public List<BudgetModel> DeserializeBudgets(string json)
     {
         var options = new JsonSerializerOptions

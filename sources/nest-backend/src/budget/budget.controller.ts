@@ -6,6 +6,7 @@ import {
   Param,
   UseGuards,
   Req,
+  Delete,
 } from '@nestjs/common';
 import { BudgetService } from './budget.service';
 import { CreateBudgetDto } from './dto/create-budget.dto';
@@ -39,6 +40,19 @@ export class BudgetController {
   async getAllBudgets(@Req() req: any): Promise<Budget[]> {
     const userId = req.user.id;
     return this.budgetService.getBudgetsByUser(userId);
+  }
+
+  @Delete(':id')
+  @UseGuards(AuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Delete a budget by ID' })
+  async deleteBudget(
+    @Req() req: any,
+    @Param('id') id: number,
+  ): Promise<{ message: string }> {
+    const userId = req.user.id;
+    await this.budgetService.deleteBudget(id, userId);
+    return { message: 'Budget deleted successfully' };
   }
 
   @Get(':id')

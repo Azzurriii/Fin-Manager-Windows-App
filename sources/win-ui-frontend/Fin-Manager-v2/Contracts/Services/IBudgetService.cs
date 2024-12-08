@@ -12,5 +12,6 @@ namespace Fin_Manager_v2.Contracts.Services
     {
         Task<BudgetModel?> CreateBudgetAsync(CreateBudgetDto budget);
         Task<List<BudgetModel>> GetBudgetsAsync();
+        Task<bool> DeleteBudgetAsync(int budgetId);
     }
 }

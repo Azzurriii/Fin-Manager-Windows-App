@@ -17,6 +17,8 @@
 		<local:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
 		<local:StringToNumberConverter x:Key="StringToNumberConverter" />
 		<local:StringToDateConverter x:Key="StringToDateConverter" />
+		<local:SpentAmountToStatusConverter x:Key="SpentAmountToStatusConverter" />
+		<local:SpentAmountToForegroundConverter x:Key="SpentAmountToForegroundConverter" />
 	</Page.Resources>
 
 	<Grid Padding="20" Background="#121212">
@@ -39,6 +41,18 @@
 						<TextBlock Text="{Binding SpentAmount, Converter={StaticResource CurrencyFormatter}}" />
 						<TextBlock Text="{Binding StartDate, Converter={StaticResource DateFormatter}}" />
 						<TextBlock Text="{Binding EndDate, Converter={StaticResource DateFormatter}}" />
+
+						<TextBlock Foreground="{Binding Converter={StaticResource SpentAmountToForegroundConverter}}">
+							<Run Text="Status: " />
+							<Run Text="{Binding Converter={StaticResource SpentAmountToStatusConverter}}" />
+						</TextBlock>
+						
+						<Button Background="Transparent"
+								BorderThickness="0"
+								Click="DeleteBudget"
+								CommandParameter="{Binding}">
+							<SymbolIcon Symbol="Delete" Foreground="Red"/>
+						</Button>
 					</StackPanel>
 				</DataTemplate>
 			</ListView.ItemTemplate>
