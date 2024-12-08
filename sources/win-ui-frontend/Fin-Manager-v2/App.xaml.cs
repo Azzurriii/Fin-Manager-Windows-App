@@ -65,6 +65,7 @@ public partial class App : Application
             services.AddSingleton<IAccountService, AccountService>();
             services.AddSingleton<IDialogService, DialogService>();
             services.AddSingleton<IBudgetService, BudgetService>();
+            services.AddTransient<IJobService, JobService>();
             services.AddSingleton<HttpClient>();
             services.AddSingleton<IReportService, ReportService>();
 
@@ -105,6 +106,8 @@ public partial class App : Application
             });
 
             // Views and ViewModels
+            services.AddTransient<JobViewModel>();
+            services.AddTransient<JobPage>();
             services.AddTransient<BudgetViewModel>();
             services.AddTransient<BudgetPage>();
             services.AddTransient<ReportViewModel>();
@@ -123,6 +126,8 @@ public partial class App : Application
             services.AddTransient<LoginPage>();
             services.AddTransient<SignUpViewModel>();
             services.AddTransient<SignUpPage>();
+            services.AddTransient<JobDetailViewModel>();
+            services.AddTransient<JobDetailPage>();
         }).
         Build();
 

@@ -14,9 +14,11 @@ import { Tag } from './tag/entity/tag.entity';
 import { TagModule } from './tag/tag.module';
 import { ReportModule } from './report/report.module';
 import { BudgetModule } from './budget/budget.module';
+import { ScheduleModule } from '@nestjs/schedule';
+import { JobModule } from './job/job.module';
 
 @Module({
-  imports: [
+  imports: [ScheduleModule.forRoot(),
     ConfigModule.forRoot(), // Initialize ConfigModule
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
@@ -43,6 +45,7 @@ import { BudgetModule } from './budget/budget.module';
     TagModule,
     ReportModule,
     BudgetModule,
+    JobModule,
   ],
   controllers: [AppController],
   providers: [AppService],

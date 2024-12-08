@@ -1,0 +1,54 @@
+<ContentDialog
+    x:Class="Fin_Manager_v2.Controls.JobDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Title="Add a new job"
+    PrimaryButtonText="Add"
+    CloseButtonText="Cancel"
+    DefaultButton="Primary"
+    PrimaryButtonClick="ContentDialog_PrimaryButtonClick">
+
+    <StackPanel Spacing="10">
+        <TextBox x:Name="JobNameBox" 
+                 Header="Job Name"
+                 PlaceholderText="Enter job name"/>
+        
+        <TextBox x:Name="DescriptionBox"
+                 Header="Description"
+                 PlaceholderText="Enter job description"
+                 TextWrapping="Wrap"
+                 AcceptsReturn="True"
+                 Height="80"/>
+
+        <TextBox x:Name="AmountBox"
+                 Header="Amount"
+                 PlaceholderText="Enter amount"/>
+
+        <DatePicker x:Name="ScheduleDatePicker"
+                    Header="Start Date"/>
+
+        <ComboBox x:Name="RecurringTypeComboBox"
+                  Header="Recurring Type"
+                  PlaceholderText="Select recurring type">
+            <ComboBoxItem Content="DAILY"/>
+            <ComboBoxItem Content="WEEKLY"/>
+            <ComboBoxItem Content="MONTHLY"/>
+            <ComboBoxItem Content="YEARLY"/>
+        </ComboBox>
+
+        <ComboBox x:Name="TransactionTypeComboBox"
+                  Header="Transaction Type"
+                  PlaceholderText="Select transaction type">
+            <ComboBoxItem Content="INCOME"/>
+            <ComboBoxItem Content="EXPENSE"/>
+        </ComboBox>
+
+        <TextBlock x:Name="ErrorTextBlock"
+                   Foreground="Red"
+                   Visibility="Collapsed"
+                   TextWrapping="Wrap"/>
+    </StackPanel>
+</ContentDialog>
