@@ -1,33 +1,52 @@
 version: '3.8'
 
 services:
-  backend:
+  api:
     build: .
     ports:
-      - '3000:3000'
-    environment:
-      - DATABASE_HOST=db
-      - DATABASE_PORT=5432 # Thay đổi từ 5433 thành 5432
-      - DATABASE_USERNAME=postgres
-      - DATABASE_PASSWORD=12345
-      - DATABASE_NAME=fin_manager_db
+      - "3000:3000"
     depends_on:
-      db:
+      postgres:
         condition: service_healthy
-
-  db:
-    image: postgres
-    ports:
-      - '5432:5432'
     environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=12345
-      - POSTGRES_DB=fin_manager_db
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USERNAME=myuser
+      - DB_PASSWORD=mypassword
+      - DB_NAME=mydatabase
+      - TYPEORM_HOST=postgres
+      - TYPEORM_PORT=5432
+      - TYPEORM_USERNAME=myuser
+      - TYPEORM_PASSWORD=mypassword
+      - TYPEORM_DATABASE=mydatabase
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    command: >
+      /bin/sh -c "
+        echo 'Waiting for postgres...' &&
+        while ! nc -z postgres 5432; do
+          sleep 1;
+        done &&
+        echo 'PostgreSQL started' &&
+        yarn typeorm schema:sync -d ./src/data-source.ts &&
+        yarn migration:run &&
+        yarn start:dev
+      "
+
+  postgres:
+    image: postgres:latest
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=myuser
+      - POSTGRES_PASSWORD=mypassword
+      - POSTGRES_DB=mydatabase
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U postgres']
-      interval: 10s
+      test: ["CMD-SHELL", "pg_isready -U myuser -d mydatabase"]
+      interval: 5s
       timeout: 5s
       retries: 5
 
