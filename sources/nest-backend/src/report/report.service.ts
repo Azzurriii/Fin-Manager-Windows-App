@@ -19,14 +19,14 @@ export class ReportService {
     const [totalIncome, totalExpense] = await Promise.all([
       this.transactionService.getTotalAmountByDate({
         user_id,
-        account_id,
+        ...(account_id && { account_id }),
         transaction_type: TransactionType.INCOME,
         startDate,
         endDate,
       }),
       this.transactionService.getTotalAmountByDate({
         user_id,
-        account_id,
+        ...(account_id && { account_id }),
         transaction_type: TransactionType.EXPENSE,
         startDate,
         endDate,
@@ -41,6 +41,14 @@ export class ReportService {
   }
 
   async getOverview(query: BaseReportDto) {
+    console.log('Overview Query:', query);
+    console.log('Query types:', {
+      startDate: typeof query.startDate,
+      endDate: typeof query.endDate,
+      user_id: typeof query.user_id,
+      account_id: typeof query.account_id
+    });
+
     const months = [];
     const startYear = query.startDate.getFullYear();
 
@@ -51,14 +59,14 @@ export class ReportService {
       const [totalIncome, totalExpense] = await Promise.all([
         this.transactionService.getTotalAmountByDate({
           user_id: query.user_id,
-          account_id: query.account_id,
+          ...(query.account_id && { account_id: query.account_id }),
           transaction_type: TransactionType.INCOME,
           startDate: startOfMonth,
           endDate: endOfMonth,
         }),
         this.transactionService.getTotalAmountByDate({
           user_id: query.user_id,
-          account_id: query.account_id,
+          ...(query.account_id && { account_id: query.account_id }),
           transaction_type: TransactionType.EXPENSE,
           startDate: startOfMonth,
           endDate: endOfMonth,
@@ -67,8 +75,8 @@ export class ReportService {
 
       months.push({
         month: startOfMonth.toLocaleString('default', { month: 'short' }),
-        totalIncome,
-        totalExpense,
+        totalIncome: totalIncome,
+        totalExpense: totalExpense,
       });
     }
 
@@ -80,7 +88,7 @@ export class ReportService {
   
     const transactions = await this.transactionService.findTransactions({
       user_id,
-      account_id,
+      ...(account_id && { account_id }),
       transaction_type: type,
       startDate,
       endDate,
@@ -99,12 +107,11 @@ export class ReportService {
         const tagId = parseInt(category, 10);
         const tag = await this.tagService.findOne(tagId);
         return {
-          tag_id: tagId,
+          tagId: tagId,
           tagName: tag?.name || 'Uncategorized',
           amount,
         };
       })
     );
   }
-  
 }

@@ -66,6 +66,7 @@ public partial class App : Application
             services.AddSingleton<IDialogService, DialogService>();
             services.AddSingleton<IBudgetService, BudgetService>();
             services.AddSingleton<HttpClient>();
+            services.AddSingleton<IReportService, ReportService>();
 
             // HTTP and Currency Services
             services.AddHttpClient<ITransactionService, TransactionService>((provider, client) =>
@@ -93,6 +94,11 @@ public partial class App : Application
             });
 
             services.AddHttpClient<IAuthService, AuthService>((provider, client) =>
+            {
+                var config = provider.GetRequiredService<IApiConfiguration>();
+                client.BaseAddress = new Uri(config.BaseUrl);
+            });
+            services.AddHttpClient<IReportService, ReportService>((provider, client) =>
             {
                 var config = provider.GetRequiredService<IApiConfiguration>();
                 client.BaseAddress = new Uri(config.BaseUrl);

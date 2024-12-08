@@ -2,9 +2,9 @@
     x:Class="Fin_Manager_v2.Views.ReportPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:lvc="using:LiveChartsCore.SkiaSharpView.WinUI">
-
-	<Grid>
+    xmlns:lvc="using:LiveChartsCore.SkiaSharpView.WinUI"
+    xmlns:painting="using:LiveChartsCore.SkiaSharpView.Painting">
+    <Grid>
 		<Grid.RowDefinitions>
 			<RowDefinition Height="Auto"/>
 			<RowDefinition Height="*"/>
@@ -12,16 +12,77 @@
 
 		<!-- Controls -->
 		<StackPanel Orientation="Horizontal" Margin="10" Grid.Row="0">
-			<ComboBox Header="Time Period" Width="150" Margin="5"
-                      SelectedItem="{x:Bind ViewModel.SelectedTimePeriod, Mode=TwoWay}">
-				<x:String>Day</x:String>
+			<ComboBox x:Name="TimePeriodComboBox" 
+					  Header="Time Period" 
+					  Width="150" 
+					  Margin="5"
+					  SelectedItem="{x:Bind ViewModel.SelectedTimePeriod, Mode=TwoWay}">
 				<x:String>Month</x:String>
 				<x:String>Quarter</x:String>
 				<x:String>Year</x:String>
 			</ComboBox>
-			<DatePicker Header="Start Date" Margin="5"/>
-			<DatePicker Header="End Date" Margin="5"/>
-			<ComboBox Header="Account" Width="150" Margin="5"/>
+
+			<!-- Month Selection -->
+			<StackPanel Orientation="Horizontal" 
+						Visibility="{x:Bind ViewModel.IsMonthPeriod, Mode=OneWay}">
+				<ComboBox Header="Month" 
+						  Width="150" 
+						  Margin="5"
+						  SelectedItem="{x:Bind ViewModel.SelectedMonth, Mode=TwoWay}">
+					<x:String>January</x:String>
+                    <x:String>February</x:String>
+                    <x:String>March</x:String>
+                    <x:String>April</x:String>
+                    <x:String>May</x:String>
+                    <x:String>June</x:String>
+                    <x:String>July</x:String>
+                    <x:String>August</x:String>
+                    <x:String>September</x:String>
+                    <x:String>October</x:String>
+                    <x:String>November</x:String>
+                    <x:String>December</x:String>
+				</ComboBox>
+				<NumberBox Header="Year"
+						  Width="100"
+						  Margin="5"
+						  Value="{x:Bind ViewModel.SelectedYear, Mode=TwoWay}"
+						  SpinButtonPlacementMode="Compact"/>
+			</StackPanel>
+
+			<!-- Quarter Selection -->
+			<StackPanel Orientation="Horizontal" 
+						Visibility="{x:Bind ViewModel.IsQuarterPeriod, Mode=OneWay}">
+				<ComboBox Header="Quarter" 
+						  Width="150" 
+						  Margin="5"
+						  SelectedItem="{x:Bind ViewModel.SelectedQuarter, Mode=TwoWay}">
+					<x:String>Q1</x:String>
+					<x:String>Q2</x:String>
+					<x:String>Q3</x:String>
+					<x:String>Q4</x:String>
+				</ComboBox>
+				<NumberBox Header="Year"
+						  Width="100"
+						  Margin="5"
+						  Value="{x:Bind ViewModel.SelectedYear, Mode=TwoWay}"
+						  SpinButtonPlacementMode="Compact"/>
+			</StackPanel>
+
+			<!-- Year Selection -->
+			<NumberBox Header="Year"
+					  Width="100"
+					  Margin="5"
+					  Visibility="{x:Bind ViewModel.IsYearPeriod, Mode=OneWay}"
+					  Value="{x:Bind ViewModel.SelectedYear, Mode=TwoWay}"
+					  SpinButtonPlacementMode="Compact"/>
+
+			<!--Account Selection-->
+            <ComboBox Header="Account"
+					  Width="150"
+					  Margin="5"
+					  ItemsSource="{x:Bind ViewModel.Accounts, Mode=OneWay}"
+					  SelectedItem="{x:Bind ViewModel.SelectedAccountObj, Mode=TwoWay}"
+					  DisplayMemberPath="AccountName"/>
 		</StackPanel>
 
 		<!-- Content -->
@@ -61,15 +122,16 @@
 			<!-- Overview Chart -->
 			<Border Grid.Row="1" BorderBrush="Gray" BorderThickness="1" Padding="10" Margin="0,0,0,10" CornerRadius="8">
 				<Grid>
-					<TextBlock Text="Overview" Style="{ThemeResource SubtitleTextBlockStyle}"/>
-					<lvc:CartesianChart 
+					<TextBlock Text="Yearly Overview" Style="{ThemeResource SubtitleTextBlockStyle}"/>
+                    <lvc:CartesianChart 
 						Series="{x:Bind ViewModel.OverviewSeries, Mode=OneWay}"
 						XAxes="{x:Bind ViewModel.XAxes, Mode=OneWay}"
 						TooltipPosition="Top"
 						LegendPosition="Top"
+						LegendTextPaint="{x:Bind ViewModel.LegendTextPaint, Mode=OneWay}"
 						Margin="0,30,0,0">
-					</lvc:CartesianChart>
-				</Grid>
+                    </lvc:CartesianChart>
+                </Grid>
 			</Border>
 
 			<!-- Income and Expense Charts -->
