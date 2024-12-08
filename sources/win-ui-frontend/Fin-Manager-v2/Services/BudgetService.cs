@@ -98,5 +98,21 @@ namespace Fin_Manager_v2.Services
 
             return budgets;
         }
+
+        public async Task<bool> DeleteBudgetAsync(int budgetId)
+        {
+            try
+            {
+                SetAuthorizationHeader();
+                var response = await _httpClient.DeleteAsync($"http://localhost:3000/budget/{budgetId}");
+
+                return response.IsSuccessStatusCode;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in DeleteBudgetAsync: {ex.Message}");
+                return false;
+            }
+        }
     }
 }

@@ -19,7 +19,12 @@ public partial class BudgetViewModel : ObservableRecipient
     public ObservableCollection<BudgetModel> Budgets { get; set; } = new ObservableCollection<BudgetModel>();
     public ObservableCollection<AccountModel> Accounts { get; set; } = new ObservableCollection<AccountModel>();
 
-    public CreateBudgetDto NewBudget { get; set; } = new();
+    private CreateBudgetDto _newBudget;
+    public CreateBudgetDto NewBudget
+    {
+        get => _newBudget;
+        set => SetProperty(ref _newBudget, value);
+    }
 
     private bool _isAddingBudget;
     public bool IsAddingBudget
@@ -67,6 +72,12 @@ public partial class BudgetViewModel : ObservableRecipient
 
     public async Task SaveBudget()
     {
+        if (NewBudget == null)
+        {
+            Console.WriteLine("NewBudget is null!");
+            return;
+        }
+
         if (string.IsNullOrWhiteSpace(NewBudget.Category) || NewBudget.BudgetAmount <= 0)
         {
             return;
@@ -84,6 +95,23 @@ public partial class BudgetViewModel : ObservableRecipient
         {
             // Xử lý trường hợp thêm không thành công
             //await _dialogService.ShowErrorDialog("Failed to add budget. Please try again.");
+        }
+    }
+
+    public async Task DeleteBudget(BudgetModel budget)
+    {
+        try
+        {
+            bool isDeleted = await _budgetService.DeleteBudgetAsync(budget.BudgetId);
+
+            if (isDeleted)
+            {
+                Budgets.Remove(budget);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error deleting budget: {ex.Message}");
         }
     }
 
