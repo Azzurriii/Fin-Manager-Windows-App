@@ -21,6 +21,10 @@ public class AuthService : IAuthService
 
     public bool IsAuthenticated => _isAuthenticated;
 
+    /// <summary>Attempts to log in with the provided username and password asynchronously.</summary>
+    /// <param name="username">The username for the login attempt.</param>
+    /// <param name="password">The password for the login attempt.</param>
+    /// <returns>True if the login was successful, false otherwise.</returns>
     public async Task<bool> LoginAsync(string username, string password)
     {
         var loginData = new { username, password };
@@ -47,17 +51,40 @@ public class AuthService : IAuthService
         return false;
     }
 
+    /// <summary>Signs up a new user asynchronously.</summary>
+    /// <param name="user">The user model containing the user information.</param>
+    /// <returns>An HTTP response message representing the result of the sign-up operation.</returns>
     public async Task<HttpResponseMessage> SignUpAsync(UserModel user)
     {
         var response = await _httpClient.PostAsJsonAsync("users", user);
         return response;
     }
 
+    /// <summary>
+    /// Logs out the current user by setting the authentication status to false and removing the access token from local settings.
+    /// </summary>
     public void Logout()
     {
         _isAuthenticated = false;
+        // Delete the access token from local storage
+        var localSettings = ApplicationData.Current.LocalSettings;
+        localSettings.Values.Remove("AccessToken");
     }
 
+    /// <summary>
+    /// Asynchronously fetches the user ID from the server and stores it in local settings.
+    /// </summary>
+    /// <remarks>
+    /// This method retrieves the access token from local settings, sends a GET request to the "users/me" endpoint with the token for authentication,
+    /// reads the response content as JSON, extracts the user ID, and stores it in local settings.
+    /// </remarks>
+    /// <exception cref="Exception">Thrown when an error occurs during the process.</exception>
+    /// <seealso cref="HttpRequestMessage"/>
+    /// <seealso cref="HttpResponseMessage"/>
+    /// <seealso cref="JsonElement"/>
+    /// <seealso cref="AuthenticationHeaderValue"/>
+    /// <seealso cref="ApplicationData.LocalSettings"/>
+    /// <seealso cref="HttpClient.SendAsync HttpRequestMessage"/>
     public async Task FetchUserIdAsync()
     {
         try
@@ -110,6 +137,10 @@ public class AuthService : IAuthService
         }
     }
 
+    /// <summary>
+    /// Retrieves the access token from the local settings.
+    /// </summary>
+    /// <returns>The access token if found, otherwise null.</returns>
     public string GetAccessToken()
     {
         var localSettings = ApplicationData.Current.LocalSettings;
@@ -122,6 +153,8 @@ public class AuthService : IAuthService
         return null;
     }
 
+    /// <summary>Retrieves the user ID stored in local settings.</summary>
+    /// <returns>The user ID if found, null otherwise.</returns>
     public int? GetUserId()
     {
         var localSettings = ApplicationData.Current.LocalSettings;

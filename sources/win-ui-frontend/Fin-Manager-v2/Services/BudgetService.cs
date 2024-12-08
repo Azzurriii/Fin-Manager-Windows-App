@@ -11,92 +11,94 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 
-namespace Fin_Manager_v2.Services
+namespace Fin_Manager_v2.Services;
+
+/// <summary>
+/// Service for managing budgets through HTTP requests.
+/// </summary>
+public class BudgetService : IBudgetService
 {
-    public class BudgetService : IBudgetService
+    private readonly HttpClient _httpClient;
+    private readonly IAuthService _authService;
+
+    public BudgetService(HttpClient httpClient, IAuthService authService)
     {
-        private readonly HttpClient _httpClient;
-        private readonly IAuthService _authService;
+        _httpClient = httpClient;
+        _authService = authService;
+    }
 
-        public BudgetService(HttpClient httpClient, IAuthService authService)
+    private void SetAuthorizationHeader()
+    {
+        var token = _authService.GetAccessToken();
+        if (string.IsNullOrEmpty(token))
         {
-            _httpClient = httpClient;
-            _authService = authService;
+            throw new InvalidOperationException("No valid authentication token. Please log in again.");
         }
+        _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+    }
 
-        private void SetAuthorizationHeader()
+    public async Task<BudgetModel?> CreateBudgetAsync(CreateBudgetDto budget)
+    {
+        SetAuthorizationHeader();
+        var response = await _httpClient.PostAsJsonAsync("http://localhost:3000/budget", budget);
+        if (response.IsSuccessStatusCode)
         {
-            var token = _authService.GetAccessToken();
-            if (string.IsNullOrEmpty(token))
-            {
-                throw new InvalidOperationException("No valid authentication token. Please log in again.");
-            }
-            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            // Deserialize JSON response thành Budget model
+            return await response.Content.ReadFromJsonAsync<BudgetModel>();
         }
+        return null;
+    }
 
-        public async Task<BudgetModel?> CreateBudgetAsync(CreateBudgetDto budget)
+    public async Task<List<BudgetModel>> GetBudgetsAsync()
+    {
+        try
         {
             SetAuthorizationHeader();
-            var response = await _httpClient.PostAsJsonAsync("http://localhost:3000/budget", budget);
-            if (response.IsSuccessStatusCode)
-            {
-                // Deserialize JSON response thành Budget model
-                return await response.Content.ReadFromJsonAsync<BudgetModel>();
-            }
-            return null;
-        }
+            var response = await _httpClient.GetAsync("http://localhost:3000/budget");
+            //if (response.IsSuccessStatusCode)
+            //{
+            //    var json = await response.Content.ReadAsStringAsync();
+            //    return JsonSerializer.Deserialize<List<BudgetModel>>(json) ?? new List<BudgetModel>();
+            //}
 
-        public async Task<List<BudgetModel>> GetBudgetsAsync()
+            //return new List<BudgetModel>();
+            response.EnsureSuccessStatusCode();
+
+            // Đọc nội dung JSON
+            var json = await response.Content.ReadAsStringAsync();
+
+            // Sử dụng phương thức deserialize
+            return DeserializeBudgets(json);
+        }
+        catch (Exception ex)
         {
-            try
-            {
-                SetAuthorizationHeader();
-                var response = await _httpClient.GetAsync("http://localhost:3000/budget");
-                //if (response.IsSuccessStatusCode)
-                //{
-                //    var json = await response.Content.ReadAsStringAsync();
-                //    return JsonSerializer.Deserialize<List<BudgetModel>>(json) ?? new List<BudgetModel>();
-                //}
-
-                //return new List<BudgetModel>();
-                response.EnsureSuccessStatusCode();
-
-                // Đọc nội dung JSON
-                var json = await response.Content.ReadAsStringAsync();
-
-                // Sử dụng phương thức deserialize
-                return DeserializeBudgets(json);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error fetching budgets: {ex.Message}");
-                return new List<BudgetModel>();
-            }
+            Console.WriteLine($"Error fetching budgets: {ex.Message}");
+            return new List<BudgetModel>();
         }
+    }
 
-        public List<BudgetModel> DeserializeBudgets(string json)
+    public List<BudgetModel> DeserializeBudgets(string json)
+    {
+        var options = new JsonSerializerOptions
         {
-            var options = new JsonSerializerOptions
-            {
-                PropertyNameCaseInsensitive = true,
-                Converters = { new DecimalStringConverter() }
-            };
+            PropertyNameCaseInsensitive = true,
+            Converters = { new DecimalStringConverter() }
+        };
 
-            var budgets = JsonSerializer.Deserialize<List<BudgetModel>>(json, options);
+        var budgets = JsonSerializer.Deserialize<List<BudgetModel>>(json, options);
 
-            if (budgets == null || budgets.Count == 0)
-            {
-                Console.WriteLine("Deserialization returned an empty list.");
-            }
-            else
-            {
-                foreach (var budget in budgets)
-                {
-                    Console.WriteLine($"Budget ID: {budget.BudgetId}, Budget Amount: {budget.BudgetAmount}");
-                }
-            }
-
-            return budgets;
+        if (budgets == null || budgets.Count == 0)
+        {
+            Console.WriteLine("Deserialization returned an empty list.");
         }
+        else
+        {
+            foreach (var budget in budgets)
+            {
+                Console.WriteLine($"Budget ID: {budget.BudgetId}, Budget Amount: {budget.BudgetAmount}");
+            }
+        }
+
+        return budgets;
     }
 }

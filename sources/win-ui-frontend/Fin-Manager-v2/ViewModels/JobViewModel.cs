@@ -42,6 +42,12 @@ public partial class JobViewModel : ObservableRecipient
         IsInitialized = false;
     }
 
+    /// <summary>
+    /// Initializes the application asynchronously.
+    /// </summary>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    /// <exception cref="InvalidOperationException">Thrown when the user is not logged in.</exception>
+    /// <exception cref="Exception">Thrown when an error occurs during initialization.</exception>
     public async Task InitializeAsync()
     {
         if (IsInitialized)
@@ -51,11 +57,11 @@ public partial class JobViewModel : ObservableRecipient
         {
             IsLoading = true;
             
-            // Kiểm tra token
+            // Check token
             var token = _authService.GetAccessToken();
             if (string.IsNullOrEmpty(token))
             {
-                throw new InvalidOperationException("Chưa đăng nhập");
+                throw new InvalidOperationException("Not logged in");
             }
 
             await LoadJobsAsync();
@@ -65,8 +71,8 @@ public partial class JobViewModel : ObservableRecipient
         {
             System.Diagnostics.Debug.WriteLine($"Initialize Error: {ex.Message}");
             HasError = true;
-            ErrorMessage = "Không thể khởi tạo: " + ex.Message;
-            await _dialogService.ShowErrorAsync("Lỗi khởi tạo", ex.Message);
+            ErrorMessage = "Cannot initialize: " + ex.Message;
+            await _dialogService.ShowErrorAsync("Error", ErrorMessage);
         }
         finally
         {
@@ -74,6 +80,10 @@ public partial class JobViewModel : ObservableRecipient
         }
     }
 
+    /// <summary>
+    /// Asynchronously loads jobs from the job service and updates the collection of jobs.
+    /// </summary>
+    /// <exception cref="Exception">Thrown when an error occurs during the loading process.</exception>
     public async Task LoadJobsAsync()
     {
         try
@@ -96,6 +106,12 @@ public partial class JobViewModel : ObservableRecipient
         }
     }
 
+    /// <summary>
+    /// Asynchronously adds a new job using the provided job data transfer object.
+    /// </summary>
+    /// <param name="jobDto">The data transfer object containing information about the job to be added.</param>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    /// <exception cref="Exception">Thrown when an error occurs while adding the job.</exception>
     public async Task AddJobAsync(CreateJobDto jobDto)
     {
         try
@@ -114,15 +130,15 @@ public partial class JobViewModel : ObservableRecipient
             else
             {
                 HasError = true;
-                ErrorMessage = "Không thể thêm công việc mới";
-                await _dialogService.ShowErrorAsync("Lỗi", ErrorMessage);
+                ErrorMessage = "Cannot add new job";
+                await _dialogService.ShowErrorAsync("Error", ErrorMessage);
             }
         }
         catch (Exception ex)
         {
             HasError = true;
-            ErrorMessage = "Không thể thêm công việc mới";
-            await _dialogService.ShowErrorAsync("Lỗi", ex.Message);
+            ErrorMessage = "Cannot add new job";
+            await _dialogService.ShowErrorAsync("Error", ErrorMessage);
         }
         finally
         {
@@ -130,6 +146,12 @@ public partial class JobViewModel : ObservableRecipient
         }
     }
 
+    /// <summary>
+    /// Asynchronously deletes a job from the system.
+    /// </summary>
+    /// <param name="job">The job model to be deleted.</param>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    /// <exception cref="Exception">Thrown when an error occurs during the deletion process.</exception>
     public async Task DeleteJobAsync(JobModel job)
     {
         try
@@ -145,15 +167,15 @@ public partial class JobViewModel : ObservableRecipient
             else
             {
                 HasError = true;
-                ErrorMessage = "Không thể xóa công việc";
-                await _dialogService.ShowErrorAsync("Lỗi", ErrorMessage);
+                ErrorMessage = "Cannot delete job";
+                await _dialogService.ShowErrorAsync("Error", ErrorMessage);
             }
         }
         catch (Exception ex)
         {
             HasError = true;
-            ErrorMessage = "Không thể xóa công việc";
-            await _dialogService.ShowErrorAsync("Lỗi", ex.Message);
+            ErrorMessage = "Cannot delete job";
+            await _dialogService.ShowErrorAsync("Error", ErrorMessage);
         }
         finally
         {
@@ -161,6 +183,12 @@ public partial class JobViewModel : ObservableRecipient
         }
     }
 
+    /// <summary>
+    /// Asynchronously updates a job using the provided job data transfer object.
+    /// </summary>
+    /// <param name="jobDto">The data transfer object containing information about the job to be updated.</param>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    /// <exception cref="Exception">Thrown when an error occurs while updating the job.</exception>
     public async Task UpdateJobAsync(UpdateJobDto jobDto)
     {
         try
@@ -175,20 +203,20 @@ public partial class JobViewModel : ObservableRecipient
             if (success)
             {
                 await LoadJobsAsync();
-                await _dialogService.ShowSuccessAsync("Thành công", "Cập nhật công việc thành công");
+                await _dialogService.ShowSuccessAsync("Success", "Update job successfully");
             }
             else
             {
                 HasError = true;
-                ErrorMessage = "Không thể cập nhật công việc";
-                await _dialogService.ShowErrorAsync("Lỗi", ErrorMessage);
+                ErrorMessage = "Cannot update job";
+                await _dialogService.ShowErrorAsync("Error", ErrorMessage);
             }
         }
         catch (Exception ex)
         {
             HasError = true;
-            ErrorMessage = "Không thể cập nhật công việc";
-            await _dialogService.ShowErrorAsync("Lỗi", ex.Message);
+            ErrorMessage = "Cannot update job";
+            await _dialogService.ShowErrorAsync("Error", ErrorMessage);
         }
         finally
         {
@@ -196,50 +224,74 @@ public partial class JobViewModel : ObservableRecipient
         }
     }
 
+    /// <summary>
+    /// Validates the properties of an UpdateJobDto object.
+    /// </summary>
+    /// <param name="jobDto">The UpdateJobDto object to validate.</param>
+    /// <returns>True if the UpdateJobDto object is valid; otherwise, false.</returns>
     private bool ValidateJobDto(UpdateJobDto jobDto)
     {
         if (string.IsNullOrWhiteSpace(jobDto.JobName))
         {
-            SetError("Lỗi", "Vui lòng nhập tên công việc");
+            SetError("Error", "Please enter the job name");
             return false;
         }
 
         if (jobDto.Amount <= 0)
         {
-            SetError("Lỗi", "Số tiền phải lớn hơn 0");
+            SetError("Error", "Amount must be greater than 0");
             return false;
         }
 
         return true;
     }
 
+    /// <summary>
+    /// Validates the provided CreateJobDto object.
+    /// </summary>
+    /// <param name="jobDto">The CreateJobDto object to be validated.</param>
+    /// <returns>True if the object is valid, false otherwise.</returns>
+    /// <exception cref="ArgumentException">Thrown when the job name is null or whitespace, or the amount is less than or equal to 0.</exception>
     private bool ValidateJobDto(CreateJobDto jobDto){
         if (string.IsNullOrWhiteSpace(jobDto.JobName))
         {
-            SetError("Lỗi", "Vui lòng nhập tên công việc");
+            SetError("Error", "Please enter the job name");
             return false;
         }
 
         if (jobDto.Amount <= 0)
         {
-            SetError("Lỗi", "Số tiền phải lớn hơn 0");
+            SetError("Error", "Amount must be greater than 0");
             return false;
         }
 
         return true;
     }
 
+    /// <summary>Sets an error message.</summary>
+    /// <param name="title">The title of the error message.</param>
+    /// <param name="message">The content of the error message.</param>
     private void SetError(string title, string message)
     {
         HasError = true;
         ErrorMessage = $"{title}: {message}";
     }
 
+    /// <summary>
+    /// Determines the visibility of a collection based on its content.
+    /// </summary>
+    /// <param name="jobs">The ObservableCollection to check for content.</param>
+    /// <returns>Visibility.Visible if the collection is null or empty, otherwise Visibility.Collapsed.</returns>
     public Visibility CollectionVisibility(ObservableCollection<JobModel> jobs)
     {
         return (jobs == null || jobs.Count == 0) ? Visibility.Visible : Visibility.Collapsed;
     }
 
+    /// <summary>
+    /// Determines the visibility of a collection based on its content.
+    /// </summary>
+    /// <param name="jobs">The ObservableCollection to check for content.</param>
+    /// <returns>Visibility.Visible if the collection is null or empty, otherwise Visibility.Collapsed.</returns>
     public Visibility InverseCollectionVisibility(ObservableCollection<JobModel> jobs)
     {
         return (jobs == null || jobs.Count == 0) ? Visibility.Collapsed : Visibility.Visible;

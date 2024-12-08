@@ -6,6 +6,12 @@ namespace Fin_Manager_v2.Services;
 
 public class DialogService : IDialogService
 {
+    /// <summary>Displays a dialog with the specified title and message.</summary>
+    /// <param name="title">The title of the dialog.</param>
+    /// <param name="message">The message to display in the dialog.</param>
+    /// <param name="buttonText">The text to display on the button (default is "OK").</param>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    /// <remarks>If an error occurs while showing the dialog, it will be caught and logged.</remarks>
     private async Task ShowDialog(string title, string message, string buttonText = "OK")
     {
         try
@@ -43,6 +49,10 @@ public class DialogService : IDialogService
         await ShowDialog(title, message);
     }
 
+    /// <summary>Displays a confirmation dialog with the specified title and message.</summary>
+    /// <param name="title">The title of the confirmation dialog.</param>
+    /// <param name="message">The message displayed in the confirmation dialog.</param>
+    /// <returns>True if the user clicks "Yes", false if the user clicks "No" or an error occurs.</returns>
     public async Task<bool> ShowConfirmAsync(string title, string message)
     {
         try

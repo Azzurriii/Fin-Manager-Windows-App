@@ -89,6 +89,14 @@ public partial class ReportViewModel : ObservableRecipient
         LegendTextPaint = new SolidColorPaint(new SKColor(0, 120, 215));
     }
 
+    /// <summary>
+    /// Initializes the user and accounts asynchronously.
+    /// </summary>
+    /// <remarks>
+    /// This method retrieves the user ID from the authentication service. If the user ID is not stored locally,
+    /// it fetches the user ID asynchronously. Once the user ID is obtained, it sets the UserId property, loads
+    /// the user's accounts asynchronously, and updates the chart data.
+    /// </remarks>
     private async void InitializeUserAndAccountsAsync()
     {
         try
@@ -114,6 +122,15 @@ public partial class ReportViewModel : ObservableRecipient
         }
     }
 
+    /// <summary>
+    /// Asynchronously loads accounts from the account service and populates the Accounts collection.
+    /// </summary>
+    /// <remarks>
+    /// This method retrieves a list of accounts from the account service, clears the existing Accounts collection,
+    /// adds a default "All Accounts" entry, populates the collection with the retrieved accounts, and sets the SelectedAccountObj
+    /// property to the first account in the collection.
+    /// </remarks>
+    /// <exception cref="Exception">Thrown when an error occurs during the loading process.</exception>
     private async Task LoadAccountsAsync()
     {
         try
@@ -142,12 +159,28 @@ public partial class ReportViewModel : ObservableRecipient
         }
     }
 
+    /// <summary>
+    /// Event handler for when the selected account object changes.
+    /// </summary>
+    /// <param name="value">The new selected account object.</param>
+    /// <remarks>
+    /// If the account name is "All Accounts", sets the AccountId to null; otherwise, sets it to the AccountId of the selected account.
+    /// Updates the chart data after setting the AccountId.
+    /// </remarks>
     partial void OnSelectedAccountObjChanged(AccountModel value)
     {
         AccountId = value?.AccountName == "All Accounts" ? null : value?.AccountId;
         UpdateChartData();
     }
 
+    /// <summary>
+    /// Handles the change in selected time period and updates the chart data accordingly.
+    /// </summary>
+    /// <param name="value">The selected time period value.</param>
+    /// <remarks>
+    /// Sets the boolean flags IsMonthPeriod, IsQuarterPeriod, and IsYearPeriod based on the selected time period value.
+    /// Calls the UpdateChartData method to update the chart data based on the selected time period.
+    /// </remarks>
     partial void OnSelectedTimePeriodChanged(string value)
     {
         IsMonthPeriod = value == "Month";
@@ -177,6 +210,14 @@ public partial class ReportViewModel : ObservableRecipient
         UpdateChartData();
     }
 
+    /// <summary>
+    /// Updates the chart data based on the selected time period and date range.
+    /// </summary>
+    /// <remarks>
+    /// This method retrieves data for summary, overview, income, and expense reports asynchronously
+    /// and updates the corresponding properties to reflect the fetched data.
+    /// </remarks>
+    /// <exception cref="Exception">Thrown when an error occurs during the data retrieval process.</exception>
     private async void UpdateChartData()
     {
         try
@@ -217,6 +258,13 @@ public partial class ReportViewModel : ObservableRecipient
         }
     }
 
+    /// <summary>
+    /// Fetches data asynchronously for a specified date range.
+    /// </summary>
+    /// <param name="startDate">The start date of the date range.</param>
+    /// <param name="endDate">The end date of the date range.</param>
+    /// <returns>A SummaryModel, List<OverviewModel>, List<CategoryReportModel> object containing the data.</returns>
+
     private async Task<SummaryModel> FetchSummaryAsync(DateTime startDate, DateTime endDate)
     {
         Debug.WriteLine($"Fetching summary data for account {AccountId}...");
@@ -241,6 +289,15 @@ public partial class ReportViewModel : ObservableRecipient
         return categories;
     }
 
+    /// <summary>
+    /// Updates the overview chart with the provided data.
+    /// </summary>
+    /// <param name="overviewData">The list of OverviewModel containing data for the chart.</param>
+    /// <remarks>
+    /// This method extracts the necessary data from the overviewData list to update the overview chart.
+    /// It sets the X-axis labels, paints, text size, rotation, separators, ticks, and step values.
+    /// It also creates two series for income and expense with corresponding values, names, fills, and data label formatters.
+    /// </remarks>
     private void UpdateOverviewChart(List<OverviewModel> overviewData)
     {
         var months = overviewData.Select(x => x.Month ?? "").ToArray();
@@ -283,6 +340,12 @@ public partial class ReportViewModel : ObservableRecipient
         }.ToList();
     }
 
+    /// <summary>
+    /// Converts a list of CategoryReportModel objects to a list of PieSeries objects for chart visualization.
+    /// </summary>
+    /// <param name="categories">The list of CategoryReportModel objects to convert.</param>
+    /// <param name="baseColor">The base color to use for the pie chart slices.</param>
+    /// <returns>A list of PieSeries objects representing the data from the CategoryReportModel list.</returns>
     private List<PieSeries<double>> ConvertToPieSeries(List<CategoryReportModel> categories, SKColor baseColor)
     {
         // Tag color 
