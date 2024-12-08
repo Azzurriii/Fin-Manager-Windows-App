@@ -20,6 +20,8 @@ public class ReportService : IReportService
     private readonly HttpClient _httpClient;
     private readonly JsonSerializerOptions _jsonOptions;
 
+    /// <summary>Initializes a new instance of the ReportService class.</summary>
+    /// <param name="httpClient">The HttpClient used to make HTTP requests.</param>
     public ReportService(HttpClient httpClient)
     {
         _httpClient = httpClient;
@@ -30,6 +32,16 @@ public class ReportService : IReportService
         };
     }
 
+    /// <summary>
+    /// Asynchronously retrieves a summary for a user within a specified date range.
+    /// </summary>
+    /// <param name="userId">The ID of the user for whom the summary is requested.</param>
+    /// <param name="accountId">The optional account ID for filtering.</param>
+    /// <param name="startDate">The start date of the summary period.</param>
+    /// <param name="endDate">The end date of the summary period.</param>
+    /// <returns>A Task representing the asynchronous operation that returns a SummaryModel object.</returns>
+    /// <exception cref="HttpRequestException">Thrown when an HTTP request error occurs.</exception>
+    /// <exception cref="JsonException">Thrown when an error occurs during JSON deserialization.</exception>
     public async Task<SummaryModel> GetSummaryAsync(int userId, int? accountId, DateTime startDate, DateTime endDate)
     {
         try
@@ -51,6 +63,16 @@ public class ReportService : IReportService
         }
     }
 
+    /// <summary>
+    /// Retrieves an overview asynchronously based on the provided parameters.
+    /// </summary>
+    /// <param name="userId">The ID of the user for whom the overview is requested.</param>
+    /// <param name="accountId">The ID of the account for which the overview is requested (optional).</param>
+    /// <param name="startDate">The start date of the overview period.</param>
+    /// <param name="endDate">The end date of the overview period.</param>
+    /// <returns>A list of OverviewModel objects representing the overview data.</returns>
+    /// <exception cref="HttpRequestException">Thrown when an HTTP request error occurs.</exception>
+    /// <exception cref="JsonException">Thrown when an error occurs during JSON deserialization.</exception
     public async Task<List<OverviewModel>> GetOverviewAsync(int userId, int? accountId, DateTime startDate, DateTime endDate)
     {
         try
@@ -72,6 +94,15 @@ public class ReportService : IReportService
         }
     }
 
+    /// <summary>
+    /// Retrieves a category report asynchronously based on the specified parameters.
+    /// </summary>
+    /// <param name="userId">The ID of the user for whom the report is generated.</param>
+    /// <param name="accountId">The ID of the account for which the report is generated (optional).</param>
+    /// <param name="type">The type of the category report.</param>
+    /// <param name="startDate">The start date of the report period.</param>
+    /// <param name="endDate">The end date of the report period.</param>
+    /// <returns>A list of CategoryReportModel objects representing the category report.</returns>
     public async Task<List<CategoryReportModel>> GetCategoryReportAsync(int userId, int? accountId, string type, DateTime startDate, DateTime endDate)
     {
         var query = $"user_id={userId}&account_id={accountId}&startDate={startDate:yyyy-MM-dd}&endDate={endDate:yyyy-MM-dd}";
@@ -83,12 +114,24 @@ public class ReportService : IReportService
         return result ?? new List<CategoryReportModel>();
     }
 
+    /// <summary>
+    /// Get the date range based on the selected period.
+    /// </summary>
+    /// <param name="period">The selected period (Day, Month, Quarter, Year).</param>
+    /// <param name="selectedDate">The selected date.</param>
+    /// <param name="selectedMonth">The selected month.</param>
+    /// <param name="selectedQuarter">The selected quarter.</param>
+    /// <param name="selectedYear">The selected year.</param>
+    /// <returns>A tuple containing the start date and end date of the date range.</returns>
+    /// <exception cref="ArgumentException">Thrown when the period is invalid.</exception>
     public (DateTime StartDate, DateTime EndDate) GetDateRangeFromPeriod(string period, System.DateTimeOffset selectedDate, string selectedMonth, string selectedQuarter, int selectedYear)
     {
+        // Get the date range based on the selected period
         if (period == "Day")
         {
             return (selectedDate.Date, selectedDate.Date);
         }
+        // Get the start and end date of the selected month
         else if (period == "Month")
         {
             var month = DateTime.ParseExact(selectedMonth, "MMMM", CultureInfo.InvariantCulture).Month;
@@ -96,6 +139,7 @@ public class ReportService : IReportService
             var endDate = startDate.AddMonths(1).AddDays(-1);
             return (startDate, endDate);
         }
+        // Get the start date and end date of the selected quarter
         else if (period == "Quarter")
         {
             var quarter = int.Parse(selectedQuarter[1].ToString());
@@ -104,6 +148,7 @@ public class ReportService : IReportService
             var endDate = startDate.AddMonths(3).AddDays(-1);
             return (startDate, endDate);
         }
+        // Start and end date of selected year
         else if (period == "Year")
         {
             var startDate = new DateTime(selectedYear, 1, 1);

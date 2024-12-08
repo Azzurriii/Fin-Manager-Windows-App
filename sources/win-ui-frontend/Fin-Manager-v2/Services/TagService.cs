@@ -13,6 +13,10 @@ public class TagService : ITagService
         _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
     }
 
+    /// <summary>Retrieves a list of tags asynchronously from the API.</summary>
+    /// <returns>A list of TagModel objects representing the tags fetched from the API.</returns>
+    /// <exception cref="HttpRequestException">Thrown when a network error occurs while getting tags.</exception>
+    /// <exception cref="Exception">Thrown when an error occurs during the retrieval process.</exception>
     public async Task<List<TagModel>> GetTagsAsync()
     {
         try
@@ -43,11 +47,23 @@ public class TagService : ITagService
         }
     }
 
+    /// <summary>
+    /// Asynchronously retrieves a TagModel object based on the provided ID.
+    /// </summary>
+    /// <param name="id">The ID of the tag to retrieve.</param>
+    /// <returns>
+    /// A Task representing the asynchronous operation. The task result contains the TagModel object
+    /// corresponding to the provided ID, or null if no such tag is found.
+    /// </returns>
     public async Task<TagModel?> GetTagAsync(int id)
     {
         return await _httpClient.GetFromJsonAsync<TagModel>($"tags/{id}");
     }
 
+    /// <summary>Creates a new tag asynchronously.</summary>
+    /// <param name="name">The name of the tag to create.</param>
+    /// <returns>A TagModel representing the newly created tag.</returns>
+    /// <exception cref="Exception">Thrown when failed to create the tag.</exception>
     public async Task<TagModel> CreateTagAsync(string name)
     {
         var response = await _httpClient.PostAsJsonAsync("tags", new { name });
@@ -55,6 +71,10 @@ public class TagService : ITagService
                ?? throw new Exception("Failed to create tag");
     }
 
+    /// <summary>Retrieves a list of tags based on the specified type asynchronously.</summary>
+    /// <param name="type">The type of tags to retrieve.</param>
+    /// <returns>A list of TagModel objects corresponding to the specified type, or an empty list if an error occurs.</returns>
+    /// <exception cref="Exception">Thrown when an error occurs during the retrieval process.</exception>
     public async Task<List<TagModel>> GetTagsByTypeAsync(string type)
     {
         try 
@@ -69,6 +89,9 @@ public class TagService : ITagService
         }
     }
 
+    /// <summary>Deletes a tag asynchronously.</summary>
+    /// <param name="id">The ID of the tag to be deleted.</param>
+    /// <returns>A task representing the asynchronous operation.</returns>
     public async Task DeleteTagAsync(int id)
     {
         await _httpClient.DeleteAsync($"tags/{id}");

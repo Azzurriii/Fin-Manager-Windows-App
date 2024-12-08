@@ -95,6 +95,15 @@ namespace Fin_Manager_v2.ViewModels
             _ = InitializeAsync();
         }
 
+        /// <summary>
+        /// Initializes the application asynchronously by loading accounts, income tags, and transactions.
+        /// </summary>
+        /// <remarks>
+        /// This method first loads accounts and income tags concurrently using asynchronous tasks.
+        /// Then, it loads transactions asynchronously. If any exception occurs during initialization,
+        /// an error message is displayed using the dialog service.
+        /// </remarks>
+        /// <returns>A task representing the asynchronous operation.</returns>
         [RelayCommand]
         private async Task InitializeAsync()
         {
@@ -116,6 +125,14 @@ namespace Fin_Manager_v2.ViewModels
             }
         }
 
+        /// <summary>
+        /// Asynchronously loads transactions based on the selected date and account, then filters and processes them.
+        /// </summary>
+        /// <remarks>
+        /// This method retrieves transactions for the specified user, filters them based on the selected account and date range,
+        /// loads tag names for the transactions, calculates totals, and updates the UI with the filtered transactions and balance.
+        /// </remarks>
+        /// <exception cref="Exception">Thrown when an error occurs during the loading process.</exception>
         [RelayCommand]
         private async Task LoadTransactionsAsync()
         {
@@ -151,6 +168,14 @@ namespace Fin_Manager_v2.ViewModels
             }
         }
 
+        /// <summary>
+        /// Filters a list of transactions based on the provided criteria.
+        /// </summary>
+        /// <param name="transactions">The list of transactions to filter.</param>
+        /// <param name="accountId">The optional account ID to filter by.</param>
+        /// <param name="startDate">The start date to filter transactions.</param>
+        /// <param name="endDate">The end date to filter transactions.</param>
+        /// <returns>A filtered list of transactions based on the provided criteria.</returns>
         private IList<TransactionModel> FilterTransactions(IList<TransactionModel> transactions, int? accountId, DateTime startDate, DateTime endDate)
         {
             if (accountId.HasValue)
@@ -160,6 +185,11 @@ namespace Fin_Manager_v2.ViewModels
             return transactions.Where(t => t.Date >= startDate && t.Date <= endDate).ToList();
         }
 
+        /// <summary>
+        /// Loads tag names for a list of transactions asynchronously.
+        /// </summary>
+        /// <param name="transactions">The list of transactions to load tag names for.</param>
+        /// <returns>A task representing the asynchronous operation.</returns>
         private async Task LoadTagNamesForTransactions(IList<TransactionModel> transactions)
         {
             var uniqueTagIds = transactions.Where(t => t.TagId > 0)
@@ -184,6 +214,14 @@ namespace Fin_Manager_v2.ViewModels
             }
         }
 
+        /// <summary>
+        /// Calculates the total income and total expense for a specified user, account, and date range asynchronously.
+        /// </summary>
+        /// <param name="userId">The ID of the user.</param>
+        /// <param name="accountId">The ID of the account (nullable).</param>
+        /// <param name="startDate">The start date of the date range.</param>
+        /// <param name="endDate">The end date of the date range.</param>
+        /// <returns>A task representing the asynchronous operation.</returns>
         private async Task CalculateTotals(int userId, int? accountId, DateTime startDate, DateTime endDate)
         {
             var tasks = new[]
@@ -197,6 +235,12 @@ namespace Fin_Manager_v2.ViewModels
             TotalExpense = results[1];
         }
 
+        /// <summary>Calculates the balance based on the selected account and transactions.</summary>
+        /// <remarks>
+        /// If a specific account is selected (not "All Accounts"), the balance is calculated as the initial balance of the selected account
+        /// plus the difference between total income and total expenses.
+        /// If "All Accounts" is selected, the balance is calculated as the sum of current balances of all accounts except "All Accounts".
+        /// </remarks>
         private void CalculateBalance()
         {
             if (SelectedAccountObj?.AccountId != null && SelectedAccountObj.AccountName != "All Accounts")
@@ -211,6 +255,15 @@ namespace Fin_Manager_v2.ViewModels
             }
         }
 
+        /// <summary>
+        /// Asynchronously loads accounts from the account service and updates the collection of accounts.
+        /// </summary>
+        /// <remarks>
+        /// This method retrieves accounts from the account service, clears the existing collection of accounts, 
+        /// adds a default "All Accounts" entry, populates the collection with the retrieved accounts, 
+        /// sets the selected account to the first one in the collection, and logs the final count of accounts.
+        /// </remarks>
+        /// <exception cref="Exception">Thrown when an error occurs during the loading process.</exception>
         private async Task LoadAccountsAsync()
         {
             try
@@ -267,6 +320,16 @@ namespace Fin_Manager_v2.ViewModels
             IsAddTransactionDialogOpen = true;
         }
 
+        /// <summary>
+        /// Saves a transaction asynchronously.
+        /// </summary>
+        /// <remarks>
+        /// This method validates the transaction amount and description, sets necessary properties of the transaction model,
+        /// and either updates an existing transaction or creates a new one based on the IsEditMode flag.
+        /// If the operation is successful, it reloads the transactions, closes the add transaction dialog, resets the form fields,
+        /// and sets IsEditMode to false. If the operation fails, appropriate error messages are displayed.
+        /// </remarks>
+        /// <exception cref="Exception">Thrown when an unexpected error occurs during the transaction saving process.</exception>
         [RelayCommand]
         private async Task SaveTransactionAsync()
         {
@@ -352,6 +415,10 @@ namespace Fin_Manager_v2.ViewModels
             }
         }
 
+        /// <summary>
+        /// Updates the transaction amount when the selected input changes (TransactionAmount, TransactionDate, SelectedAccountObj, SelectedTag).
+        /// </summary>
+        /// <param name="value">The new transaction amount.</param>
         partial void OnTransactionAmountChanged(double value)
         {
             if (NewTransaction != null)
@@ -370,6 +437,10 @@ namespace Fin_Manager_v2.ViewModels
             LoadTransactionsAsync().ConfigureAwait(false);
         }
 
+        /// <summary>
+        /// Sets up the view for editing a transaction.
+        /// </summary>
+        /// <param name="transaction">The transaction to be edited.</param>
         [RelayCommand]
         public void EditTransaction(TransactionModel transaction)
         {
@@ -397,6 +468,11 @@ namespace Fin_Manager_v2.ViewModels
             IsAddTransactionDialogOpen = true;
         }
 
+        /// <summary>
+        /// Deletes a transaction after confirming with the user.
+        /// </summary>
+        /// <param name="transaction">The transaction to be deleted.</param>
+        /// <returns>An asynchronous task.</returns>
         [RelayCommand]
         public async Task DeleteTransactionAsync(TransactionModel transaction)
         {
@@ -431,6 +507,15 @@ namespace Fin_Manager_v2.ViewModels
             OnPropertyChanged(nameof(DialogTitle));
         }
 
+        /// <summary>
+        /// Asynchronously loads tags of a specified type and updates the available tags list.
+        /// </summary>
+        /// <param name="type">The type of tags to load.</param>
+        /// <returns>An asynchronous task.</returns>
+        /// <remarks>
+        /// This method retrieves tags of the specified type from the tag service and updates the AvailableTags collection.
+        /// If an error occurs during the process, it is caught and a debug message is written.
+        /// </remarks>
         private async Task LoadTagsByTypeAsync(string type)
         {
             try

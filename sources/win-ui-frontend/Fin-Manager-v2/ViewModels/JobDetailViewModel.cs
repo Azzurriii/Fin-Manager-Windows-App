@@ -48,6 +48,10 @@ public partial class JobDetailViewModel : ObservableRecipient
         };
     }
 
+    /// <summary>
+    /// Update the job.
+    /// </summary>
+    /// <returns>A task representing the asynchronous operation.</returns>
     public async Task<bool> UpdateJobAsync()
     {
         IsLoading = true;
@@ -72,8 +76,8 @@ public partial class JobDetailViewModel : ObservableRecipient
             if (!success)
             {
                 HasError = true;
-                ErrorMessage = "Không thể cập nhật công việc";
-                await _dialogService.ShowErrorAsync("Lỗi", "Không thể cập nhật công việc");
+                ErrorMessage = "Cannot update job";
+                await _dialogService.ShowErrorAsync("Error", ErrorMessage);
                 return false;
             }
             return true;
@@ -81,8 +85,8 @@ public partial class JobDetailViewModel : ObservableRecipient
         catch (Exception ex)
         {
             HasError = true;
-            ErrorMessage = "Không thể cập nhật công việc";
-            await _dialogService.ShowErrorAsync("Lỗi", ex.Message);
+            ErrorMessage = "Cannot update job";
+            await _dialogService.ShowErrorAsync("Error", ErrorMessage);
             return false;
         }
         finally
@@ -91,6 +95,10 @@ public partial class JobDetailViewModel : ObservableRecipient
         }
     }
 
+    /// <summary>
+    /// Delete the job.
+    /// </summary>
+    /// <returns>A task representing the asynchronous operation.</returns>
     public async Task DeleteJobAsync()
     {
         IsLoading = true;
@@ -102,15 +110,15 @@ public partial class JobDetailViewModel : ObservableRecipient
             if (!success)
             {
                 HasError = true;
-                ErrorMessage = "Không thể xóa công việc";
-                await _dialogService.ShowErrorAsync("Lỗi", "Không thể xóa công việc");
+                ErrorMessage = "Cannot delete job";
+                await _dialogService.ShowErrorAsync("Error", ErrorMessage);
             }
         }
         catch (Exception ex)
         {
             HasError = true;
-            ErrorMessage = "Không thể xóa công việc";
-            await _dialogService.ShowErrorAsync("Lỗi", "Không thể xóa công việc: " + ex.Message);
+            ErrorMessage = "Cannot delete job";
+            await _dialogService.ShowErrorAsync("Error", ErrorMessage);
         }
         finally
         {

@@ -5,18 +5,17 @@ WORKDIR /usr/src/app
 # Install netcat
 RUN apk add --no-cache netcat-openbsd
 
-# Copy package.json first
+# Copy package files
 COPY package*.json ./
 
 # Install dependencies
-RUN yarn install
+RUN npm ci
 
 # Copy source code
 COPY . .
 
 # Build application
-RUN yarn build
+RUN npm run build
 
+# Expose port 3000 for the Nest.js application
 EXPOSE 3000
-
-CMD ["yarn", "start:prod"]

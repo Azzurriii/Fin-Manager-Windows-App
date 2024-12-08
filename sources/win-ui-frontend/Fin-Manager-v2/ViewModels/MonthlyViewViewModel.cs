@@ -51,6 +51,11 @@ public partial class MonthlyViewViewModel : ObservableRecipient
     [ObservableProperty]
     private decimal _balance;
 
+    /// <summary>Initializes a new instance of the MonthlyViewViewModel class.</summary>
+    /// <param name="transactionService">The transaction service to use.</param>
+    /// <param name="tagService">The tag service to use.</param>
+    /// <param name="accountService">The account service to use.</param>
+    /// <param name="authService">The authentication service to use.</param>
     public MonthlyViewViewModel(
         ITransactionService transactionService,
         ITagService tagService,
@@ -66,6 +71,15 @@ public partial class MonthlyViewViewModel : ObservableRecipient
         _ = InitializeAsync();
     }
 
+    /// <summary>
+    /// Initializes the view asynchronously by loading accounts, tags, and transactions.
+    /// </summary>
+    /// <remarks>
+    /// This method first loads accounts and tags asynchronously using <see cref="LoadAccountsAsync"/> and <see cref="LoadTagsAsync"/>.
+    /// Then, it proceeds to load transactions asynchronously using <see cref="LoadTransactionsAsync"/>.
+    /// If any exception occurs during the initialization process, an error message is displayed.
+    /// </remarks>
+    /// <returns>A task representing the asynchronous operation.</returns>
     [RelayCommand]
     private async Task InitializeAsync()
     {
@@ -86,6 +100,14 @@ public partial class MonthlyViewViewModel : ObservableRecipient
         }
     }
 
+    /// <summary>
+    /// Asynchronously loads transactions based on the specified query parameters and updates the UI.
+    /// </summary>
+    /// <remarks>
+    /// This method retrieves transactions based on the provided query parameters, including user ID, account ID, date range, and selected tags.
+    /// It then updates the UI with the loaded transactions, calculates total income, total expense, and the balance.
+    /// </remarks>
+    /// <exception cref="Exception">Thrown when an error occurs during the loading process.</exception>
     [RelayCommand]
     public async Task LoadTransactionsAsync()
     {
@@ -127,6 +149,14 @@ public partial class MonthlyViewViewModel : ObservableRecipient
         }
     }
 
+    /// <summary>
+    /// Asynchronously loads accounts from the account service and updates the collection of accounts.
+    /// </summary>
+    /// <remarks>
+    /// This method retrieves accounts from the account service and updates the Accounts collection with the retrieved accounts.
+    /// If an exception occurs during the process, it is caught and a debug message is written.
+    /// </remarks>
+    /// <returns>A task representing the asynchronous operation.</returns>
     private async Task LoadAccountsAsync()
     {
         try
@@ -151,6 +181,14 @@ public partial class MonthlyViewViewModel : ObservableRecipient
         }
     }
 
+    /// <summary>
+    /// Asynchronously loads tags from the tag service and updates the AvailableTags collection.
+    /// </summary>
+    /// <remarks>
+    /// This method retrieves tags from the tag service and updates the AvailableTags collection with the retrieved tags.
+    /// </remarks>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    /// <exception cref="Exception">Thrown when an error occurs while loading tags.</exception>
     private async Task LoadTagsAsync()
     {
         try
@@ -174,6 +212,11 @@ public partial class MonthlyViewViewModel : ObservableRecipient
         }
     }
 
+    /// <summary>
+    /// Loads tag names for a list of transactions asynchronously.
+    /// </summary>
+    /// <param name="transactions">The list of transactions to load tag names for.</param>
+    /// <returns>A task representing the asynchronous operation.</returns>
     private async Task LoadTagNamesForTransactions(IList<TransactionModel> transactions)
     {
         var uniqueTagIds = transactions.Where(t => t.TagId > 0)
@@ -198,6 +241,13 @@ public partial class MonthlyViewViewModel : ObservableRecipient
         }
     }
 
+    /// <summary>
+    /// Asynchronously loads transactions when the start date, end date, selected account, or selected tags are changed.
+    /// </summary>
+    /// <remarks>
+    /// This method is called when the start date, end date, selected account, or selected tags are changed.
+    /// It triggers the asynchronous loading of transactions without capturing the context.
+    /// </remarks>
     partial void OnStartDateChanged(DateTimeOffset value)
     {
         LoadTransactionsAsync().ConfigureAwait(false);
@@ -218,6 +268,15 @@ public partial class MonthlyViewViewModel : ObservableRecipient
         LoadTransactionsAsync().ConfigureAwait(false);
     }
 
+    /// <summary>
+    /// Calculates the balance based on the selected account and transaction totals.
+    /// </summary>
+    /// <remarks>
+    /// If a specific account is selected (not "All Accounts"), the balance is calculated as the initial balance of the selected account
+    /// plus the difference between total income and total expenses.
+    /// If "All Accounts" is selected or no specific account is chosen, the balance is calculated as the sum of current balances of all accounts
+    /// excluding the "All Accounts" account.
+    /// </remarks>
     private void CalculateBalance()
     {
         if (SelectedAccount?.AccountId != null && SelectedAccount.AccountName != "All Accounts")
@@ -232,6 +291,15 @@ public partial class MonthlyViewViewModel : ObservableRecipient
         }
     }
 
+    /// <summary>
+    /// Handles the event when the selection of tags in a ListBox changes.
+    /// </summary>
+    /// <param name="sender">The object that raised the event.</param>
+    /// <param name="e">The event data.</param>
+    /// <remarks>
+    /// This method updates the SelectedTags property with the selected items in the ListBox.
+    /// It then asynchronously loads transactions based on the selected tags.
+    /// </remarks>
     public void OnTagSelectionChanged(object sender, SelectionChangedEventArgs e)
     {
         if (sender is ListBox listBox)

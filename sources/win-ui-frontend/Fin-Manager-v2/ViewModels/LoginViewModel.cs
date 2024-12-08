@@ -20,10 +20,19 @@ public class LoginViewModel : ObservableObject
         _dialogService = dialogService;
     }
 
+    /// <summary>
+    /// Asynchronously attempts to log in with the provided username and password.
+    /// </summary>
+    /// <param name="username">The username to log in with.</param>
+    /// <param name="password">The password to log in with.</param>
+    /// <returns>An asynchronous Task representing the login operation.</returns>
+    /// <exception cref="InvalidOperationException">Thrown when the username or password is empty.</exception>
+    /// <exception cref="Exception">Thrown when an error occurs during the login process.</exception>
     public async Task LoginAsync(string username, string password)
     {
         try
         {
+            // Check if the username or password is empty
             if (string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(password))
             {
                 await _dialogService.ShowErrorAsync(
@@ -32,6 +41,7 @@ public class LoginViewModel : ObservableObject
                 return;
             }
 
+            // Attempt to log in with the provided credentials
             var loginSuccessful = await _authService.LoginAsync(username, password);
             if (loginSuccessful)
             {
@@ -65,6 +75,9 @@ public class LoginViewModel : ObservableObject
         }
     }
 
+    /// <summary>
+    /// Navigates to the sign-up page.
+    /// </summary>
     public void NavigateToSignUp()
     {
         _navigationService.NavigateTo(typeof(SignUpViewModel).FullName!);

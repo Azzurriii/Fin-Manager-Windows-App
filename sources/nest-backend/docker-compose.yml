@@ -2,7 +2,11 @@ version: '3.8'
 
 services:
   api:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
+      cache_from:
+        - node:18-alpine
     ports:
       - "3000:3000"
     depends_on:
@@ -24,14 +28,18 @@ services:
       - /usr/src/app/node_modules
     command: >
       /bin/sh -c "
+        if [ ! -d 'node_modules' ]; then
+          echo 'Installing dependencies...' &&
+          npm ci;
+        fi &&
         echo 'Waiting for postgres...' &&
         while ! nc -z postgres 5432; do
           sleep 1;
         done &&
         echo 'PostgreSQL started' &&
-        yarn typeorm schema:sync -d ./src/data-source.ts &&
-        yarn migration:run &&
-        yarn start:dev
+        npm run typeorm schema:sync -- -d ./src/data-source.ts &&
+        npm run migration:run &&
+        npm run start:dev
       "
 
   postgres:

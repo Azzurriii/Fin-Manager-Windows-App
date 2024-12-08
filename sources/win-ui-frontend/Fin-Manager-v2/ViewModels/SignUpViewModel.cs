@@ -36,6 +36,11 @@ public partial class SignUpViewModel : ObservableObject
         _dialogService = dialogService;
     }
 
+    /// <summary>
+    /// Asynchronously signs up a user with the provided information.
+    /// </summary>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    /// <exception cref="Exception">Thrown when an error occurs during the sign-up process.</exception>
     [RelayCommand]
     public async Task SignUpAsync()
     {
@@ -90,6 +95,13 @@ public partial class SignUpViewModel : ObservableObject
         }
     }
 
+    /// <summary>
+    /// Validates the input fields for signing up.
+    /// </summary>
+    /// <returns>
+    /// True if all input fields are valid; otherwise, false.
+    /// </returns>
+    /// <exception cref="Exception">Thrown when an error occurs during validation.</exception>
     private async Task<bool> ValidateInputs()
     {
         try
@@ -149,6 +161,12 @@ public partial class SignUpViewModel : ObservableObject
         }
     }
 
+    /// <summary>
+    /// Validates the input format.
+    /// </summary>
+    /// <param name="input">The input to validate.</param>
+    /// <returns>True if the input is valid; otherwise, false.</returns>
+    
     private bool IsValidEmail(string email)
     {
         var emailRegex = new Regex(@"^[^@\s]+@[^@\s]+\.[^@\s]+$");
