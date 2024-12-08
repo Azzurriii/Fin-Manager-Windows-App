@@ -20,14 +20,14 @@ Fin-Manager is a comprehensive financial management application built with a Nes
 
 The authentication and authorization flow is designed to ensure secure access to the application. The flow is as follows:
 
-```mermaid
+<div class="mermaid">
 graph TD
     A[Frontend Auth Flow] --> B[AuthService]
     B --> C[JWT Token Handler]
     C --> D[Backend Auth Controller]
     D --> E[Auth Guards]
     E --> F[Database]
-```
+</div>
 
 ### 1.2. Implementation Details
 
@@ -208,13 +208,13 @@ public class TransactionService : ITransactionService
 
 The report generation process involves several steps:
 
-```mermaid
+<div class="mermaid">
 graph LR
     A[Data Collection] --> B[Aggregation]
     B --> C[Analysis]
     C --> D[Report Generation]
     D --> E[Export Handling]
-```
+</div>
 
 ### 3.2. Implementation
 

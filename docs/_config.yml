@@ -1,5 +1,6 @@
-theme: minima
-
-mermaid: true
-
-use_math: true
+markdown: kramdown
+kramdown:
+  input: GFM
+safe: true
+exclude:
+  - assets
