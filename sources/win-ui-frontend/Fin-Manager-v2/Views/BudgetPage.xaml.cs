@@ -51,10 +51,10 @@ public sealed partial class BudgetPage : Page
         {
             var dialog = new ContentDialog
             {
-                Title = "Xác nhận xóa",
-                Content = $"Bạn có chắc chắn muốn xóa ngân sách '{budgetToDelete.Category}'?",
-                PrimaryButtonText = "Xóa",
-                CloseButtonText = "Hủy",
+                Title = "Confirm Deletion",
+                Content = $"Are you sure you want to delete the budget '{budgetToDelete.Category}'?",
+                PrimaryButtonText = "Delete",
+                CloseButtonText = "Cancel",
                 XamlRoot = this.Content.XamlRoot
             };
 
