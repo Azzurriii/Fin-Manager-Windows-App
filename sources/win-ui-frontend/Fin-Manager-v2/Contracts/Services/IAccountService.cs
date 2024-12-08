@@ -9,4 +9,5 @@ public interface IAccountService
     Task<bool> CreateAccountAsync(CreateFinanceAccountDto accountDto);
     Task<bool> UpdateAccountAsync(UpdateFinanceAccountDto account);
     Task<bool> DeleteAccountAsync(int accountId);
+    Task<AccountModel?> GetDefaultAccountAsync();
 }

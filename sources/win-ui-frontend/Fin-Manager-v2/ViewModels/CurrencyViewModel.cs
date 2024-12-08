@@ -41,6 +41,11 @@ public partial class CurrencyViewModel : ObservableObject
         Amount = 0;
     }
 
+    /// <summary>
+    /// Convert the currency.
+    /// Relay command to convert the currency.
+    /// </summary>
+    /// <returns>A task representing the asynchronous operation.</returns>
     [RelayCommand(CanExecute = nameof(CanConvert))]
     private async Task ConvertAsync()
     {
@@ -80,6 +85,10 @@ public partial class CurrencyViewModel : ObservableObject
         }
     }
 
+    /// <summary>
+    /// Determine whether the currency can be converted.
+    /// </summary>
+    /// <returns>A boolean indicating whether the currency can be converted.</returns>
     private bool CanConvert()
     {
         return Amount > 0 &&

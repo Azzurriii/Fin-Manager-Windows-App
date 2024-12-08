@@ -1,23 +1,21 @@
-# Sử dụng Node.js làm base image
 FROM node:18-alpine
 
-# Tạo thư mục làm việc trong container
-WORKDIR            /usr/src/app
+WORKDIR /usr/src/app
 
-# Sao chép package.json và package-lock.json (nếu có)
+# Install netcat
+RUN apk add --no-cache netcat-openbsd
+
+# Copy package files
 COPY package*.json ./
 
-# Cài đặt dependencies
-RUN npm install
+# Install dependencies
+RUN npm ci
 
-# Sao chép source code vào container
+# Copy source code
 COPY . .
 
-# Build ứng dụng
+# Build application
 RUN npm run build
 
-# Expose cổng mà ứng dụng sẽ chạy
+# Expose port 3000 for the Nest.js application
 EXPOSE 3000
-
-# Chạy ứng dụng
-CMD ["npm", "run", "start:prod"]

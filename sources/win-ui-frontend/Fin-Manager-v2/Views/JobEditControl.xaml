@@ -1,0 +1,61 @@
+<UserControl
+    x:Class="Fin_Manager_v2.Controls.JobEditControl"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:converters="using:Fin_Manager_v2.Converters">
+
+    <UserControl.Resources>
+        <converters:DecimalToDoubleConverter x:Key="DecimalToDoubleConverter"/>
+        <converters:StringToDateConverter x:Key="StringToDateConverter"/>
+    </UserControl.Resources>
+
+    <StackPanel Spacing="16" Width="400">
+        <TextBox x:Name="JobNameBox"
+                 Header="Tên công việc"
+                 Text="{x:Bind Job.JobName, Mode=TwoWay}"
+                 PlaceholderText="Nhập tên công việc"/>
+
+        <NumberBox x:Name="AmountNumberBox"
+                  Header="Số tiền"
+                  Value="{x:Bind Job.Amount, Mode=TwoWay, Converter={StaticResource DecimalToDoubleConverter}}"
+                  PlaceholderText="Nhập số tiền"
+                  SpinButtonPlacementMode="Compact"/>
+
+        <ComboBox x:Name="TransactionTypeComboBox"
+                 Header="Transaction Type"
+                 SelectionChanged="OnTransactionTypeChanged"
+                 PlaceholderText="Select transaction type">
+            <ComboBoxItem Content="INCOME"/>
+            <ComboBoxItem Content="EXPENSE"/>
+        </ComboBox>
+
+        <ComboBox x:Name="RecurringTypeComboBox"
+                 Header="Recurring Type"
+                 SelectionChanged="OnRecurringTypeChanged"
+                 PlaceholderText="Select recurring type">
+            <ComboBoxItem Content="DAILY"/>
+            <ComboBoxItem Content="WEEKLY"/>
+            <ComboBoxItem Content="MONTHLY"/>
+            <ComboBoxItem Content="YEARLY"/>
+        </ComboBox>
+
+        <CalendarDatePicker x:Name="ScheduleDatePicker"
+                           Header="Schedule Date"
+                           Date="{x:Bind Job.ScheduleDate, Mode=TwoWay, Converter={StaticResource StringToDateConverter}}"
+                           PlaceholderText="Select schedule date"/>
+
+        <TextBox x:Name="DescriptionTextBox"
+                 Header="Description"
+                 Text="{x:Bind Job.Description, Mode=TwoWay}"
+                 PlaceholderText="Enter description"
+                 TextWrapping="Wrap"
+                 AcceptsReturn="True"
+                 Height="100"/>
+
+        <TextBlock x:Name="ErrorTextBlock"
+                   Foreground="Red"
+                   Visibility="Collapsed"
+                   Text="Please fill in all required fields."
+                   TextWrapping="Wrap"/>
+    </StackPanel>
+</UserControl>

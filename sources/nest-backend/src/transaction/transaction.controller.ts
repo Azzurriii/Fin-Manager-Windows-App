@@ -1,10 +1,11 @@
-import { Controller, Get, Post, Body, Param, Delete, Put } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete, Put, Query, UsePipes, ValidationPipe } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBody } from '@nestjs/swagger';
 import { TransactionService } from './transaction.service';
 import { Transaction } from './entity/transaction.entity';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
 import { GetTotalAmountDto } from './dto/get-total-amount.dto';
 import { UpdateTransactionDto } from './dto/update-transaction.dto';
+import { QueryDto } from './dto/query.dto';
 
 @ApiTags('transactions')
 @Controller('transactions')
@@ -50,5 +51,16 @@ export class TransactionController {
     @ApiOperation({ summary: 'Update a transaction by ID' })
     async update(@Param('id') id: string, @Body() updateTransactionDto: UpdateTransactionDto): Promise<Transaction> {
         return this.transactionService.updateTransaction(+id, updateTransactionDto);
+    }
+
+
+    
+
+
+    @Post('query')
+    @UsePipes(new ValidationPipe({ transform: true }))
+    @ApiOperation({ summary: 'Get transactions by query' })
+    async findByQuery(@Body() query: QueryDto): Promise<Transaction[]> {
+        return this.transactionService.findByQuery(query);   
     }
 }

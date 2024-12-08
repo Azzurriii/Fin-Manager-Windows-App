@@ -14,6 +14,7 @@ public partial class AccountViewModel : ObservableRecipient
 
     private readonly IDialogService _dialogService;
 
+    // Observable properties: An observable property is a property that notifies the UI when its value changes.
     [ObservableProperty]
     private ObservableCollection<AccountModel> _accounts;
 
@@ -32,6 +33,9 @@ public partial class AccountViewModel : ObservableRecipient
     [ObservableProperty]
     private bool _isInitialized;
 
+    /// <summary>Initializes a new instance of the AccountViewModel class.</summary>
+    /// <param name="accountService">The account service to use.</param>
+    /// <exception cref="ArgumentNullException">Thrown when the account service is null.</exception>
     public AccountViewModel(IAccountService accountService)
     {
         _accountService = accountService ?? throw new ArgumentNullException(nameof(accountService));
@@ -42,6 +46,12 @@ public partial class AccountViewModel : ObservableRecipient
         IsInitialized = false;
     }
 
+    /// <summary>Initializes the object asynchronously.</summary>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    /// <remarks>
+    /// This method loads accounts asynchronously and sets the IsInitialized flag to true upon successful initialization.
+    /// If an exception occurs during initialization, HasError is set to true and an error message is displayed.
+    /// </remarks>
     public async Task InitializeAsync()
     {
         if (IsInitialized) return;
@@ -58,6 +68,15 @@ public partial class AccountViewModel : ObservableRecipient
         }
     }
 
+    /// <summary>
+    /// Asynchronously loads accounts from the account service.
+    /// </summary>
+    /// <remarks>
+    /// This method sets the loading state to true, clears any previous error message,
+    /// retrieves accounts from the account service, populates the Accounts collection,
+    /// handles any exceptions by displaying an error message, and sets the loading state back to false.
+    /// </remarks>
+    /// <returns>A task representing the asynchronous operation.</returns>
     public async Task LoadAccountsAsync()
     {
         try
@@ -109,6 +128,14 @@ public partial class AccountViewModel : ObservableRecipient
         }
     }
 
+    /// <summary>
+    /// Add or update an account.
+    /// </summary>
+    /// <param name="accountName">The name of the account.</param>
+    /// <param name="accountType">The type of the account.</param>
+    /// <param name="initialBalance">The initial balance of the account.</param>
+    /// <param name="currency">The currency of the account.</param>
+    /// <param name="currentEditingAccount">The current editing account.</param>
     public async Task<bool> AddOrUpdateAccountAsync(string accountName, string accountType, decimal initialBalance, string currency, AccountModel currentEditingAccount)
     {
         if (string.IsNullOrEmpty(accountName) || string.IsNullOrEmpty(accountType) || string.IsNullOrEmpty(currency))
@@ -148,6 +175,11 @@ public partial class AccountViewModel : ObservableRecipient
         return true;
     }
 
+    /// <summary>
+    /// Add a new account.
+    /// </summary>
+    /// <param name="accountDto">The account data transfer object.</param>
+    /// <returns>A task representing the asynchronous operation.</returns>
     public async Task<bool> AddAccountAsync(CreateFinanceAccountDto accountDto)
     {
         ResetError();
@@ -183,6 +215,11 @@ public partial class AccountViewModel : ObservableRecipient
         }
     }
 
+    /// <summary>
+    /// Delete an account.
+    /// </summary>
+    /// <param name="account">The account to delete.</param>
+    /// <returns>A task representing the asynchronous operation.</returns>
     public async Task DeleteAccountAsync(AccountModel account)
     {
         if (Accounts.Contains(account))
@@ -193,7 +230,11 @@ public partial class AccountViewModel : ObservableRecipient
         }
     }
 
-
+    /// <summary>
+    /// Validate the account data transfer object.
+    /// </summary>
+    /// <param name="accountDto">The account data transfer object.</param>
+    /// <returns>A boolean indicating whether the account data transfer object is valid.</returns>
     private bool ValidateAccountDto(CreateFinanceAccountDto accountDto)
     {
         if (string.IsNullOrWhiteSpace(accountDto.account_name))
@@ -217,6 +258,11 @@ public partial class AccountViewModel : ObservableRecipient
         return true;
     }
 
+    /// <summary>
+    /// Update an account.
+    /// </summary>
+    /// <param name="account">The account data transfer object.</param>
+    /// <returns>A task representing the asynchronous operation.</returns>
     public async Task UpdateAccountAsync(UpdateFinanceAccountDto account)
     {
         try
@@ -240,11 +286,21 @@ public partial class AccountViewModel : ObservableRecipient
         }
     }
 
+    /// <summary>
+    /// Determine the visibility of the collection.
+    /// </summary>
+    /// <param name="accounts">The observable collection of accounts.</param>
+    /// <returns>A Visibility value indicating whether the collection is visible or collapsed.</returns>
     public Visibility CollectionVisibility(ObservableCollection<AccountModel> accounts)
     {
         return (accounts == null || accounts.Count == 0) ? Visibility.Visible : Visibility.Collapsed;
     }
 
+    /// <summary>
+    /// Determine the inverse visibility of the collection.
+    /// </summary>
+    /// <param name="accounts">The observable collection of accounts.</param>
+    /// <returns>A Visibility value indicating whether the collection is visible or collapsed.</returns>
     public Visibility InverseCollectionVisibility(ObservableCollection<AccountModel> accounts)
     {
         return (accounts == null || accounts.Count == 0) ? Visibility.Collapsed : Visibility.Visible;
