@@ -37,22 +37,22 @@ public sealed partial class JobEditControl : UserControl
         if (string.IsNullOrWhiteSpace(Job.JobName))
         {
             isValid = false;
-            ErrorTextBlock.Text = "Vui lòng nh�p tên công việc";
+            ErrorTextBlock.Text = "Please enter a job name";
         }
         else if (Job.Amount <= 0)
         {
             isValid = false;
-            ErrorTextBlock.Text = "Số tiền phải lớn hơn 0";
+            ErrorTextBlock.Text = "Amount must be greater than 0";
         }
         else if (string.IsNullOrWhiteSpace(Job.TransactionType))
         {
             isValid = false;
-            ErrorTextBlock.Text = "Vui lòng chọn loại giao dịch";
+            ErrorTextBlock.Text = "Please select a transaction type";
         }
         else if (string.IsNullOrWhiteSpace(Job.RecurringType))
         {
             isValid = false;
-            ErrorTextBlock.Text = "Vui lòng chọn loại lặp lại";
+            ErrorTextBlock.Text = "Please select a recurring type";
         }
 
         if (!isValid)

@@ -10,7 +10,6 @@ public class JobService : IJobService
 {
     private readonly HttpClient _httpClient;
     private readonly IAuthService _authService;
-    private readonly string _baseUrl = "http://localhost:3000";
 
     public JobService(HttpClient httpClient, IAuthService authService)
     {
@@ -40,7 +39,7 @@ public class JobService : IJobService
         SetAuthorizationHeader();
         try 
         {
-            var response = await _httpClient.GetAsync($"{_baseUrl}/jobs/me");
+            var response = await _httpClient.GetAsync("jobs/me");
             response.EnsureSuccessStatusCode();
             var jobs = await response.Content.ReadFromJsonAsync<List<JobModel>>();
             return jobs ?? new List<JobModel>();
@@ -58,7 +57,7 @@ public class JobService : IJobService
     public async Task<bool> CreateJobAsync(CreateJobDto jobDto)
     {
         SetAuthorizationHeader();
-        var response = await _httpClient.PostAsJsonAsync($"{_baseUrl}/jobs", jobDto);
+        var response = await _httpClient.PostAsJsonAsync("jobs", jobDto);
         System.Diagnostics.Debug.WriteLine($"CreateJobAsync: {response.RequestMessage?.RequestUri}");
         return response.IsSuccessStatusCode;
     }
@@ -72,7 +71,7 @@ public class JobService : IJobService
         SetAuthorizationHeader();
         try
         {
-            var response = await _httpClient.PutAsJsonAsync($"{_baseUrl}/jobs/{jobId}", updateJobDto);
+            var response = await _httpClient.PutAsJsonAsync($"jobs/{jobId}", updateJobDto);
             return response.IsSuccessStatusCode;
         }
         catch (Exception ex)
@@ -88,7 +87,7 @@ public class JobService : IJobService
     public async Task<bool> DeleteJobAsync(int jobId)
     {
         SetAuthorizationHeader();
-        var response = await _httpClient.DeleteAsync($"{_baseUrl}/jobs/{jobId}");
+        var response = await _httpClient.DeleteAsync($"jobs/{jobId}");
         return response.IsSuccessStatusCode;
     }
 
@@ -100,7 +99,7 @@ public class JobService : IJobService
     public async Task<List<JobModel>> GetJobsByUserIdAsync(int userId)
     {
         SetAuthorizationHeader();
-        var response = await _httpClient.GetAsync($"{_baseUrl}/jobs/users/{userId}");
+        var response = await _httpClient.GetAsync($"jobs/users/{userId}");
         System.Diagnostics.Debug.WriteLine($"GetJobsByUserIdAsync: {response.RequestMessage?.RequestUri}");
         if (response.IsSuccessStatusCode)
         {

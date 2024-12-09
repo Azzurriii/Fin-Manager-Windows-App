@@ -34,8 +34,8 @@ public sealed partial class JobDetailPage : Page
     private async void OnSaveButtonClick(object sender, RoutedEventArgs e)
     {
         var result = await _dialogService.ShowConfirmAsync(
-            "Cập nhật công việc",
-            "Bạn có chắc chắn muốn lưu các thay đổi?");
+            "Update Job",
+            "Are you sure you want to save the changes?");
 
         if (result)
         {
@@ -55,8 +55,8 @@ public sealed partial class JobDetailPage : Page
     private async void OnDeleteButtonClick(object sender, RoutedEventArgs e)
     {
         var result = await _dialogService.ShowConfirmAsync(
-            "Xóa công việc",
-            "Bạn có chắc chắn muốn xóa công việc này không? Hành động này không thể hoàn tác.");
+            "Delete Job",
+            "Are you sure you want to delete this job? This action cannot be undone.");
 
         if (result)
         {

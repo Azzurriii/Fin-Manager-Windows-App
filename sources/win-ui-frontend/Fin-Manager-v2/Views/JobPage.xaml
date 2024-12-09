@@ -84,12 +84,12 @@
 
                             <!-- Action Buttons -->
                             <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
-                                <Button Content="Update"
-                                        Click="OnViewJobClick"
-                                        Style="{StaticResource AccentButtonStyle}"/>
-                                <Button Content="Delete" 
-                                        Click="OnDeleteJobClick"
-                                        Style="{StaticResource ButtonRevealStyle}"/>
+                                <Button Click="OnViewJobClick" Style="{StaticResource AccentButtonStyle}">
+                                    <FontIcon Glyph="&#xE70F;" FontSize="16" Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
+                                </Button>
+                                <Button Click="OnDeleteJobClick" Style="{StaticResource ButtonRevealStyle}">
+                                    <FontIcon Glyph="&#xE74D;" FontSize="16" Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
+                                </Button>
                             </StackPanel>
                         </Grid>
                     </DataTemplate>

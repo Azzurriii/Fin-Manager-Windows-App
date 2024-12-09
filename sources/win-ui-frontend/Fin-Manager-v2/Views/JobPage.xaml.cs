@@ -63,9 +63,9 @@ public sealed partial class JobPage : Page
             // Hiển thị dialog lỗi
             var dialog = new ContentDialog
             {
-                Title = "Lỗi",
-                Content = "Không thể tải danh sách công việc. Vui lòng thử lại sau.",
-                CloseButtonText = "Đóng",
+                Title = "Error",
+                Content = "Failed to load job list. Please try again later.",
+                CloseButtonText = "Close",
                 XamlRoot = XamlRoot
             };
             await dialog.ShowAsync();
@@ -110,10 +110,10 @@ public sealed partial class JobPage : Page
         {
             var dialog = new ContentDialog
             {
-                Title = "Xóa công việc",
-                Content = $"Bn có chắc chắn muốn xóa công việc \"{job.JobName}\" không?",
-                PrimaryButtonText = "Xóa",
-                CloseButtonText = "Hủy",
+                Title = "Delete Job",
+                Content = $"Are you sure you want to delete the job \"{job.JobName}\"?",
+                PrimaryButtonText = "Delete",
+                CloseButtonText = "Cancel",
                 XamlRoot = button.XamlRoot
             };
 

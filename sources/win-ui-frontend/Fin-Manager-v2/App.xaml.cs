@@ -104,6 +104,16 @@ public partial class App : Application
                 var config = provider.GetRequiredService<IApiConfiguration>();
                 client.BaseAddress = new Uri(config.BaseUrl);
             });
+            services.AddHttpClient<IJobService, JobService>((provider, client) =>
+            {
+                var config = provider.GetRequiredService<IApiConfiguration>();
+                client.BaseAddress = new Uri(config.BaseUrl);
+            });
+            services.AddHttpClient<IBudgetService, BudgetService>((provider, client) =>
+            {
+                var config = provider.GetRequiredService<IApiConfiguration>();
+                client.BaseAddress = new Uri(config.BaseUrl);
+            });
 
             // Views and ViewModels
             services.AddTransient<JobViewModel>();
