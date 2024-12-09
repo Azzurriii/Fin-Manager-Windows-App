@@ -59,22 +59,21 @@ public partial class BudgetViewModel : ObservableRecipient
         }
     }
 
+    [RelayCommand]
     public void ShowAddBudget()
     {
         NewBudget = new CreateBudgetDto();
         IsAddingBudget = true;
     }
 
+    [RelayCommand]
     public void CancelAddBudget()
     {
         IsAddingBudget = false;
         NewBudget = new CreateBudgetDto();
     }
 
-    /// <summary>
-    /// Save the new budget.
-    /// </summary>
-    /// <returns>A task representing the asynchronous operation.</returns>
+    [RelayCommand]
     public async Task SaveBudget()
     {
         if (NewBudget == null)
@@ -103,6 +102,7 @@ public partial class BudgetViewModel : ObservableRecipient
         }
     }
 
+    [RelayCommand]
     public async Task DeleteBudget(BudgetModel budget)
     {
         try
