@@ -9,6 +9,7 @@ using Microsoft.UI.Dispatching;
 using Fin_Manager_v2.Services;
 using Fin_Manager_v2.Contracts.Services;
 using Microsoft.UI.Xaml.Controls;
+using System.Diagnostics;
 
 namespace Fin_Manager_v2.ViewModels;
 
@@ -205,6 +206,7 @@ public partial class MonthlyViewViewModel : ObservableRecipient
                     }
                 }
             });
+
         }
         catch (Exception ex)
         {

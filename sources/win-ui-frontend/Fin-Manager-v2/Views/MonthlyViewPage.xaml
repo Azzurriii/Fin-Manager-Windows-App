@@ -12,104 +12,196 @@
         <converters:DateFormatterConverter x:Key="DateFormatter"/>
     </Page.Resources>
 
-    <Grid x:Name="ContentArea" Padding="20">
+    <Grid x:Name="ContentArea">
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!-- Controls Section -->
-        <Grid Grid.Row="0" Margin="0,0,0,20">
+        <!-- Summary Cards -->
+        <Grid Grid.Row="0" 
+              Margin="20,20,20,10"
+              ColumnSpacing="10">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
-            <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12">
-                <CalendarDatePicker Header="Start Date"
-                                  Date="{x:Bind ViewModel.StartDate, Mode=TwoWay}"/>
-                
-                <CalendarDatePicker Header="End Date"
-                                  Date="{x:Bind ViewModel.EndDate, Mode=TwoWay}"/>
-            </StackPanel>
+            <!-- Income Card -->
+            <Grid Grid.Column="0" 
+                  Background="#E0F7FA"
+                  BorderBrush="#00ACC1"
+                  BorderThickness="1"
+                  CornerRadius="8"
+                  Padding="24,16">
+                <StackPanel>
+                    <TextBlock Text="Total Income" 
+                             Style="{ThemeResource BodyTextBlockStyle}"/>
+                    <TextBlock Text="{x:Bind ViewModel.TotalIncome, Mode=OneWay}"
+                             Style="{ThemeResource TitleLargeTextBlockStyle}"
+                             Margin="0,8,0,0"/>
+                </StackPanel>
+            </Grid>
 
-            <ComboBox Grid.Column="1"
-                      Header="Account"
-                      ItemsSource="{x:Bind ViewModel.Accounts, Mode=OneWay}"
-                      SelectedItem="{x:Bind ViewModel.SelectedAccount, Mode=TwoWay}"
-                      DisplayMemberPath="AccountName"
-                      MinWidth="150"
-                      Margin="12,0,0,0"/>
+            <!-- Expense Card -->
+            <Grid Grid.Column="1"
+                  Background="#FFEBEE"
+                  BorderBrush="#E53935"
+                  BorderThickness="1"
+                  CornerRadius="8"
+                  Padding="24,16">
+                <StackPanel>
+                    <TextBlock Text="Total Expense" 
+                             Style="{ThemeResource BodyTextBlockStyle}"/>
+                    <TextBlock Text="{x:Bind ViewModel.TotalExpense, Mode=OneWay}"
+                             Style="{ThemeResource TitleLargeTextBlockStyle}"
+                             Margin="0,8,0,0"/>
+                </StackPanel>
+            </Grid>
 
-            <ListBox Grid.Column="2"
-                    ItemsSource="{x:Bind ViewModel.AvailableTags, Mode=OneWay}"
-                    SelectionMode="Multiple"
-                    SelectionChanged="{x:Bind ViewModel.OnTagSelectionChanged}"
-                    MinWidth="200"
-                    MaxHeight="300"
-                    Margin="12,0,0,0">
-                <ListBox.ItemTemplate>
-                    <DataTemplate>
-                        <TextBlock Text="{Binding TagName}"/>
-                    </DataTemplate>
-                </ListBox.ItemTemplate>
-            </ListBox>
-
-            <StackPanel Grid.Column="3" 
-                        Orientation="Horizontal" 
-                        HorizontalAlignment="Right"
-                        Spacing="24">
-                <TextBlock>
-                    <Run Text="Thu: "/>
-                    <Run Text="{x:Bind ViewModel.TotalIncome, Mode=OneWay}"/>
-                    <Run Text=" đ"/>
-                </TextBlock>
-                <TextBlock>
-                    <Run Text="Chi: "/>
-                    <Run Text="{x:Bind ViewModel.TotalExpense, Mode=OneWay}"/>
-                    <Run Text=" đ"/>
-                </TextBlock>
-                <TextBlock>
-                    <Run Text="Số dư: "/>
-                    <Run Text="{x:Bind ViewModel.Balance, Mode=OneWay}"/>
-                    <Run Text=" đ"/>
-                </TextBlock>
-            </StackPanel>
+            <!-- Balance Card -->
+            <Grid Grid.Column="2"
+                  Background="{ThemeResource CardBackgroundFillColorDefault}"
+                  BorderBrush="{ThemeResource CardStrokeColorDefaultSolid}"
+                  BorderThickness="1"
+                  CornerRadius="8"
+                  Padding="24,16">
+                <StackPanel>
+                    <TextBlock Text="Balance" 
+                             Style="{ThemeResource BodyTextBlockStyle}"/>
+                    <TextBlock Text="{x:Bind ViewModel.Balance, Mode=OneWay}"
+                             Style="{ThemeResource TitleLargeTextBlockStyle}"
+                             Margin="0,8,0,0"/>
+                </StackPanel>
+            </Grid>
         </Grid>
 
-        <!-- Transaction List -->
-        <ListView Grid.Row="1" 
+        <!-- Filter Section -->
+        <Grid Grid.Row="1" 
+            Background="{ThemeResource CardBackgroundFillColorDefault}"
+            BorderBrush="{ThemeResource CardStrokeColorDefaultSolid}"
+            BorderThickness="1"
+            CornerRadius="8"
+            Margin="20,0,20,10"
+            Padding="24,20">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <!-- Controls Row -->
+            <Grid Grid.Row="0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Date Range -->
+                <StackPanel Grid.Column="0" 
+                          Orientation="Horizontal" 
+                          Spacing="8">
+                    <CalendarDatePicker Header="Start Date"
+                                    Date="{x:Bind ViewModel.StartDate, Mode=TwoWay}"
+                                    MinWidth="140"/>
+                    
+                    <CalendarDatePicker Header="End Date"
+                                    Date="{x:Bind ViewModel.EndDate, Mode=TwoWay}"
+                                    MinWidth="140"/>
+                </StackPanel>
+
+                <!-- Account Selector -->
+                <ComboBox Grid.Column="1"
+                        Header="Account"
+                        ItemsSource="{x:Bind ViewModel.Accounts, Mode=OneWay}"
+                        SelectedItem="{x:Bind ViewModel.SelectedAccount, Mode=TwoWay}"
+                        DisplayMemberPath="AccountName"
+                        MinWidth="200"
+                        Height="40"
+                        VerticalAlignment="Center"
+                        Margin="24,0,0,0"/>
+            </Grid>
+
+            <!-- Tags Section -->
+            <Grid Grid.Row="1" Margin="0,20,0,0">
+                <ScrollViewer MaxHeight="200" 
+                              VerticalScrollBarVisibility="Auto">
+                    <ItemsControl ItemsSource="{x:Bind ViewModel.AvailableTags, Mode=OneWay}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <ItemsWrapGrid Orientation="Horizontal" MaximumRowsOrColumns="3"/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <CheckBox Content="{Binding TagName}"
+                                        IsChecked="{Binding IsSelected, Mode=TwoWay}"
+                                        Margin="0,2,24,2"
+                                        MaxWidth="150"/>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+            </Grid>
+        </Grid>
+
+            <!-- Transactions List -->
+        <ListView Grid.Row="2"
                   ItemsSource="{x:Bind ViewModel.Transactions, Mode=OneWay}"
-                  SelectionMode="None">
+                  SelectionMode="None"
+                  Background="{ThemeResource CardBackgroundFillColorDefault}"
+                  BorderBrush="{ThemeResource CardStrokeColorDefaultSolid}"
+                  BorderThickness="1"
+                  CornerRadius="8"
+                  Margin="20,0,20,20"
+                  Padding="0,8">
+            <ListView.ItemContainerStyle>
+                <Style TargetType="ListViewItem">
+                    <Setter Property="Padding" Value="24,12"/>
+                    <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                </Style>
+            </ListView.ItemContainerStyle>
             <ListView.ItemTemplate>
                 <DataTemplate>
-                    <Grid Padding="12">
+                    <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
 
+                        <!-- Transaction Icon -->
                         <FontIcon Grid.Column="0" 
                                  Glyph="&#xE10F;"
+                                 FontSize="24"
                                  Foreground="{Binding TransactionType, Converter={StaticResource TypeToColorConverter}}"/>
 
-                        <StackPanel Grid.Column="1" Margin="12,0">
+                        <!-- Transaction Details -->
+                        <StackPanel Grid.Column="1" 
+                                  Margin="16,0">
                             <TextBlock Text="{Binding Description}" 
-                                     Style="{ThemeResource BodyStrongTextBlockStyle}"/>
-                            <TextBlock Text="{Binding TagName}" 
-                                     Style="{ThemeResource CaptionTextBlockStyle}"
-                                     Opacity="0.6"/>
-                            <TextBlock Text="{Binding Date, Converter={StaticResource DateFormatter}}"
-                                     Style="{ThemeResource CaptionTextBlockStyle}"
-                                     Opacity="0.6"/>
+                                     Style="{ThemeResource BodyLargeTextBlockStyle}"/>
+                            <StackPanel Orientation="Horizontal" 
+                                      Spacing="8"
+                                      Margin="0,4,0,0">
+                                <TextBlock Text="{Binding TagName}" 
+                                         Style="{ThemeResource BodyTextBlockStyle}"
+                                         Opacity="0.6"/>
+                                <TextBlock Text="•" 
+                                         Style="{ThemeResource BodyTextBlockStyle}"
+                                         Opacity="0.6"/>
+                                <TextBlock Text="{Binding Date, Converter={StaticResource DateFormatter}}"
+                                         Style="{ThemeResource BodyTextBlockStyle}"
+                                         Opacity="0.6"/>
+                            </StackPanel>
                         </StackPanel>
 
+                        <!-- Amount -->
                         <TextBlock Grid.Column="2"
-                                 Text="{Binding FormattedAmount}"
-                                 Style="{ThemeResource BodyStrongTextBlockStyle}"
+                                 Text="{Binding Amount}"
+                                 Style="{ThemeResource SubtitleTextBlockStyle}"
                                  Foreground="{Binding TransactionType, Converter={StaticResource TypeToColorConverter}}"/>
                     </Grid>
                 </DataTemplate>
