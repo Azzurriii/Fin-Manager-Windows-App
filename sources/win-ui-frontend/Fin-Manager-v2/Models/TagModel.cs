@@ -1,8 +1,9 @@
-﻿using System.Text.Json.Serialization;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+using System.Text.Json.Serialization;
 
 namespace Fin_Manager_v2.Models;
 
-public class TagModel
+public class TagModel : ObservableObject
 {
     [JsonPropertyName("id")]
     public int Id { get; set; }
@@ -12,4 +13,11 @@ public class TagModel
 
     [JsonPropertyName("type")]
     public string Type { get; set; } = string.Empty;
+
+    private bool _isSelected;
+    public bool IsSelected
+    {
+        get => _isSelected;
+        set => SetProperty(ref _isSelected, value);
+    }
 }
