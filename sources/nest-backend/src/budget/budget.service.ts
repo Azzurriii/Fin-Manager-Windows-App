@@ -35,6 +35,14 @@ export class BudgetService {
     return this.budgetRepository.find(); // Trả về toàn bộ dữ liệu từ bảng 'budget'
   }
 
+  async deleteBudget(id: number, userId: number): Promise<void> {
+    const budget = await this.budgetRepository.findOne({
+      where: { budget_id: id, user_id: userId },
+    });
+
+    await this.budgetRepository.remove(budget);
+  }
+
   async getBudgetById(budget_id: number): Promise<Budget> {
     const budget = await this.budgetRepository.findOne({
       where: { budget_id },
