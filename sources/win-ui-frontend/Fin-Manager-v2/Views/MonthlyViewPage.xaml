@@ -30,8 +30,7 @@
             </Grid.ColumnDefinitions>
 
             <!-- Income Card -->
-            <Grid Grid.Column="0" 
-                  Background="#E8F5E9"
+            <Grid Grid.Column="0"
                   BorderBrush="#43A047"
                   BorderThickness="1"
                   CornerRadius="8"
@@ -47,7 +46,6 @@
 
             <!-- Expense Card -->
             <Grid Grid.Column="1"
-                  Background="#FFEBEE"
                   BorderBrush="#E53935"
                   BorderThickness="1"
                   CornerRadius="8"
@@ -63,7 +61,6 @@
 
             <!-- Balance Card -->
             <Grid Grid.Column="2"
-                  Background="#E0F7FA"
                   BorderBrush="#00ACC1"
                   BorderThickness="1"
                   CornerRadius="8"
