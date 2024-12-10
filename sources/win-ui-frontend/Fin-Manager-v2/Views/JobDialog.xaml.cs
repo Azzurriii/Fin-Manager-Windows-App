@@ -16,7 +16,7 @@ public sealed partial class JobDialog : ContentDialog
     {
         if (string.IsNullOrWhiteSpace(JobNameBox.Text))
         {
-            ErrorTextBlock.Text = "Vui lòng nhập tên công việc";
+            ErrorTextBlock.Text = "Job name is required";
             ErrorTextBlock.Visibility = Microsoft.UI.Xaml.Visibility.Visible;
             args.Cancel = true;
             return;
@@ -24,7 +24,7 @@ public sealed partial class JobDialog : ContentDialog
 
         if (!decimal.TryParse(AmountBox.Text, out decimal amount) || amount <= 0)
         {
-            ErrorTextBlock.Text = "Vui lòng nhập số tiền hợp lệ";
+            ErrorTextBlock.Text = "Please enter a valid amount";
             ErrorTextBlock.Visibility = Microsoft.UI.Xaml.Visibility.Visible;
             args.Cancel = true;
             return;
@@ -32,7 +32,7 @@ public sealed partial class JobDialog : ContentDialog
 
         if (RecurringTypeComboBox.SelectedItem == null)
         {
-            ErrorTextBlock.Text = "Vui lòng chọn loại lặp lại";
+            ErrorTextBlock.Text = "Please select a recurring type";
             ErrorTextBlock.Visibility = Microsoft.UI.Xaml.Visibility.Visible;
             args.Cancel = true;
             return;
@@ -40,7 +40,7 @@ public sealed partial class JobDialog : ContentDialog
 
         if (TransactionTypeComboBox.SelectedItem == null)
         {
-            ErrorTextBlock.Text = "Vui lòng chọn loại giao dịch";
+            ErrorTextBlock.Text = "Please select a transaction type";
             ErrorTextBlock.Visibility = Microsoft.UI.Xaml.Visibility.Visible;
             args.Cancel = true;
             return;

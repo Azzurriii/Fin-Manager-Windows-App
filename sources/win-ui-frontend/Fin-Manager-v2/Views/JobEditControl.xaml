@@ -11,14 +11,14 @@
 
     <StackPanel Spacing="16" Width="400">
         <TextBox x:Name="JobNameBox"
-                 Header="Tên công việc"
+                 Header="Job Name"
                  Text="{x:Bind Job.JobName, Mode=TwoWay}"
-                 PlaceholderText="Nhập tên công việc"/>
+                 PlaceholderText="Enter job name"/>
 
         <NumberBox x:Name="AmountNumberBox"
-                  Header="Số tiền"
+                  Header="Amount"
                   Value="{x:Bind Job.Amount, Mode=TwoWay, Converter={StaticResource DecimalToDoubleConverter}}"
-                  PlaceholderText="Nhập số tiền"
+                  PlaceholderText="Enter amount"
                   SpinButtonPlacementMode="Compact"/>
 
         <ComboBox x:Name="TransactionTypeComboBox"

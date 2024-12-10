@@ -18,22 +18,49 @@
         <!-- Header -->
         <StackPanel Grid.Row="0" Margin="0,0,0,20">
             <TextBlock Text="Manage Your Jobs" 
-                      Style="{StaticResource TitleTextBlockStyle}"
-                      FontSize="28" 
-                      FontWeight="SemiBold"/>
+                    Style="{StaticResource TitleTextBlockStyle}"
+                    FontSize="28" 
+                    FontWeight="SemiBold"/>
             <TextBlock Text="View and manage all your scheduled jobs in one place"
-                      Style="{StaticResource CaptionTextBlockStyle}"
-                      Margin="0,4,0,0"/>
+                    Style="{StaticResource CaptionTextBlockStyle}"
+                    Margin="0,4,0,0"/>
         </StackPanel>
 
-        <!-- Job List -->
+        <!-- Main Content Area -->
         <Grid Grid.Row="1">
+            <!-- Empty State -->
+            <StackPanel x:Name="EmptyStatePanel"
+                        HorizontalAlignment="Center" 
+                        VerticalAlignment="Center"
+                        Spacing="12"
+                        Visibility="{x:Bind CollectionVisibility(ViewModel.Jobs), Mode=OneWay}">
+                <FontIcon Glyph="&#xE783;"
+                        FontSize="48"
+                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                <TextBlock Text="No jobs found"
+                        Style="{StaticResource BodyStrongTextBlockStyle}"
+                        TextAlignment="Center"/>
+                <TextBlock Text="Add your first job to get started"
+                        Style="{StaticResource CaptionTextBlockStyle}"
+                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                        TextAlignment="Center"/>
+                <Button Style="{StaticResource AccentButtonStyle}"
+                        Click="OnAddJobClick"
+                        Margin="0,12,0,0">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <FontIcon Glyph="&#xE710;" FontSize="16"/>
+                        <TextBlock Text="Add New Job"/>
+                    </StackPanel>
+                </Button>
+            </StackPanel>
+
+            <!-- Job List -->
             <ListView x:Name="JobsList"
-                      ItemsSource="{x:Bind ViewModel.Jobs, Mode=OneWay}"
-                      SelectedItem="{x:Bind ViewModel.SelectedJob, Mode=TwoWay}"
-                      SelectionMode="Single"
-                      SelectionChanged="ListView_SelectionChanged"
-                      Visibility="{x:Bind InverseCollectionVisibility(ViewModel.Jobs), Mode=OneWay}">
+                    ItemsSource="{x:Bind ViewModel.Jobs, Mode=OneWay}"
+                    SelectedItem="{x:Bind ViewModel.SelectedJob, Mode=TwoWay}"
+                    SelectionMode="Single"
+                    SelectionChanged="ListView_SelectionChanged"
+                    Visibility="{x:Bind InverseCollectionVisibility(ViewModel.Jobs), Mode=OneWay}">
                 <ListView.ItemTemplate>
                     <DataTemplate x:DataType="models:JobModel">
                         <Grid Padding="12" ColumnSpacing="12">
@@ -47,44 +74,39 @@
                             <!-- Job Info -->
                             <StackPanel Grid.Column="1" Spacing="4">
                                 <TextBlock Text="{x:Bind JobName}" 
-                                         Style="{StaticResource SubtitleTextBlockStyle}"/>
+                                        Style="{StaticResource SubtitleTextBlockStyle}"/>
                                 <TextBlock Text="{x:Bind Amount, Converter={StaticResource CurrencyFormatterConverter}}"
-                                         Style="{StaticResource BodyTextBlockStyle}"/>
+                                        Style="{StaticResource BodyTextBlockStyle}"/>
                                 <TextBlock Text="{x:Bind RecurringType}"
-                                         Style="{StaticResource CaptionTextBlockStyle}"
-                                         Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
+                                        Style="{StaticResource CaptionTextBlockStyle}"
+                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
                             </StackPanel>
 
                             <!-- Action Buttons -->
-                            <Button Grid.Column="2" 
-                                    Content="Update"
-                                    Click="OnViewJobClick"
-                                    Style="{StaticResource AccentButtonStyle}"/>
-                            <Button Grid.Column="3" 
-                                    Content="Delete" 
-                                    Click="OnDeleteJobClick"
-                                    Style="{StaticResource ButtonRevealStyle}"/>
+                            <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
+                                <Button Click="OnViewJobClick" Style="{StaticResource AccentButtonStyle}">
+                                    <FontIcon Glyph="&#xE70F;" FontSize="16" Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
+                                </Button>
+                                <Button Click="OnDeleteJobClick" Style="{StaticResource ButtonRevealStyle}">
+                                    <FontIcon Glyph="&#xE74D;" FontSize="16" Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
+                                </Button>
+                            </StackPanel>
                         </Grid>
                     </DataTemplate>
                 </ListView.ItemTemplate>
             </ListView>
         </Grid>
 
-        <!-- Empty state message -->
-        <TextBlock Text="No jobs found"
-                   HorizontalAlignment="Center"
-                   VerticalAlignment="Center"
-                   Visibility="{x:Bind CollectionVisibility(ViewModel.Jobs), Mode=OneWay}"/>
-
-        <!-- Add Job Button -->
+        <!-- Add Job Button (Only visible when list has items) -->
         <Button Grid.Row="2"
                 Style="{StaticResource AccentButtonStyle}"
                 HorizontalAlignment="Center"
                 Margin="0,20,0,0"
-                Click="OnAddJobClick">
+                Click="OnAddJobClick"
+                Visibility="{x:Bind InverseCollectionVisibility(ViewModel.Jobs), Mode=OneWay}">
             <StackPanel Orientation="Horizontal" Spacing="8">
                 <FontIcon Glyph="&#xE710;" FontSize="16"/>
-                <TextBlock Text="Add a new job"/>
+                <TextBlock Text="Add New Job"/>
             </StackPanel>
         </Button>
     </Grid>

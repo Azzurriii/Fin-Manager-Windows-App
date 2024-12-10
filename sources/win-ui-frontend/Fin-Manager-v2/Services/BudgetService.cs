@@ -40,7 +40,7 @@ public class BudgetService : IBudgetService
     public async Task<BudgetModel?> CreateBudgetAsync(CreateBudgetDto budget)
     {
         SetAuthorizationHeader();
-        var response = await _httpClient.PostAsJsonAsync("http://localhost:3000/budget", budget);
+        var response = await _httpClient.PostAsJsonAsync("budget", budget);
         if (response.IsSuccessStatusCode)
         {
             // Deserialize JSON response thành Budget model
@@ -54,7 +54,7 @@ public class BudgetService : IBudgetService
         try
         {
             SetAuthorizationHeader();
-            var response = await _httpClient.GetAsync("http://localhost:3000/budget");
+            var response = await _httpClient.GetAsync("budget");
             //if (response.IsSuccessStatusCode)
             //{
             //    var json = await response.Content.ReadAsStringAsync();
@@ -82,8 +82,7 @@ public class BudgetService : IBudgetService
         try
         {
             SetAuthorizationHeader();
-            var response = await _httpClient.DeleteAsync($"http://localhost:3000/budget/{budgetId}");
-
+            var response = await _httpClient.DeleteAsync($"budget/{budgetId}");
             return response.IsSuccessStatusCode;
         }
         catch (Exception ex)
