@@ -5,126 +5,155 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:vm="using:Fin_Manager_v2.ViewModels"
-	xmlns:local="using:Fin_Manager_v2.Converters"
+    xmlns:local="using:Fin_Manager_v2.Converters"
     mc:Ignorable="d">
 
-	
+    <Page.Resources>
+        <local:CurrencyFormatterConverter x:Key="CurrencyFormatter"/>
+        <local:DateFormatterConverter x:Key="DateFormatter"/>
+        <local:InverseBooleanToVisibilityConverter x:Key="InverseBooleanToVisibilityConverter"/>
+        <local:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+        <local:StringToNumberConverter x:Key="StringToNumberConverter" />
+        <local:StringToDateConverter x:Key="StringToDateConverter" />
+        <local:SpentAmountToStatusConverter x:Key="SpentAmountToStatusConverter" />
+        <local:SpentAmountToForegroundConverter x:Key="SpentAmountToForegroundConverter" />
+    </Page.Resources>
 
-	<Page.Resources>
-		<local:CurrencyFormatterConverter x:Key="CurrencyFormatter"/>
-		<local:DateFormatterConverter x:Key="DateFormatter"/>
-		<local:InverseBooleanToVisibilityConverter x:Key="InverseBooleanToVisibilityConverter"/>
-		<local:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
-		<local:StringToNumberConverter x:Key="StringToNumberConverter" />
-		<local:StringToDateConverter x:Key="StringToDateConverter" />
-		<local:SpentAmountToStatusConverter x:Key="SpentAmountToStatusConverter" />
-		<local:SpentAmountToForegroundConverter x:Key="SpentAmountToForegroundConverter" />
-	</Page.Resources>
+    <Grid Padding="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
 
-	<Grid Padding="20" Background="#121212">
-		<Grid.RowDefinitions>
-			<RowDefinition Height="*" />
-			<RowDefinition Height="Auto" />
-		</Grid.RowDefinitions>
+        <ListView Grid.Row="0"
+          ItemsSource="{Binding Budgets}"
+          SelectedItem="{Binding SelectedBudget}"
+          Visibility="{Binding IsAddingBudget, Converter={StaticResource InverseBooleanToVisibilityConverter}}"
+          Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
+            <ListView.ItemContainerStyle>
+                <Style TargetType="ListViewItem">
+                    <Setter Property="Padding" Value="12"/>
+                    <Setter Property="Margin" Value="0,4"/>
+                    <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                </Style>
+            </ListView.ItemContainerStyle>
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
 
-		<!-- Danh sách budget -->
-		<ListView Grid.Row="0"
-                  ItemsSource="{Binding Budgets}"
-                  SelectedItem="{Binding SelectedBudget}"
-                  Visibility="{Binding IsAddingBudget, Converter={StaticResource InverseBooleanToVisibilityConverter}}"
-					Background="#1E1E1E" Foreground="White">
-			<ListView.ItemTemplate>
-				<DataTemplate>
-					<StackPanel Orientation="Vertical" Padding="10">
-						<TextBlock Text="{Binding Category}" FontWeight="Bold" FontSize="18" />
-						<TextBlock Text="{Binding BudgetAmount, Converter={StaticResource CurrencyFormatter}}" />
-						<TextBlock Text="{Binding SpentAmount, Converter={StaticResource CurrencyFormatter}}" />
-						<TextBlock Text="{Binding StartDate, Converter={StaticResource DateFormatter}}" />
-						<TextBlock Text="{Binding EndDate, Converter={StaticResource DateFormatter}}" />
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="{Binding Category}" 
+                             FontWeight="SemiBold" 
+                             FontSize="18"
+                             Margin="0,0,0,8"/>
 
-						<TextBlock Foreground="{Binding Converter={StaticResource SpentAmountToForegroundConverter}}">
-							<Run Text="Status: " />
-							<Run Text="{Binding Converter={StaticResource SpentAmountToStatusConverter}}" />
-						</TextBlock>
-						
-						<Button Background="Transparent"
-								BorderThickness="0"
-								Click="DeleteBudget"
-								CommandParameter="{Binding}">
-							<SymbolIcon Symbol="Delete" Foreground="Red"/>
-						</Button>
-					</StackPanel>
-				</DataTemplate>
-			</ListView.ItemTemplate>
-		</ListView>
+                            <StackPanel Orientation="Horizontal" Spacing="24">
+                                <TextBlock>
+                            <Run Text="Budget: "/>
+                            <Run Text="{Binding BudgetAmount, Converter={StaticResource CurrencyFormatter}}" 
+                                 FontWeight="SemiBold"/>
+                                </TextBlock>
+                                <TextBlock>
+                            <Run Text="Spent: "/>
+                            <Run Text="{Binding SpentAmount, Converter={StaticResource CurrencyFormatter}}"
+                                 FontWeight="SemiBold"/>
+                                </TextBlock>
+                            </StackPanel>
 
-		<!-- Form thêm budget -->
-		<Border Grid.Row="0"
-                Background="#2D2D2D"
+                            <StackPanel Orientation="Horizontal" Spacing="24" Margin="0,4,0,4">
+                                <TextBlock>
+                            <Run Text="From: "/>
+                            <Run Text="{Binding StartDate, Converter={StaticResource DateFormatter}}"/>
+                                </TextBlock>
+                                <TextBlock>
+                            <Run Text="To: "/>
+                            <Run Text="{Binding EndDate, Converter={StaticResource DateFormatter}}"/>
+                                </TextBlock>
+                            </StackPanel>
+
+                            <TextBlock Foreground="{Binding Converter={StaticResource SpentAmountToForegroundConverter}}"
+                             Text="{Binding Converter={StaticResource SpentAmountToStatusConverter}}"/>
+                        </StackPanel>
+
+                        <Button Grid.Column="1"
+                        Background="Transparent"
+                        BorderThickness="0"
+                        Click="DeleteBudget"
+                        CommandParameter="{Binding}"
+                        VerticalAlignment="Top">
+                            <FontIcon Glyph="&#xE74D;" Foreground="Red"/>
+                        </Button>
+                    </Grid>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
+
+        <!-- Form thêm budget -->
+        <Border Grid.Row="0"
+                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                 CornerRadius="10"
                 Padding="20"
                 Visibility="{Binding IsAddingBudget, Converter={StaticResource BooleanToVisibilityConverter}}">
-			<StackPanel Spacing="10">
-				<TextBlock Text="Add New Budget" FontSize="20" FontWeight="Bold" Margin="0,0,0,20" />
+            <StackPanel Spacing="10">
+                <TextBlock Text="Add New Budget" FontSize="20" FontWeight="Bold" Margin="0,0,0,20" />
 
-				<!-- Form fields -->
-				<ComboBox
+                <!-- Form fields -->
+                <ComboBox
                     Header="Account"
                     ItemsSource="{Binding Accounts}"
                     SelectedValue="{Binding NewBudget.AccountId, Mode=TwoWay}"
-					SelectedValuePath="AccountId"
-					DisplayMemberPath="AccountName"
-                    PlaceholderText="Select an account"
-					Foreground="White" Background="#3A3A3A"/>
+                    SelectedValuePath="AccountId"
+                    DisplayMemberPath="AccountName"
+                    PlaceholderText="Select an account"/>
 
-				<TextBox
+                <TextBox
                     Header="Category"
                     Text="{Binding NewBudget.Category, Mode=TwoWay}"
-                    PlaceholderText="Enter budget category"
-					Foreground="White" Background="#3A3A3A"/>
+                    PlaceholderText="Enter budget category"/>
 
-				<TextBox
+                <TextBox
                     Header="Budget Amount"
                     Text="{Binding NewBudget.BudgetAmount, Converter={StaticResource StringToNumberConverter}, Mode=TwoWay, ConverterParameter=decimal}"
                     InputScope="Number"
-                    PlaceholderText="Enter total budget" 
-					Foreground="White" Background="#3A3A3A"/>
+                    PlaceholderText="Enter total budget"/>
 
-				<DatePicker
+                <DatePicker
                     Header="Start Date"
-                    SelectedDate="{Binding NewBudget.StartDate, Converter={StaticResource StringToDateConverter}, Mode=TwoWay}"
-					Foreground="White" Background="#3A3A3A"/>
+                    SelectedDate="{Binding NewBudget.StartDate, Converter={StaticResource StringToDateConverter}, Mode=TwoWay}"/>
 
-				<DatePicker
+                <DatePicker
                     Header="End Date"
-                    SelectedDate="{Binding NewBudget.EndDate, Converter={StaticResource StringToDateConverter}, Mode=TwoWay}"
-					Foreground="White" Background="#3A3A3A"/>
+                    SelectedDate="{Binding NewBudget.EndDate, Converter={StaticResource StringToDateConverter}, Mode=TwoWay}"/>
 
-				<!-- Buttons -->
-				<StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="10">
-					<Button x:Name="CancelAddBudgetButton"
-							Content="Cancel"
-                            Command="{Binding CancelAddBudgetCommand}"
-                            Background="#555555"
-                            Foreground="White" />
-					<Button x:Name="SaveBudgetButton"
-							Content="Save"
+                <!-- Buttons -->
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="10">
+                    <Button x:Name="CancelAddBudgetButton"
+                            Content="Cancel"
+                            Command="{Binding CancelAddBudgetCommand}"/>
+                    <Button x:Name="SaveBudgetButton"
+                            Content="Save"
                             Command="{Binding SaveBudgetCommand}"
-                            Background="#4CAF50"
-                            Foreground="White" />
-				</StackPanel>
-			</StackPanel>
-		</Border>
+                            Style="{StaticResource AccentButtonStyle}"/>
+                </StackPanel>
+            </StackPanel>
+        </Border>
 
-		<!-- Nút thêm budget -->
-		<Button x:Name="ShowAddBudgetButton"
-				Grid.Row="1"
-                Content="Add Budget"
+        <!-- Nút thêm budget -->
+        <Button x:Name="ShowAddBudgetButton"
+                Grid.Row="1"
                 Command="{Binding ShowAddBudgetCommand}"
                 Visibility="{Binding IsAddingBudget, Converter={StaticResource InverseBooleanToVisibilityConverter}}"
                 HorizontalAlignment="Right"
-                Background="#4CAF50"
-                Foreground="White"
-                Padding="10" />
-	</Grid>
-</Page>
+                Style="{StaticResource AccentButtonStyle}"
+                Padding="10">
+            <StackPanel Orientation="Horizontal" Spacing="8">
+                <FontIcon Glyph="&#xE710;"/>
+                <TextBlock Text="Add Budget"/>
+            </StackPanel>
+        </Button>
+    </Grid>
+</Page> 
