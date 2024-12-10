@@ -61,6 +61,7 @@ export class TransactionController {
     @UsePipes(new ValidationPipe({ transform: true }))
     @ApiOperation({ summary: 'Get transactions by query' })
     async findByQuery(@Body() query: QueryDto): Promise<Transaction[]> {
+        console.log(query);
         return this.transactionService.findByQuery(query);   
     }
 }

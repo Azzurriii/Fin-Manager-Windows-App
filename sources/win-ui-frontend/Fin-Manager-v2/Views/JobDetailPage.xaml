@@ -75,12 +75,12 @@
                     <TextBlock Text="Recurring Type:" 
                              Style="{StaticResource BodyStrongTextBlockStyle}" 
                              Grid.Row="3" Grid.Column="0"/>
-                    <ComboBox SelectedItem="{x:Bind ViewModel.Job.RecurringType, Mode=TwoWay}"
-                             Grid.Row="3" Grid.Column="1">
-                        <ComboBoxItem Content="DAILY"/>
-                        <ComboBoxItem Content="WEEKLY"/>
-                        <ComboBoxItem Content="MONTHLY"/>
-                        <ComboBoxItem Content="YEARLY"/>
+                    <ComboBox SelectedValue="{x:Bind ViewModel.Job.RecurringType, Mode=TwoWay}"
+                              Grid.Row="3" Grid.Column="1">
+                        <x:String>DAILY</x:String>
+                        <x:String>WEEKLY</x:String>
+                        <x:String>MONTHLY</x:String>
+                        <x:String>YEARLY</x:String>
                     </ComboBox>
 
                     <!-- Next Run Date -->
@@ -94,10 +94,10 @@
                     <TextBlock Text="Transaction Type:" 
                              Style="{StaticResource BodyStrongTextBlockStyle}" 
                              Grid.Row="5" Grid.Column="0"/>
-                    <ComboBox SelectedItem="{x:Bind ViewModel.Job.TransactionType, Mode=TwoWay}"
-                             Grid.Row="5" Grid.Column="1">
-                        <ComboBoxItem Content="INCOME"/>
-                        <ComboBoxItem Content="EXPENSE"/>
+                    <ComboBox SelectedValue="{x:Bind ViewModel.Job.TransactionType, Mode=TwoWay}"
+                              Grid.Row="5" Grid.Column="1">
+                        <x:String>INCOME</x:String>
+                        <x:String>EXPENSE</x:String>
                     </ComboBox>
                 </Grid>
             </StackPanel>

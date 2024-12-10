@@ -59,7 +59,8 @@
                     ItemsSource="{x:Bind ViewModel.Jobs, Mode=OneWay}"
                     SelectedItem="{x:Bind ViewModel.SelectedJob, Mode=TwoWay}"
                     SelectionMode="Single"
-                    SelectionChanged="ListView_SelectionChanged"
+                    ItemClick="OnJobItemClick"
+                    IsItemClickEnabled="True"
                     Visibility="{x:Bind InverseCollectionVisibility(ViewModel.Jobs), Mode=OneWay}">
                 <ListView.ItemTemplate>
                     <DataTemplate x:DataType="models:JobModel">

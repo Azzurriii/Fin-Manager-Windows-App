@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace Fin_Manager_v2.Models;
 
-public class TagModel : ObservableObject
+public partial class TagModel : ObservableObject
 {
     [JsonPropertyName("id")]
     public int Id { get; set; }
@@ -14,10 +14,6 @@ public class TagModel : ObservableObject
     [JsonPropertyName("type")]
     public string Type { get; set; } = string.Empty;
 
+    [ObservableProperty]
     private bool _isSelected;
-    public bool IsSelected
-    {
-        get => _isSelected;
-        set => SetProperty(ref _isSelected, value);
-    }
 }

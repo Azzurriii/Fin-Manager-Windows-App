@@ -38,4 +38,11 @@ public sealed partial class MonthlyViewPage : Page
             ViewModel.OnTagSelectionChanged(sender, e);
         }
     }
+
+   private void Tag_CheckedChanged(object sender, RoutedEventArgs e)
+    {
+        // Lấy danh sách tags đã chọn từ ViewModel.AvailableTags
+        var selectedTags = ViewModel.AvailableTags.Where(t => t.IsSelected).ToList();
+        ViewModel.SelectedTags = selectedTags;
+    }
 }

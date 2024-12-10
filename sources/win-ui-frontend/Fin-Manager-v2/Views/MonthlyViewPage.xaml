@@ -140,9 +140,11 @@
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
                                 <CheckBox Content="{Binding TagName}"
-                     IsChecked="{Binding IsSelected, Mode=TwoWay}"
-                     Margin="0,2,24,2"
-                     MinWidth="180"/>
+                                          IsChecked="{Binding IsSelected, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                          Checked="Tag_CheckedChanged"
+                                          Unchecked="Tag_CheckedChanged"
+                                          Margin="0,2,24,2"
+                                          MinWidth="180"/>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
@@ -185,18 +187,19 @@
                         <StackPanel Grid.Column="1" 
                                   Margin="16,0">
                             <TextBlock Text="{Binding Description}" 
-                                     Style="{ThemeResource BodyLargeTextBlockStyle}"/>
+                                     Style="{ThemeResource BodyStrongTextBlockStyle}"
+                                     Margin="0,0,0,4"/>
                             <StackPanel Orientation="Horizontal" 
                                       Spacing="8"
                                       Margin="0,4,0,0">
                                 <TextBlock Text="{Binding TagName}" 
-                                         Style="{ThemeResource BodyTextBlockStyle}"
+                                         Style="{ThemeResource CaptionTextBlockStyle}"
                                          Opacity="0.6"/>
                                 <TextBlock Text="•" 
-                                         Style="{ThemeResource BodyTextBlockStyle}"
+                                         Style="{ThemeResource CaptionTextBlockStyle}"
                                          Opacity="0.6"/>
                                 <TextBlock Text="{Binding Date, Converter={StaticResource DateFormatter}}"
-                                         Style="{ThemeResource BodyTextBlockStyle}"
+                                         Style="{ThemeResource CaptionTextBlockStyle}"
                                          Opacity="0.6"/>
                             </StackPanel>
                         </StackPanel>
