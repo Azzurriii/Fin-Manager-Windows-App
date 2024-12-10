@@ -163,4 +163,12 @@ public sealed partial class JobPage : Page
             Frame.Navigate(typeof(JobDetailPage));
         }
     }
+
+    private void OnJobItemClick(object sender, ItemClickEventArgs e)
+    {
+        if (e.ClickedItem is JobModel job)
+        {
+            Frame.Navigate(typeof(JobDetailPage), job);
+        }
+    }
 }

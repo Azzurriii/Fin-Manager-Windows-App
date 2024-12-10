@@ -267,7 +267,10 @@ public partial class MonthlyViewViewModel : ObservableRecipient
 
     partial void OnSelectedTagsChanged(List<TagModel> value)
     {
+         _dispatcherQueue.TryEnqueue(() =>
+    {
         LoadTransactionsAsync().ConfigureAwait(false);
+    });
     }
 
     /// <summary>
