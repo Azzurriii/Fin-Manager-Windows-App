@@ -25,10 +25,10 @@ namespace Fin_Manager_v2.DTO
         public decimal? SpentAmount { get; set; }
 
         [JsonPropertyName("start_date")]
-        public DateTime? StartDate { get; set; }
+        public DateTimeOffset? StartDate { get; set; }
 
         [JsonPropertyName("end_date")]
-        public DateTime? EndDate { get; set; }
+        public DateTimeOffset? EndDate { get; set; }
 
         [JsonPropertyName("created_by")]
         public int? CreatedBy { get; set; }

@@ -19,7 +19,9 @@
         <local:SpentAmountToForegroundConverter x:Key="SpentAmountToForegroundConverter" />
     </Page.Resources>
 
-    <Grid Padding="20">
+    <Grid Padding="20"
+          CornerRadius="10"
+          >
         <Grid.RowDefinitions>
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
@@ -110,10 +112,12 @@
                     DisplayMemberPath="AccountName"
                     PlaceholderText="Select an account"/>
 
-                <TextBox
+                <ComboBox
                     Header="Category"
-                    Text="{Binding NewBudget.Category, Mode=TwoWay}"
-                    PlaceholderText="Enter budget category"/>
+                    ItemsSource="{Binding AvailableTags}"
+                    SelectedItem="{Binding SelectedTag, Mode=TwoWay}"
+                    DisplayMemberPath="TagName"
+                    PlaceholderText="Select a category"/>
 
                 <TextBox
                     Header="Budget Amount"
@@ -123,11 +127,11 @@
 
                 <DatePicker
                     Header="Start Date"
-                    SelectedDate="{Binding NewBudget.StartDate, Converter={StaticResource StringToDateConverter}, Mode=TwoWay}"/>
+                    Date="{Binding NewBudget.StartDate, Mode=TwoWay}"/>
 
                 <DatePicker
                     Header="End Date"
-                    SelectedDate="{Binding NewBudget.EndDate, Converter={StaticResource StringToDateConverter}, Mode=TwoWay}"/>
+                    Date="{Binding NewBudget.EndDate, Mode=TwoWay}"/>
 
                 <!-- Buttons -->
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="10">

@@ -19,12 +19,10 @@ public sealed partial class BudgetPage : Page
     public BudgetPage()
     {
         ViewModel = App.GetService<BudgetViewModel>();
-
         InitializeComponent();
 
         ShowAddBudgetButton.Click += ShowAddBudget;
         CancelAddBudgetButton.Click += CancelAddBudget;
-        SaveBudgetButton.Click += SaveBudget;
 
         DataContext = ViewModel;
     }
@@ -38,12 +36,6 @@ public sealed partial class BudgetPage : Page
     {
         ViewModel.CancelAddBudget();
     }
-
-    private async void SaveBudget(object sender, RoutedEventArgs e)
-    {
-        await ViewModel.SaveBudget();
-    }
-
 
     public async void DeleteBudget(object sender, RoutedEventArgs e)
     {
