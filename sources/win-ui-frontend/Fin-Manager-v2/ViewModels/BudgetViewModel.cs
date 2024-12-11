@@ -16,8 +16,11 @@ public partial class BudgetViewModel : ObservableRecipient
     private readonly IBudgetService _budgetService;
     private readonly IAccountService _accountService;
     private readonly IDialogService _dialogService;
+    private readonly ITagService _tagService;
+    
     public ObservableCollection<BudgetModel> Budgets { get; set; } = new ObservableCollection<BudgetModel>();
     public ObservableCollection<AccountModel> Accounts { get; set; } = new ObservableCollection<AccountModel>();
+    public ObservableCollection<TagModel> AvailableTags { get; set; } = new();
 
     private CreateBudgetDto _newBudget;
     public CreateBudgetDto NewBudget
@@ -40,14 +43,27 @@ public partial class BudgetViewModel : ObservableRecipient
         set => SetProperty(ref _selectedBudget, value);
     }
 
-    public BudgetViewModel(IBudgetService budgetService, IAccountService accountService, IDialogService dialogService)
+    private TagModel _selectedTag;
+    public TagModel SelectedTag
+    {
+        get => _selectedTag;
+        set => SetProperty(ref _selectedTag, value);
+    }
+
+    public BudgetViewModel(
+        IBudgetService budgetService, 
+        IAccountService accountService, 
+        IDialogService dialogService,
+        ITagService tagService)
     {
         _budgetService = budgetService;
         _accountService = accountService;
         _dialogService = dialogService;
+        _tagService = tagService;
 
         LoadBudgets();
         LoadAccounts();
+        LoadTags();
     }
 
     private async void LoadAccounts()
@@ -59,10 +75,32 @@ public partial class BudgetViewModel : ObservableRecipient
         }
     }
 
+    private async void LoadTags()
+    {
+        try 
+        {
+            var tags = await _tagService.GetTagsByTypeAsync("EXPENSE");
+            AvailableTags.Clear();
+            foreach (var tag in tags)
+            {
+                AvailableTags.Add(tag);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading tags: {ex.Message}");
+        }
+    }
+
     [RelayCommand]
     public void ShowAddBudget()
     {
-        NewBudget = new CreateBudgetDto();
+        NewBudget = new CreateBudgetDto
+        {
+            StartDate = DateTime.Now,
+            EndDate = DateTime.Now.AddMonths(1)
+        };
+        SelectedTag = null;
         IsAddingBudget = true;
     }
 
@@ -76,29 +114,31 @@ public partial class BudgetViewModel : ObservableRecipient
     [RelayCommand]
     public async Task SaveBudget()
     {
-        if (NewBudget == null)
+        if (NewBudget == null || SelectedTag == null)
         {
-            Console.WriteLine("NewBudget is null!");
+            await _dialogService.ShowErrorAsync("Error", "Please select a category");
             return;
         }
 
-        if (string.IsNullOrWhiteSpace(NewBudget.Category) || NewBudget.BudgetAmount <= 0)
+        if (NewBudget.BudgetAmount <= 0)
         {
+            await _dialogService.ShowErrorAsync("Error", "Budget amount must be greater than 0");
             return;
         }
+
+        NewBudget.Category = SelectedTag.TagName;
 
         var createdBudget = await _budgetService.CreateBudgetAsync(NewBudget);
-        Console.WriteLine($"Category: {NewBudget.Category}, BudgetAmount: {NewBudget.BudgetAmount}, StartDate: {NewBudget.StartDate}, EndDate: {NewBudget.EndDate}");
         if (createdBudget != null)
         {
             Budgets.Add(createdBudget);
             NewBudget = new CreateBudgetDto();
+            SelectedTag = null;
             CancelAddBudget();
         }
         else
         {
             await _dialogService.ShowErrorAsync("Error", "Cannot Add Budget");
-
         }
     }
 
