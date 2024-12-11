@@ -105,18 +105,30 @@
 
         <!-- Action Buttons -->
         <StackPanel Grid.Row="2" 
-                    Orientation="Horizontal" 
-                    Spacing="12" 
-                    Margin="0,24,0,0">
-            <Button Content="Save" 
-                    Click="OnSaveButtonClick"
-                    Style="{StaticResource AccentButtonStyle}"/>
-            <Button Content="Back" 
-                    Click="OnBackButtonClick"/>
-            <Button Content="Delete" 
-                    Click="OnDeleteButtonClick"
-                    Foreground="White"
-                    Background="#d9534f"/>
+            Orientation="Horizontal" 
+            Spacing="12" 
+            Margin="0,24,0,0">
+            <Button Click="OnBackButtonClick">
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <FontIcon Glyph="&#xE72B;" FontSize="16"/>
+                    <TextBlock Text="Back"/>
+                </StackPanel>
+            </Button>
+            <Button Click="OnSaveButtonClick"
+            Style="{StaticResource AccentButtonStyle}">
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <FontIcon Glyph="&#xE74E;" FontSize="16"/>
+                    <TextBlock Text="Save"/>
+                </StackPanel>
+            </Button>
+            <Button Click="OnDeleteButtonClick"
+            Foreground="White"
+            Background="#d9534f">
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                    <FontIcon Glyph="&#xE74D;" FontSize="16"/>
+                    <TextBlock Text="Delete"/>
+                </StackPanel>
+            </Button>
         </StackPanel>
 
         <!-- Loading and Error States -->
