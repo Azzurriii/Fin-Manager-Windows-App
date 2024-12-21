@@ -150,6 +150,45 @@ public partial class MonthlyViewViewModel : ObservableRecipient
         }
     }
 
+    [RelayCommand]
+private async Task ExportTransactionsAsync()
+{
+    try
+    {
+        var query = new QueryDto
+        {
+            UserId = _authService.GetUserId() ?? 0,
+            AccountId = SelectedAccount?.AccountId,
+            StartDate = StartDate.DateTime,
+            EndDate = EndDate.DateTime,
+            TagIds = SelectedTags?.Select(t => t.Id).ToList()
+        };
+
+        string fileName = $"transactions_{StartDate:yyyy-MM-dd}_to_{EndDate:yyyy-MM-dd}.csv";
+        var result = await _transactionService.ExportTransactionsAsync(query, fileName);
+
+        if (result)
+        {
+            await _dialogService.ShowSuccessAsync(
+                "Export Successful",
+                "Transactions have been exported successfully.");
+        }
+        else
+        {
+            await _dialogService.ShowErrorAsync(
+                "Export Failed",
+                "Failed to export transactions.");
+        }
+    }
+    catch (Exception ex)
+    {
+        System.Diagnostics.Debug.WriteLine($"Error exporting transactions: {ex.Message}");
+        await _dialogService.ShowErrorAsync(
+            "Export Error",
+                "An error occurred while exporting transactions.");
+        }
+    }
+
     /// <summary>
     /// Asynchronously loads accounts from the account service and updates the collection of accounts.
     /// </summary>
