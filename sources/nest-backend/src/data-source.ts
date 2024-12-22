@@ -5,6 +5,13 @@ import * as dotenv from 'dotenv';
 
 dotenv.config();
 
+export const OpenAIConfig = {
+  apiKey: process.env.OPENAI_API_KEY || 'xxx',
+  model: 'gpt-3.5-turbo',
+  temperature: 0.7,
+  maxTokens: 500
+};
+
 export const AppDataSource = new DataSource({
   logging: ['query', 'error'],
   logger: 'advanced-console',
