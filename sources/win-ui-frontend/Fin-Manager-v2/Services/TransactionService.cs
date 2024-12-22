@@ -178,4 +178,58 @@ public class TransactionService : ITransactionService
             return new List<TransactionModel>();
         }
     }
+
+
+    public async Task<bool> ExportTransactionsAsync(QueryDto query, string fileName)
+{
+    try
+    {
+        // Tạo query string từ QueryDto
+        var queryString = $"fileName={Uri.EscapeDataString(fileName)}";
+        if (query.UserId != 0) queryString += $"&userId={query.UserId}";
+        if (query.AccountId.HasValue) queryString += $"&accountId={query.AccountId}";
+        if (query.StartDate != default) queryString += $"&startDate={query.StartDate:o}";
+        if (query.EndDate != default) queryString += $"&endDate={query.EndDate:o}";
+        if (query.TagIds?.Any() == true) 
+        {
+            foreach (var tagId in query.TagIds)
+            {
+                queryString += $"&tagIds={tagId}";
+            }
+        }
+
+        var response = await _httpClient.GetAsync($"transactions/export?{queryString}");
+        
+        if (response.IsSuccessStatusCode)
+        {
+            var stream = await response.Content.ReadAsStreamAsync();
+            var savePicker = new Windows.Storage.Pickers.FileSavePicker
+            {
+                SuggestedStartLocation = Windows.Storage.Pickers.PickerLocationId.DocumentsLibrary,
+                SuggestedFileName = fileName
+            };
+            savePicker.FileTypeChoices.Add("CSV File", new List<string>() { ".csv" });
+
+            // Lấy window handle cho FileSavePicker
+            var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(App.MainWindow);
+            WinRT.Interop.InitializeWithWindow.Initialize(savePicker, hwnd);
+
+            var file = await savePicker.PickSaveFileAsync();
+            if (file != null)
+            {
+                using (var fileStream = await file.OpenStreamForWriteAsync())
+                {
+                    await stream.CopyToAsync(fileStream);
+                }
+                return true;
+            }
+        }
+        return false;
+    }
+    catch (Exception ex)
+    {
+        System.Diagnostics.Debug.WriteLine($"Error exporting transactions: {ex.Message}");
+        return false;
+    }
+}
 }

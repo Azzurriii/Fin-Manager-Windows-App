@@ -9,4 +9,6 @@ public interface ITransactionService
     Task<bool> UpdateTransactionAsync(int id, TransactionModel transaction);
     Task<bool> DeleteTransactionAsync(int id);
     Task<List<TransactionModel>> GetTransactionsByQueryAsync(QueryDto query);
+
+    Task<bool> ExportTransactionsAsync(QueryDto query, string fileName);
 }
