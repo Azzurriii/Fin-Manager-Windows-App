@@ -4,11 +4,18 @@ import { TransactionService } from './transaction.service';
 import { TransactionController } from './transaction.controller';
 import { Transaction } from './entity/transaction.entity';
 import { FinanceAccountModule } from 'src/account/account.module';
+import { CsvModule } from 'src/csv/csv.module';
+import { TagModule } from 'src/tag/tag.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Transaction]),forwardRef(() => FinanceAccountModule)],
+  imports: [
+    TypeOrmModule.forFeature([Transaction]),
+    forwardRef(() => FinanceAccountModule),
+    CsvModule,
+    TagModule,
+  ],
   controllers: [TransactionController],
   providers: [TransactionService],
-  exports: [TransactionService]
+  exports: [TransactionService],
 })
 export class TransactionModule {}

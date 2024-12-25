@@ -13,11 +13,7 @@ async function bootstrap() {
 
     .build();
     app.useLogger(['log', 'error', 'warn', 'debug', 'verbose']);
-    app.enableCors({
-      origin: 'http://localhost:3001', // Replace with your frontend's origin
-      credentials: true, // Enable if you're using cookies or authentication
-      methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
-    });
+    app.enableCors();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('docs', app, document);
   app.useGlobalPipes(

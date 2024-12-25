@@ -7,6 +7,7 @@ import { CreateTransactionDto } from './dto/create-transaction.dto';
 import { GetTotalAmountDto } from './dto/get-total-amount.dto';
 import { UpdateTransactionDto } from './dto/update-transaction.dto';
 import { QueryDto } from './dto/query.dto';
+import { Tag } from 'src/tag/entity/tag.entity';
 
 export enum TransactionType {
   INCOME = 'INCOME',
@@ -18,6 +19,9 @@ export class TransactionService {
   constructor(
     @InjectRepository(Transaction)
     private readonly transactionRepository: Repository<Transaction>,
+
+    @InjectRepository(Tag)
+    private readonly tagRepository: Repository<Tag>,
     @InjectRepository(FinanceAccount)
     private readonly accountRepository: Repository<FinanceAccount>,
   ) {}
@@ -138,7 +142,7 @@ export class TransactionService {
 
 
   async findByQuery(query: QueryDto): Promise<Transaction[]> {
-
+    console.log('Query:', query);
     const findOptions: FindOptionsWhere<Transaction> = {
       user_id: query.userId,
       account_id: query.accountId,
@@ -147,4 +151,45 @@ export class TransactionService {
     };
     return this.transactionRepository.find({ where: findOptions });
   }
+
+  async findByQueryEnrich(query: QueryDto): Promise<any[]> {
+    // Lấy transactions
+    const transactions = await this.transactionRepository.find({
+      where: {
+        user_id: query.userId,
+        account_id: query.accountId,
+        transaction_date: Between(new Date(query.startDate), new Date(query.endDate)),
+        tag_id: query.tagIds?.length ? In(query.tagIds) : undefined,
+      }
+    });
+
+    // Lấy tất cả account_ids và tag_ids từ transactions
+    const accountIds = [...new Set(transactions.map(t => t.account_id))];
+    const tagIds = [...new Set(transactions.map(t => t.tag_id).filter(id => id != null))];
+
+    // Lấy accounts và tags một lần
+    const accounts = await this.accountRepository.find({
+      where: { account_id: In(accountIds) }
+    });
+    const tags = await this.tagRepository.find({
+      where: { id: In(tagIds) }
+    });
+
+    // Tạo maps để lookup nhanh
+    const accountMap = new Map(accounts.map(a => [a.account_id, a]));
+    const tagMap = new Map(tags.map(t => [t.id, t]));
+
+    // Map data với account và tag names
+    return transactions.map(transaction => ({
+      user_id: transaction.user_id,
+      transaction_id: transaction.transaction_id,
+      account_name: accountMap.get(transaction.account_id)?.account_name || '',
+      amount: transaction.amount,
+      transaction_date: transaction.transaction_date,
+      description: transaction.description,
+      transaction_type: transaction.transaction_type,
+      tag_name: tagMap.get(transaction.tag_id)?.name || ''
+    }));
+  }
+
 }

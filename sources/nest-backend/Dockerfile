@@ -2,9 +2,6 @@ FROM node:18-alpine
 
 WORKDIR /usr/src/app
 
-# Install netcat
-RUN apk add --no-cache netcat-openbsd
-
 # Copy package files
 COPY package*.json ./
 
@@ -19,3 +16,6 @@ RUN npm run build
 
 # Expose port 3000 for the Nest.js application
 EXPOSE 3000
+
+# Start the application
+CMD ["npm", "run", "start"]

@@ -11,12 +11,13 @@ import { AuthModule } from './auth/auth.module';
 import { BaseModule } from './base/base.module';
 import { FinancialGoalModule } from './financial-goal/financial-goal.module';
 import { FinanceAccountModule } from './account/account.module';
-import { Tag } from './tag/entity/tag.entity';
 import { TagModule } from './tag/tag.module';
 import { ReportModule } from './report/report.module';
 import { BudgetModule } from './budget/budget.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { JobModule } from './job/job.module';
+import { AnalysisModule } from './analysis/analysis.module';
+import { OpenaiModule } from './openai/openai.module';
 
 @Module({
   imports: [
@@ -49,6 +50,8 @@ import { JobModule } from './job/job.module';
     BudgetModule,
     JobModule,
     FinancialGoalModule,
+    OpenaiModule,
+    AnalysisModule
   ],
   controllers: [AppController],
   providers: [AppService],
