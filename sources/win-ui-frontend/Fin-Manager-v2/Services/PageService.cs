@@ -24,6 +24,7 @@ public class PageService : IPageService
         Configure<ReportViewModel, ReportPage>();
         Configure<BudgetViewModel, BudgetPage>();
         Configure<JobViewModel, JobPage>();
+        Configure<FinancialGoalViewModel, FinancialGoalPage>();
     }
 
     public Type GetPageType(string key)

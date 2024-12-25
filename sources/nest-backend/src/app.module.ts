@@ -9,6 +9,7 @@ import { TransactionModule } from './transaction/transaction.module';
 import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { BaseModule } from './base/base.module';
+import { FinancialGoalModule } from './financial-goal/financial-goal.module';
 import { FinanceAccountModule } from './account/account.module';
 import { Tag } from './tag/entity/tag.entity';
 import { TagModule } from './tag/tag.module';
@@ -18,7 +19,8 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { JobModule } from './job/job.module';
 
 @Module({
-  imports: [ScheduleModule.forRoot(),
+  imports: [
+    ScheduleModule.forRoot(),
     ConfigModule.forRoot(), // Initialize ConfigModule
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
@@ -46,6 +48,7 @@ import { JobModule } from './job/job.module';
     ReportModule,
     BudgetModule,
     JobModule,
+    FinancialGoalModule,
   ],
   controllers: [AppController],
   providers: [AppService],
