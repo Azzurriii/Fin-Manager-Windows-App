@@ -144,4 +144,7 @@
   <data name="Shell_Job.Content" xml:space="preserve">
     <value>Job</value>
   </data>
+  <data name="Shell_Analysis.Content" xml:space="preserve">
+    <value>Analysis</value>
+  </data>
 </root>
