@@ -68,6 +68,7 @@ public partial class App : Application
             services.AddTransient<IJobService, JobService>();
             services.AddSingleton<HttpClient>();
             services.AddSingleton<IReportService, ReportService>();
+            services.AddSingleton<IAnalysisService, AnalysisService>();
 
             // HTTP and Currency Services
             services.AddHttpClient<ITransactionService, TransactionService>((provider, client) =>
@@ -114,8 +115,15 @@ public partial class App : Application
                 var config = provider.GetRequiredService<IApiConfiguration>();
                 client.BaseAddress = new Uri(config.BaseUrl);
             });
+            services.AddHttpClient<IAnalysisService, AnalysisService>((provider, client) =>
+            {
+                var config = provider.GetRequiredService<IApiConfiguration>();
+                client.BaseAddress = new Uri(config.BaseUrl);
+            });
 
             // Views and ViewModels
+            services.AddTransient<AnalysisViewModel>();
+            services.AddTransient<AnalysisPage>();
             services.AddTransient<JobViewModel>();
             services.AddTransient<JobPage>();
             services.AddTransient<BudgetViewModel>();
