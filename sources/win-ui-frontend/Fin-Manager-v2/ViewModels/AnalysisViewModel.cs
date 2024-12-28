@@ -7,6 +7,7 @@ using System.Diagnostics;
 using Microsoft.UI;
 using Microsoft.UI.Xaml.Media;
 using System.Text.Json;
+using System.Text;
 
 namespace Fin_Manager_v2.ViewModels;
 
@@ -109,6 +110,14 @@ public partial class AnalysisViewModel : ObservableRecipient
     public SolidColorBrush ExpenseChangeColor => 
         IsExpenseIncreased ? new SolidColorBrush(Colors.Red) : new SolidColorBrush(Colors.Green);
 
+    [ObservableProperty]
+    private bool canGetAIAdvice = false;
+
+    [ObservableProperty]
+    private AIAnalysisModel? aiAnalysis;
+
+    [ObservableProperty]
+    private string formattedAIAdvice = string.Empty;
 
     public AnalysisViewModel(
         IAnalysisService analysisService,
@@ -192,6 +201,14 @@ public partial class AnalysisViewModel : ObservableRecipient
                 StartDate?.DateTime.Date ?? DateTime.Now.AddMonths(-1).Date,
                 EndDate?.DateTime.Date ?? DateTime.Now.Date);
 
+            _lastAnalysis = analysis;
+            
+            // Đảm bảo set CanGetAIAdvice = true và notify property changed
+            CanGetAIAdvice = true;
+            OnPropertyChanged(nameof(CanGetAIAdvice));
+
+            Debug.WriteLine($"CanGetAIAdvice set to: {CanGetAIAdvice}");
+
             Debug.WriteLine($"API Response: {JsonSerializer.Serialize(analysis)}");
 
             // Current Period Values
@@ -248,6 +265,91 @@ public partial class AnalysisViewModel : ObservableRecipient
         catch (Exception ex)
         {
             Debug.WriteLine($"Error analyzing data: {ex.Message}");
+            CanGetAIAdvice = false;
+            OnPropertyChanged(nameof(CanGetAIAdvice));
+        }
+    }
+
+    private string FormatAIAdvice(AIAnalysisModel aiAnalysis)
+    {
+        if (aiAnalysis?.AIAdvice == null) return string.Empty;
+
+        var advice = aiAnalysis.AIAdvice;
+        var formattedText = new StringBuilder();
+
+        // Summary
+        formattedText.AppendLine(advice.Summary);
+        formattedText.AppendLine();
+
+        // Spending Advice
+        formattedText.AppendLine(advice.SpendingAdvice);
+        formattedText.AppendLine();
+
+        // Income Advice
+        formattedText.AppendLine(advice.IncomeAdvice);
+        formattedText.AppendLine();
+
+        // Savings Recommendations
+        formattedText.AppendLine(advice.SavingsRecommendations);
+        formattedText.AppendLine();
+
+        // Action Items
+        if (advice.ActionItems?.Any() == true)
+        {
+            foreach (var item in advice.ActionItems)
+            {
+                formattedText.AppendLine(item);
+            }
+        }
+
+        return formattedText.ToString();
+    }
+
+    [RelayCommand(CanExecute = nameof(CanGetAIAdvice))]
+    private async Task GetAIAdviceAsync()
+    {
+        try
+        {
+            if (_lastAnalysis == null)
+            {
+                Debug.WriteLine("No analysis data available");
+                return;
+            }
+
+            AiAnalysis = await _analysisService.GetAIAnalysisAsync(_lastAnalysis);
+            FormattedAIAdvice = FormatAIAdvice(AiAnalysis);
+            Debug.WriteLine("AI Analysis completed successfully");
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Error getting AI analysis: {ex.Message}");
+            FormattedAIAdvice = $"**Error getting AI analysis**: {ex.Message}";
+        }
+    }
+
+    // Thêm method này để RelayCommand có thể re-evaluate điều kiện
+    partial void OnCanGetAIAdviceChanged(bool value)
+    {
+        GetAIAdviceCommand.NotifyCanExecuteChanged();
+    }
+
+    [RelayCommand]
+    private async Task GetAIAnalysisAsync()
+    {
+        try
+        {
+            if (_lastAnalysis == null)
+            {
+                Debug.WriteLine("No analysis data available");
+                return;
+            }
+
+            var aiResponse = await _analysisService.GetAIAnalysisAsync(_lastAnalysis);
+            // Handle AI response...
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"Error getting AI analysis: {ex.Message}");
         }
     }
 }

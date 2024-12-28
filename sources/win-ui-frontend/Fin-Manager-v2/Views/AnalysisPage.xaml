@@ -4,240 +4,286 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    mc:Ignorable="d">
+    mc:Ignorable="d"
+    xmlns:controls="using:CommunityToolkit.WinUI.UI.Controls">
 
-    <Grid x:Name="ContentArea" Padding="20">
+    <Grid x:Name="ContentArea">
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!-- Controls Section -->
-        <Grid Grid.Row="0" Margin="0,0,0,20">
+        <!-- Control Section - All in one line -->
+        <Grid Grid.Row="0" 
+              Margin="0,0,0,12">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="2*"/>  <!-- Account Combo -->
+                <ColumnDefinition Width="2*"/>  <!-- Start Date -->
+                <ColumnDefinition Width="2*"/>  <!-- End Date -->
+                <ColumnDefinition Width="1*"/>  <!-- Analyze Button -->
             </Grid.ColumnDefinitions>
 
-            <CalendarDatePicker 
-                Grid.Column="0"
-                Header="Start Date"
-                Margin="5"
-                Date="{x:Bind ViewModel.StartDate, Mode=TwoWay}"/>
+            <ComboBox Grid.Column="0"
+                      ItemsSource="{x:Bind ViewModel.Accounts}"
+                      SelectedItem="{x:Bind ViewModel.SelectedAccountObj, Mode=TwoWay}"
+                      DisplayMemberPath="AccountName"
+                      Margin="0,0,6,0"
+                      VerticalAlignment="Bottom"/>
 
-            <CalendarDatePicker 
-                Grid.Column="1"
-                Header="End Date"
-                Margin="5"
-                Date="{x:Bind ViewModel.EndDate, Mode=TwoWay}"/>
+            <CalendarDatePicker Grid.Column="1"
+                               Header="Start Date"
+                               Date="{x:Bind ViewModel.StartDate, Mode=TwoWay}"
+                               Margin="6,0,6,0"/>
 
-            <ComboBox 
-                Grid.Column="2"
-                Header="Account"
-                Margin="5"
-                ItemsSource="{x:Bind ViewModel.Accounts, Mode=OneWay}"
-                SelectedItem="{x:Bind ViewModel.SelectedAccountObj, Mode=TwoWay}"
-                DisplayMemberPath="AccountName"/>
+            <CalendarDatePicker Grid.Column="2"
+                               Header="End Date"
+                               Date="{x:Bind ViewModel.EndDate, Mode=TwoWay}"
+                               Margin="6,0,6,0"/>
 
-            <Button 
-                Grid.Column="3"
-                Content="Analyze"
-                Style="{StaticResource AccentButtonStyle}"
-                Command="{x:Bind ViewModel.AnalyzeCommand}"
-                VerticalAlignment="Bottom"
-                Margin="5"/>
+            <Button Grid.Column="3"
+                    Content="Analyze"
+                    Command="{x:Bind ViewModel.AnalyzeCommand}"
+                    Margin="6,0,0,0"
+                    VerticalAlignment="Bottom"/>
         </Grid>
 
-        <!-- Time Period Info -->
-        <TextBlock Grid.Row="1" 
-                   Margin="5,0,5,20"
-                   Style="{StaticResource SubtitleTextBlockStyle}">
-            <Run Text="Analysis Period: "/>
-            <Run Text="{x:Bind ViewModel.DurationInDays, Mode=OneWay}"/>
-            <Run Text=" days"/>
-        </TextBlock>
+        <!-- Scrollable Content Section -->
+        <ScrollViewer Grid.Row="1" 
+                      VerticalScrollMode="Auto"
+                      VerticalScrollBarVisibility="Auto"
+                      Padding="0,0,0,24">
+            <StackPanel>
+                <!-- Time Period Info -->
+                <TextBlock Margin="5,0,5,20"
+                           Style="{StaticResource SubtitleTextBlockStyle}">
+                    <Run Text="Analysis Period: "/>
+                    <Run Text="{x:Bind ViewModel.DurationInDays, Mode=OneWay}"/>
+                    <Run Text=" days"/>
+                </TextBlock>
 
-        <!-- Analysis Cards -->
-        <Grid Grid.Row="2" Margin="0,20,0,0">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
+                <!-- Analysis Cards -->
+                <Grid Margin="0,20,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
 
-            <!-- Income Card -->
-            <Grid Grid.Column="0" 
-                  Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                  Margin="5"
-                  Padding="15"
-                  CornerRadius="8"
-                  BorderThickness="1"
-                  BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}">
-                <StackPanel>
-                    <StackPanel Orientation="Horizontal">
-                        <FontIcon Glyph="&#xE8FB;" 
-                                 Foreground="Green" 
-                                 Margin="0,0,10,0"/>
-                        <TextBlock Text="Income" Style="{StaticResource SubtitleTextBlockStyle}"/>
-                    </StackPanel>
-                    <!-- Current Period -->
-                    <TextBlock Text="Current Period" 
-                              Style="{StaticResource CaptionTextBlockStyle}"
-                              Margin="0,10,0,0"/>
-                    <TextBlock Text="{x:Bind ViewModel.TotalIncome, Mode=OneWay}" 
-                              Style="{StaticResource TitleTextBlockStyle}"
-                              Foreground="Green"/>
-                    <!-- Previous Period -->
-                    <TextBlock Text="Previous Period" 
-                              Style="{StaticResource CaptionTextBlockStyle}"
-                              Margin="0,10,0,0"/>
-                    <TextBlock Text="{x:Bind ViewModel.PreviousPeriodIncome, Mode=OneWay}" 
-                              Style="{StaticResource BodyTextBlockStyle}"
-                              Foreground="Gray"/>
-                    <!-- Change -->
-                    <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
-                        <FontIcon Glyph="&#xE74A;" 
-                                 Foreground="{x:Bind ViewModel.IncomeChangeColor, Mode=OneWay}"
-                                 Visibility="{x:Bind ViewModel.IsIncomeIncreased, Mode=OneWay}"/>
-                        <FontIcon Glyph="&#xE74B;" 
-                                 Foreground="{x:Bind ViewModel.IncomeChangeColor, Mode=OneWay}"
-                                 Visibility="{x:Bind ViewModel.IsIncomeDecreased, Mode=OneWay}"/>
-                        <TextBlock Text="{x:Bind ViewModel.IncomeChangePercentage, Mode=OneWay}"
-                                  Foreground="{x:Bind ViewModel.IncomeChangeColor, Mode=OneWay}"/>
-                    </StackPanel>
+                    <!-- Income Card -->
+                    <Grid Grid.Column="0" 
+                          Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                          Margin="5"
+                          Padding="15"
+                          CornerRadius="8"
+                          BorderThickness="1"
+                          BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}">
+                        <StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <FontIcon Glyph="&#xE8FB;" 
+                                         Foreground="Green" 
+                                         Margin="0,0,10,0"/>
+                                <TextBlock Text="Income" Style="{StaticResource SubtitleTextBlockStyle}"/>
+                            </StackPanel>
+                            <!-- Current Period -->
+                            <TextBlock Text="Current Period" 
+                                      Style="{StaticResource CaptionTextBlockStyle}"
+                                      Margin="0,10,0,0"/>
+                            <TextBlock Text="{x:Bind ViewModel.TotalIncome, Mode=OneWay}" 
+                                      Style="{StaticResource TitleTextBlockStyle}"
+                                      Foreground="Green"/>
+                            <!-- Previous Period -->
+                            <TextBlock Text="Previous Period" 
+                                      Style="{StaticResource CaptionTextBlockStyle}"
+                                      Margin="0,10,0,0"/>
+                            <TextBlock Text="{x:Bind ViewModel.PreviousPeriodIncome, Mode=OneWay}" 
+                                      Style="{StaticResource BodyTextBlockStyle}"
+                                      Foreground="Gray"/>
+                            <!-- Change -->
+                            <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                                <FontIcon Glyph="&#xE74A;" 
+                                         Foreground="{x:Bind ViewModel.IncomeChangeColor, Mode=OneWay}"
+                                         Visibility="{x:Bind ViewModel.IsIncomeIncreased, Mode=OneWay}"/>
+                                <FontIcon Glyph="&#xE74B;" 
+                                         Foreground="{x:Bind ViewModel.IncomeChangeColor, Mode=OneWay}"
+                                         Visibility="{x:Bind ViewModel.IsIncomeDecreased, Mode=OneWay}"/>
+                                <TextBlock Text="{x:Bind ViewModel.IncomeChangePercentage, Mode=OneWay}"
+                                          Foreground="{x:Bind ViewModel.IncomeChangeColor, Mode=OneWay}"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Grid>
+
+                    <!-- Expense Card -->
+                    <Grid Grid.Column="1" 
+                          Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                          Margin="5"
+                          Padding="15"
+                          CornerRadius="8"
+                          BorderThickness="1"
+                          BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}">
+                        <StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <FontIcon Glyph="&#xE8A1;" 
+                                         Foreground="Red" 
+                                         Margin="0,0,10,0"/>
+                                <TextBlock Text="Expense" Style="{StaticResource SubtitleTextBlockStyle}"/>
+                            </StackPanel>
+                            <!-- Current Period -->
+                            <TextBlock Text="Current Period" 
+                                      Style="{StaticResource CaptionTextBlockStyle}"
+                                      Margin="0,10,0,0"/>
+                            <TextBlock Text="{x:Bind ViewModel.TotalExpense, Mode=OneWay}" 
+                                      Style="{StaticResource TitleTextBlockStyle}"
+                                      Foreground="Red"/>
+                            <!-- Previous Period -->
+                            <TextBlock Text="Previous Period" 
+                                      Style="{StaticResource CaptionTextBlockStyle}"
+                                      Margin="0,10,0,0"/>
+                            <TextBlock Text="{x:Bind ViewModel.PreviousPeriodExpense, Mode=OneWay}" 
+                                      Style="{StaticResource BodyTextBlockStyle}"
+                                      Foreground="Gray"/>
+                            <!-- Change -->
+                            <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                                <FontIcon Glyph="&#xE74A;" 
+                                         Foreground="{x:Bind ViewModel.ExpenseChangeColor, Mode=OneWay}"
+                                         Visibility="{x:Bind ViewModel.IsExpenseIncreased, Mode=OneWay}"/>
+                                <FontIcon Glyph="&#xE74B;" 
+                                         Foreground="{x:Bind ViewModel.ExpenseChangeColor, Mode=OneWay}"
+                                         Visibility="{x:Bind ViewModel.IsExpenseDecreased, Mode=OneWay}"/>
+                                <TextBlock Text="{x:Bind ViewModel.ExpenseChangePercentage, Mode=OneWay}"
+                                          Foreground="{x:Bind ViewModel.ExpenseChangeColor, Mode=OneWay}"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Grid>
+
+                    <!-- Net Change Card -->
+                    <Grid Grid.Column="2" 
+                          Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                          Margin="5"
+                          Padding="15"
+                          CornerRadius="8"
+                          BorderThickness="1"
+                          BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}">
+                        <StackPanel>
+                            <TextBlock Text="Net Change" Style="{StaticResource SubtitleTextBlockStyle}"/>
+                            <!-- Current Period -->
+                            <TextBlock Text="Current Period" 
+                                      Style="{StaticResource CaptionTextBlockStyle}"
+                                      Margin="0,10,0,0"/>
+                            <TextBlock Text="{x:Bind ViewModel.NetChange, Mode=OneWay}" 
+                                      Style="{StaticResource TitleTextBlockStyle}"/>
+                            <!-- Previous Period -->
+                            <TextBlock Text="Previous Period" 
+                                      Style="{StaticResource CaptionTextBlockStyle}"
+                                      Margin="0,10,0,0"/>
+                            <TextBlock Text="{x:Bind ViewModel.PreviousPeriodNetChange, Mode=OneWay}" 
+                                      Style="{StaticResource BodyTextBlockStyle}"
+                                      Foreground="Gray"/>
+                            <!-- Change -->
+                            <TextBlock Text="{x:Bind ViewModel.NetChangePercentage, Mode=OneWay}" 
+                                      Margin="0,10,0,0"/>
+                        </StackPanel>
+                    </Grid>
+                </Grid>
+
+                <!-- Top Categories -->
+                <Grid Margin="0,20,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Top Expense Category -->
+                    <Grid Grid.Column="0" 
+                          Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                          Margin="5"
+                          Padding="15"
+                          CornerRadius="8"
+                          BorderThickness="1"
+                          BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}">
+                        <StackPanel>
+                            <TextBlock Text="Top Expense Category" 
+                                      Style="{StaticResource SubtitleTextBlockStyle}"/>
+                            <TextBlock Text="{x:Bind ViewModel.MostExpensiveCategory, Mode=OneWay}"
+                                      Style="{StaticResource BodyTextBlockStyle}"
+                                      Margin="0,5,0,0"/>
+                            <TextBlock Text="{x:Bind ViewModel.MostExpensiveAmount, Mode=OneWay}"
+                                      Style="{StaticResource TitleTextBlockStyle}"
+                                      Foreground="Red"/>
+                            <TextBlock Text="{x:Bind ViewModel.MostExpensivePercentage, Mode=OneWay}"
+                                      Style="{StaticResource CaptionTextBlockStyle}"
+                                      Foreground="Gray"/>
+                        </StackPanel>
+                    </Grid>
+
+                    <!-- Top Income Category -->
+                    <Grid Grid.Column="1" 
+                          Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                          Margin="5"
+                          Padding="15"
+                          CornerRadius="8"
+                          BorderThickness="1"
+                          BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}">
+                        <StackPanel>
+                            <TextBlock Text="Top Income Category" 
+                                      Style="{StaticResource SubtitleTextBlockStyle}"/>
+                            <TextBlock Text="{x:Bind ViewModel.MostIncomeCategory, Mode=OneWay}"
+                                      Style="{StaticResource BodyTextBlockStyle}"
+                                      Margin="0,5,0,0"/>
+                            <TextBlock Text="{x:Bind ViewModel.MostIncomeAmount, Mode=OneWay}"
+                                      Style="{StaticResource TitleTextBlockStyle}"
+                                      Foreground="Green"/>
+                            <TextBlock Text="{x:Bind ViewModel.MostIncomePercentage, Mode=OneWay}"
+                                      Style="{StaticResource CaptionTextBlockStyle}"
+                                      Foreground="Gray"/>
+                        </StackPanel>
+                    </Grid>
+                </Grid>
+
+                <!-- AI Advice Section -->
+                <StackPanel Margin="0,20,0,0">
+                    <!-- AI Advice Button -->
+                    <Button Content="Get AI Advice"
+                            Command="{x:Bind ViewModel.GetAIAdviceCommand}"
+                            IsEnabled="{x:Bind ViewModel.CanGetAIAdvice, Mode=OneWay}"
+                            HorizontalAlignment="Center"
+                            Style="{StaticResource AccentButtonStyle}">
+                        <Button.Resources>
+                            <ResourceDictionary>
+                                <Style TargetType="Button" BasedOn="{StaticResource AccentButtonStyle}">
+                                    <Setter Property="Padding" Value="16,8"/>
+                                    <Setter Property="FontSize" Value="14"/>
+                                    <Setter Property="CornerRadius" Value="4"/>
+                                </Style>
+                            </ResourceDictionary>
+                        </Button.Resources>
+                    </Button>
+
+                    <!-- Loading State -->
+                    <ProgressRing IsActive="{x:Bind ViewModel.GetAIAdviceCommand.IsRunning, Mode=OneWay}"
+                                 Width="20" Height="20"
+                                 Margin="8,0,0,0"
+                                 HorizontalAlignment="Center"/>
+
+                    <!-- AI Analysis Results -->
+                    <controls:MarkdownTextBlock 
+                        x:Name="AiAdviceMarkdown"
+                        Text="{x:Bind ViewModel.FormattedAIAdvice, Mode=OneWay}"
+                        Background="Transparent"
+                        Margin="20"
+                        TextWrapping="Wrap"
+                        IsTextSelectionEnabled="True"
+                        Header1FontSize="20"
+                        Header2FontSize="18"
+                        Header3FontSize="16"
+                        ParagraphMargin="0,8,0,8"
+                        LinkForeground="{ThemeResource SystemAccentColor}"
+                        CodeBackground="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                        CodeBorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                        CodePadding="8,4,8,4"
+                        CodeMargin="0,8,0,8"
+                        ListMargin="16,8,0,8"/>
                 </StackPanel>
-            </Grid>
-
-            <!-- Expense Card -->
-            <Grid Grid.Column="1" 
-                  Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                  Margin="5"
-                  Padding="15"
-                  CornerRadius="8"
-                  BorderThickness="1"
-                  BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}">
-                <StackPanel>
-                    <StackPanel Orientation="Horizontal">
-                        <FontIcon Glyph="&#xE8A1;" 
-                                 Foreground="Red" 
-                                 Margin="0,0,10,0"/>
-                        <TextBlock Text="Expense" Style="{StaticResource SubtitleTextBlockStyle}"/>
-                    </StackPanel>
-                    <!-- Current Period -->
-                    <TextBlock Text="Current Period" 
-                              Style="{StaticResource CaptionTextBlockStyle}"
-                              Margin="0,10,0,0"/>
-                    <TextBlock Text="{x:Bind ViewModel.TotalExpense, Mode=OneWay}" 
-                              Style="{StaticResource TitleTextBlockStyle}"
-                              Foreground="Red"/>
-                    <!-- Previous Period -->
-                    <TextBlock Text="Previous Period" 
-                              Style="{StaticResource CaptionTextBlockStyle}"
-                              Margin="0,10,0,0"/>
-                    <TextBlock Text="{x:Bind ViewModel.PreviousPeriodExpense, Mode=OneWay}" 
-                              Style="{StaticResource BodyTextBlockStyle}"
-                              Foreground="Gray"/>
-                    <!-- Change -->
-                    <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
-                        <FontIcon Glyph="&#xE74A;" 
-                                 Foreground="{x:Bind ViewModel.ExpenseChangeColor, Mode=OneWay}"
-                                 Visibility="{x:Bind ViewModel.IsExpenseIncreased, Mode=OneWay}"/>
-                        <FontIcon Glyph="&#xE74B;" 
-                                 Foreground="{x:Bind ViewModel.ExpenseChangeColor, Mode=OneWay}"
-                                 Visibility="{x:Bind ViewModel.IsExpenseDecreased, Mode=OneWay}"/>
-                        <TextBlock Text="{x:Bind ViewModel.ExpenseChangePercentage, Mode=OneWay}"
-                                  Foreground="{x:Bind ViewModel.ExpenseChangeColor, Mode=OneWay}"/>
-                    </StackPanel>
-                </StackPanel>
-            </Grid>
-
-            <!-- Net Change Card -->
-            <Grid Grid.Column="2" 
-                  Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                  Margin="5"
-                  Padding="15"
-                  CornerRadius="8"
-                  BorderThickness="1"
-                  BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}">
-                <StackPanel>
-                    <TextBlock Text="Net Change" Style="{StaticResource SubtitleTextBlockStyle}"/>
-                    <!-- Current Period -->
-                    <TextBlock Text="Current Period" 
-                              Style="{StaticResource CaptionTextBlockStyle}"
-                              Margin="0,10,0,0"/>
-                    <TextBlock Text="{x:Bind ViewModel.NetChange, Mode=OneWay}" 
-                              Style="{StaticResource TitleTextBlockStyle}"/>
-                    <!-- Previous Period -->
-                    <TextBlock Text="Previous Period" 
-                              Style="{StaticResource CaptionTextBlockStyle}"
-                              Margin="0,10,0,0"/>
-                    <TextBlock Text="{x:Bind ViewModel.PreviousPeriodNetChange, Mode=OneWay}" 
-                              Style="{StaticResource BodyTextBlockStyle}"
-                              Foreground="Gray"/>
-                    <!-- Change -->
-                    <TextBlock Text="{x:Bind ViewModel.NetChangePercentage, Mode=OneWay}" 
-                              Margin="0,10,0,0"/>
-                </StackPanel>
-            </Grid>
-        </Grid>
-
-        <!-- Top Categories -->
-        <Grid Grid.Row="3" Margin="0,20,0,0">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-
-            <!-- Top Expense Category -->
-            <Grid Grid.Column="0" 
-                  Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                  Margin="5"
-                  Padding="15"
-                  CornerRadius="8"
-                  BorderThickness="1"
-                  BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}">
-                <StackPanel>
-                    <TextBlock Text="Top Expense Category" 
-                              Style="{StaticResource SubtitleTextBlockStyle}"/>
-                    <TextBlock Text="{x:Bind ViewModel.MostExpensiveCategory, Mode=OneWay}"
-                              Style="{StaticResource BodyTextBlockStyle}"
-                              Margin="0,5,0,0"/>
-                    <TextBlock Text="{x:Bind ViewModel.MostExpensiveAmount, Mode=OneWay}"
-                              Style="{StaticResource TitleTextBlockStyle}"
-                              Foreground="Red"/>
-                    <TextBlock Text="{x:Bind ViewModel.MostExpensivePercentage, Mode=OneWay}"
-                              Style="{StaticResource CaptionTextBlockStyle}"
-                              Foreground="Gray"/>
-                </StackPanel>
-            </Grid>
-
-            <!-- Top Income Category -->
-            <Grid Grid.Column="1" 
-                  Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                  Margin="5"
-                  Padding="15"
-                  CornerRadius="8"
-                  BorderThickness="1"
-                  BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}">
-                <StackPanel>
-                    <TextBlock Text="Top Income Category" 
-                              Style="{StaticResource SubtitleTextBlockStyle}"/>
-                    <TextBlock Text="{x:Bind ViewModel.MostIncomeCategory, Mode=OneWay}"
-                              Style="{StaticResource BodyTextBlockStyle}"
-                              Margin="0,5,0,0"/>
-                    <TextBlock Text="{x:Bind ViewModel.MostIncomeAmount, Mode=OneWay}"
-                              Style="{StaticResource TitleTextBlockStyle}"
-                              Foreground="Green"/>
-                    <TextBlock Text="{x:Bind ViewModel.MostIncomePercentage, Mode=OneWay}"
-                              Style="{StaticResource CaptionTextBlockStyle}"
-                              Foreground="Gray"/>
-                </StackPanel>
-            </Grid>
-        </Grid>
+            </StackPanel>
+        </ScrollViewer>
     </Grid>
 </Page>
