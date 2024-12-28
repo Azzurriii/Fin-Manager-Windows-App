@@ -210,6 +210,9 @@
                     <TextBlock Text="{x:Bind ViewModel.MostExpensiveAmount, Mode=OneWay}"
                               Style="{StaticResource TitleTextBlockStyle}"
                               Foreground="Red"/>
+                    <TextBlock Text="{x:Bind ViewModel.MostExpensivePercentage, Mode=OneWay}"
+                              Style="{StaticResource CaptionTextBlockStyle}"
+                              Foreground="Gray"/>
                 </StackPanel>
             </Grid>
 
@@ -230,6 +233,9 @@
                     <TextBlock Text="{x:Bind ViewModel.MostIncomeAmount, Mode=OneWay}"
                               Style="{StaticResource TitleTextBlockStyle}"
                               Foreground="Green"/>
+                    <TextBlock Text="{x:Bind ViewModel.MostIncomePercentage, Mode=OneWay}"
+                              Style="{StaticResource CaptionTextBlockStyle}"
+                              Foreground="Gray"/>
                 </StackPanel>
             </Grid>
         </Grid>

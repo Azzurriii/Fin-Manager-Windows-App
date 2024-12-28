@@ -75,10 +75,17 @@ public partial class AnalysisViewModel : ObservableRecipient
     private string mostExpensiveAmount = "0";
 
     [ObservableProperty]
+    private string mostExpensivePercentage = "0%";
+
+    [ObservableProperty]
     private string mostIncomeCategory = "N/A";
 
     [ObservableProperty]
     private string mostIncomeAmount = "0";
+
+    [ObservableProperty]
+    private string mostIncomePercentage = "0%";
+
 
     // Change Amounts
     [ObservableProperty]
@@ -179,48 +186,58 @@ public partial class AnalysisViewModel : ObservableRecipient
                 return;
             }
 
-            _lastAnalysis = await _analysisService.GetAnalysisAsync(
+            var analysis = await _analysisService.GetAnalysisAsync(
                 UserId,
                 SelectedAccountObj?.AccountId,
                 StartDate?.DateTime.Date ?? DateTime.Now.AddMonths(-1).Date,
                 EndDate?.DateTime.Date ?? DateTime.Now.Date);
 
-            Debug.WriteLine($"API Response: {JsonSerializer.Serialize(_lastAnalysis)}");
+            Debug.WriteLine($"API Response: {JsonSerializer.Serialize(analysis)}");
 
             // Current Period Values
-            TotalIncome = _lastAnalysis.SpendingSummary.TotalIncome.ToString("N2");
-            TotalExpense = _lastAnalysis.SpendingSummary.TotalExpense.ToString("N2");
-            NetChange = _lastAnalysis.SpendingSummary.NetChange.ToString("N2");
+            TotalIncome = analysis.SpendingSummary.TotalIncome.ToString("N2");
+            TotalExpense = analysis.SpendingSummary.TotalExpense.ToString("N2");
+            NetChange = analysis.SpendingSummary.NetChange.ToString("N2");
 
-            // Previous Period Values - Sửa lại cách tính
-            // Không trừ đi change amount nữa, vì API đã trả về giá trị thực tế
-            PreviousPeriodIncome = (_lastAnalysis.SpendingSummary.TotalIncome - _lastAnalysis.ComparisonWithPreviousPeriod.IncomeChange.Amount).ToString("N2");
-            PreviousPeriodExpense = (_lastAnalysis.SpendingSummary.TotalExpense - _lastAnalysis.ComparisonWithPreviousPeriod.ExpenseChange.Amount).ToString("N2");
-            PreviousPeriodNetChange = (_lastAnalysis.SpendingSummary.NetChange - _lastAnalysis.ComparisonWithPreviousPeriod.NetChange.Amount).ToString("N2");
+            // Previous Period Values - Tính từ current và change amount
+            decimal prevIncome = analysis.SpendingSummary.TotalIncome - analysis.ComparisonWithPreviousPeriod.IncomeChange.Amount;
+            decimal prevExpense = analysis.SpendingSummary.TotalExpense - analysis.ComparisonWithPreviousPeriod.ExpenseChange.Amount;
+            decimal prevNetChange = analysis.SpendingSummary.NetChange - analysis.ComparisonWithPreviousPeriod.NetChange.Amount;
 
-            // Change Amounts - Lấy trực tiếp từ API
-            IncomeChangeAmount = _lastAnalysis.ComparisonWithPreviousPeriod.IncomeChange.Amount.ToString("N2");
-            ExpenseChangeAmount = _lastAnalysis.ComparisonWithPreviousPeriod.ExpenseChange.Amount.ToString("N2");
-            NetChangeAmount = _lastAnalysis.ComparisonWithPreviousPeriod.NetChange.Amount.ToString("N2");
+            PreviousPeriodIncome = prevIncome.ToString("N2");
+            PreviousPeriodExpense = prevExpense.ToString("N2");
+            PreviousPeriodNetChange = prevNetChange.ToString("N2");
 
-            // Change Percentages - API trả về 1 = 100% nên không cần nhân với 100 nữa
-            IncomeChangePercentage = $"{(_lastAnalysis.ComparisonWithPreviousPeriod.IncomeChange.Percentage * 100):N0}%";
-            ExpenseChangePercentage = $"{(_lastAnalysis.ComparisonWithPreviousPeriod.ExpenseChange.Percentage * 100):N0}%";
-            NetChangePercentage = $"{(_lastAnalysis.ComparisonWithPreviousPeriod.NetChange.Percentage * 100):N0}%";
+            // Change Percentages - Nhân với 100 vì API trả về dạng decimal
+            IncomeChangePercentage = $"{(analysis.ComparisonWithPreviousPeriod.IncomeChange.Percentage * 100):N1}%";
+            ExpenseChangePercentage = $"{(analysis.ComparisonWithPreviousPeriod.ExpenseChange.Percentage * 100):N1}%";
+            NetChangePercentage = $"{(analysis.ComparisonWithPreviousPeriod.NetChange.Percentage * 100):N1}%";
+
+            // Change Amounts
+            IncomeChangeAmount = analysis.ComparisonWithPreviousPeriod.IncomeChange.Amount.ToString("N2");
+            ExpenseChangeAmount = analysis.ComparisonWithPreviousPeriod.ExpenseChange.Amount.ToString("N2");
+            NetChangeAmount = analysis.ComparisonWithPreviousPeriod.NetChange.Amount.ToString("N2");
+
+            // Top Categories
+            if (analysis.TopCategories?.MostExpensiveCategory != null)
+            {
+                MostExpensiveCategory = analysis.TopCategories.MostExpensiveCategory.Name;
+                MostExpensiveAmount = analysis.TopCategories.MostExpensiveCategory.Amount.ToString("N2");
+                MostExpensivePercentage = $"{(analysis.TopCategories.MostExpensiveCategory.Percentage * 100):N1}%";
+            }
+
+            if (analysis.TopCategories?.MostIncomeCategory != null)
+            {
+                MostIncomeCategory = analysis.TopCategories.MostIncomeCategory.Name;
+                MostIncomeAmount = analysis.TopCategories.MostIncomeCategory.Amount.ToString("N2");
+                MostIncomePercentage = $"{(analysis.TopCategories.MostIncomeCategory.Percentage * 100):N1}%";
+            }
 
             // Period Info
-            DurationInDays = _lastAnalysis.TimePeriod.DurationInDays.ToString();
-            PreviousPeriodDates = $"{_lastAnalysis.ComparisonWithPreviousPeriod.PreviousStartDate:d} - {_lastAnalysis.ComparisonWithPreviousPeriod.PreviousEndDate:d}";
+            DurationInDays = analysis.TimePeriod.DurationInDays.ToString();
+            PreviousPeriodDates = $"{analysis.ComparisonWithPreviousPeriod.PreviousStartDate:d} - {analysis.ComparisonWithPreviousPeriod.PreviousEndDate:d}";
 
-            // Debug log để kiểm tra giá trị
-            Debug.WriteLine($"Current Income: {TotalIncome}");
-            Debug.WriteLine($"Previous Income: {PreviousPeriodIncome}");
-            Debug.WriteLine($"Income Change: {IncomeChangeAmount} ({IncomeChangePercentage})");
-            Debug.WriteLine($"Current Expense: {TotalExpense}");
-            Debug.WriteLine($"Previous Expense: {PreviousPeriodExpense}");
-            Debug.WriteLine($"Expense Change: {ExpenseChangeAmount} ({ExpenseChangePercentage})");
-
-            // Notify UI about changes
+            // Notify property changes
             OnPropertyChanged(nameof(IsIncomeIncreased));
             OnPropertyChanged(nameof(IsIncomeDecreased));
             OnPropertyChanged(nameof(IsExpenseIncreased));
