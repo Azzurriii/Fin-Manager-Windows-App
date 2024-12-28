@@ -13,39 +13,42 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!-- Control Section - All in one line -->
-        <Grid Grid.Row="0" 
-              Margin="0,0,0,12">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="2*"/>  <!-- Account Combo -->
-                <ColumnDefinition Width="2*"/>  <!-- Start Date -->
-                <ColumnDefinition Width="2*"/>  <!-- End Date -->
-                <ColumnDefinition Width="1*"/>  <!-- Analyze Button -->
-            </Grid.ColumnDefinitions>
-
-            <ComboBox Grid.Column="0"
+        <!-- Controls -->
+        <StackPanel Orientation="Horizontal" 
+                    Margin="10" 
+                    Grid.Row="0">
+            <!-- Account Selection -->
+            <ComboBox Header="Account"
+                      Width="150"
+                      Margin="5"
                       ItemsSource="{x:Bind ViewModel.Accounts}"
                       SelectedItem="{x:Bind ViewModel.SelectedAccountObj, Mode=TwoWay}"
-                      DisplayMemberPath="AccountName"
-                      Margin="0,0,6,0"
-                      VerticalAlignment="Bottom"/>
+                      DisplayMemberPath="AccountName"/>
 
-            <CalendarDatePicker Grid.Column="1"
-                               Header="Start Date"
-                               Date="{x:Bind ViewModel.StartDate, Mode=TwoWay}"
-                               Margin="6,0,6,0"/>
+            <!-- Date Selection -->
+            <CalendarDatePicker Header="Start Date"
+                               Width="150"
+                               Margin="5"
+                               Date="{x:Bind ViewModel.StartDate, Mode=TwoWay}"/>
 
-            <CalendarDatePicker Grid.Column="2"
-                               Header="End Date"
-                               Date="{x:Bind ViewModel.EndDate, Mode=TwoWay}"
-                               Margin="6,0,6,0"/>
+            <CalendarDatePicker Header="End Date"
+                               Width="150"
+                               Margin="5"
+                               Date="{x:Bind ViewModel.EndDate, Mode=TwoWay}"/>
 
-            <Button Grid.Column="3"
-                    Content="Analyze"
-                    Command="{x:Bind ViewModel.AnalyzeCommand}"
-                    Margin="6,0,0,0"
-                    VerticalAlignment="Bottom"/>
-        </Grid>
+            <!-- Analyze Button -->
+            <Button Margin="5"
+                    Style="{StaticResource AccentButtonStyle}"
+                    VerticalAlignment="Bottom"
+                    Command="{x:Bind ViewModel.AnalyzeCommand}">
+                <StackPanel Orientation="Horizontal">
+                    <FontIcon FontFamily="Segoe Fluent Icons"
+                             Glyph="&#xE9D9;"
+                             Margin="0,0,8,0"/>
+                    <TextBlock Text="Analyze"/>
+                </StackPanel>
+            </Button>
+        </StackPanel>
 
         <!-- Scrollable Content Section -->
         <ScrollViewer Grid.Row="1" 
@@ -79,7 +82,7 @@
                           BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}">
                         <StackPanel>
                             <StackPanel Orientation="Horizontal">
-                                <FontIcon Glyph="&#xE8FB;" 
+                                <FontIcon Glyph="&#xE84F;"
                                          Foreground="Green" 
                                          Margin="0,0,10,0"/>
                                 <TextBlock Text="Income" Style="{StaticResource SubtitleTextBlockStyle}"/>
@@ -122,7 +125,7 @@
                           BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}">
                         <StackPanel>
                             <StackPanel Orientation="Horizontal">
-                                <FontIcon Glyph="&#xE8A1;" 
+                                <FontIcon Glyph="&#xE248;" 
                                          Foreground="Red" 
                                          Margin="0,0,10,0"/>
                                 <TextBlock Text="Expense" Style="{StaticResource SubtitleTextBlockStyle}"/>
@@ -164,7 +167,11 @@
                           BorderThickness="1"
                           BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}">
                         <StackPanel>
-                            <TextBlock Text="Net Change" Style="{StaticResource SubtitleTextBlockStyle}"/>
+                            <StackPanel Orientation="Horizontal">
+                                <FontIcon Glyph="&#xE1E9;"
+                                         Margin="0,0,10,0"/>
+                                <TextBlock Text="Net Change" Style="{StaticResource SubtitleTextBlockStyle}"/>
+                            </StackPanel>
                             <!-- Current Period -->
                             <TextBlock Text="Current Period" 
                                       Style="{StaticResource CaptionTextBlockStyle}"
@@ -242,20 +249,19 @@
                 <!-- AI Advice Section -->
                 <StackPanel Margin="0,20,0,0">
                     <!-- AI Advice Button -->
-                    <Button Content="Get AI Advice"
-                            Command="{x:Bind ViewModel.GetAIAdviceCommand}"
+                    <Button Command="{x:Bind ViewModel.GetAIAdviceCommand}"
                             IsEnabled="{x:Bind ViewModel.CanGetAIAdvice, Mode=OneWay}"
                             HorizontalAlignment="Center"
-                            Style="{StaticResource AccentButtonStyle}">
-                        <Button.Resources>
-                            <ResourceDictionary>
-                                <Style TargetType="Button" BasedOn="{StaticResource AccentButtonStyle}">
-                                    <Setter Property="Padding" Value="16,8"/>
-                                    <Setter Property="FontSize" Value="14"/>
-                                    <Setter Property="CornerRadius" Value="4"/>
-                                </Style>
-                            </ResourceDictionary>
-                        </Button.Resources>
+                            Style="{StaticResource AccentButtonStyle}"
+                            Padding="16,8"
+                            FontSize="14"
+                            CornerRadius="4">
+                        <StackPanel Orientation="Horizontal">
+                            <FontIcon FontFamily="Segoe Fluent Icons"
+                                     Glyph="&#xF4A5;"
+                                     Margin="0,0,8,0"/>
+                            <TextBlock Text="Get AI Advice"/>
+                        </StackPanel>
                     </Button>
 
                     <!-- Loading State -->

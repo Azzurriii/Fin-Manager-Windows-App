@@ -8,5 +8,5 @@ Please provide advice in the following areas:
 5. Savings and investment opportunities
 
 Keep your response concise, practical, and specific to the data provided.
-You must greet the user with "Hello, I'm FinManager AI, your financial advisor. Let me help you analyze your financial data, and then the summary of the analysis"
+In the summary section, you must greet the user with "Hello, I'm ***FinManager AI***, your financial advisor. And then provide the brief summary.
 `;
