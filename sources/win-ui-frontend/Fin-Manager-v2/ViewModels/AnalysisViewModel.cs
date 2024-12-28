@@ -4,6 +4,9 @@ using Fin_Manager_v2.Contracts.Services;
 using Fin_Manager_v2.Models;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using Microsoft.UI;
+using Microsoft.UI.Xaml.Media;
+using System.Text.Json;
 
 namespace Fin_Manager_v2.ViewModels;
 
@@ -12,12 +15,13 @@ public partial class AnalysisViewModel : ObservableRecipient
     private readonly IAnalysisService _analysisService;
     private readonly IAuthService _authService;
     private readonly IAccountService _accountService;
+    private AnalysisModel? _lastAnalysis;
 
     [ObservableProperty]
-    private DateTimeOffset _startDate = DateTimeOffset.Now.AddMonths(-1);
+    private DateTimeOffset? startDate = DateTimeOffset.Now.AddMonths(-1);
 
     [ObservableProperty]
-    private DateTimeOffset _endDate = DateTimeOffset.Now;
+    private DateTimeOffset? endDate = DateTimeOffset.Now;
 
     [ObservableProperty]
     private int userId;
@@ -41,28 +45,28 @@ public partial class AnalysisViewModel : ObservableRecipient
     private string netChange = "0";
 
     [ObservableProperty]
-    private string previousPeriod = "";
+    private string previousPeriodIncome = "0";
 
     [ObservableProperty]
-    private string expenseChangeAmount = "0";
+    private string previousPeriodExpense = "0";
 
     [ObservableProperty]
-    private string expenseChangePercentage = "0%";
+    private string previousPeriodNetChange = "0";
 
     [ObservableProperty]
-    private string incomeChangeAmount = "0";
+    private string previousPeriodDates = "";
+
+    [ObservableProperty]
+    private string durationInDays = "0";
 
     [ObservableProperty]
     private string incomeChangePercentage = "0%";
 
     [ObservableProperty]
-    private string netChangeAmount = "0";
+    private string expenseChangePercentage = "0%";
 
     [ObservableProperty]
     private string netChangePercentage = "0%";
-
-    [ObservableProperty]
-    private string durationInDays = "0";
 
     [ObservableProperty]
     private string mostExpensiveCategory = "N/A";
@@ -75,6 +79,29 @@ public partial class AnalysisViewModel : ObservableRecipient
 
     [ObservableProperty]
     private string mostIncomeAmount = "0";
+
+    // Change Amounts
+    [ObservableProperty]
+    private string incomeChangeAmount = "0";
+
+    [ObservableProperty]
+    private string expenseChangeAmount = "0";
+
+    [ObservableProperty]
+    private string netChangeAmount = "0";
+
+    // Change Direction Properties
+    public bool IsIncomeIncreased => _lastAnalysis?.ComparisonWithPreviousPeriod?.IncomeChange.Amount > 0;
+    public bool IsIncomeDecreased => _lastAnalysis?.ComparisonWithPreviousPeriod?.IncomeChange.Amount < 0;
+    public bool IsExpenseIncreased => _lastAnalysis?.ComparisonWithPreviousPeriod?.ExpenseChange.Amount > 0;
+    public bool IsExpenseDecreased => _lastAnalysis?.ComparisonWithPreviousPeriod?.ExpenseChange.Amount < 0;
+
+    // Colors for changes
+    public SolidColorBrush IncomeChangeColor => 
+        IsIncomeIncreased ? new SolidColorBrush(Colors.Green) : new SolidColorBrush(Colors.Red);
+    public SolidColorBrush ExpenseChangeColor => 
+        IsExpenseIncreased ? new SolidColorBrush(Colors.Red) : new SolidColorBrush(Colors.Green);
+
 
     public AnalysisViewModel(
         IAnalysisService analysisService,
@@ -107,7 +134,7 @@ public partial class AnalysisViewModel : ObservableRecipient
         }
         catch (Exception ex)
         {
-            Debug.WriteLine($"Error initializing user and accounts: {ex.Message}");
+            Debug.WriteLine($"Error initializing: {ex.Message}");
         }
     }
 
@@ -141,94 +168,65 @@ public partial class AnalysisViewModel : ObservableRecipient
         AccountId = value?.AccountName == "All Accounts" ? null : value?.AccountId;
     }
 
-    partial void OnStartDateChanged(DateTimeOffset value)
-    {
-        // Remove auto update
-    }
-
-    partial void OnEndDateChanged(DateTimeOffset value)
-    {
-        // Remove auto update
-    }
-
-    private async Task UpdateAnalysisData()
-    {
-        try
-        {
-            var analysis = await _analysisService.GetAnalysisAsync(
-                UserId,
-                AccountId,
-                StartDate.Date,
-                EndDate.Date);
-
-            // Update Summary
-            TotalIncome = analysis.SpendingSummary.TotalIncome.ToString("N");
-            TotalExpense = analysis.SpendingSummary.TotalExpense.ToString("N");
-            NetChange = analysis.SpendingSummary.NetChange.ToString("N");
-
-            // Update Comparison
-            PreviousPeriod = $"{analysis.ComparisonWithPreviousPeriod.PreviousStartDate:d} - {analysis.ComparisonWithPreviousPeriod.PreviousEndDate:d}";
-            
-            ExpenseChangeAmount = analysis.ComparisonWithPreviousPeriod.ExpenseChange.Amount.ToString("N");
-            ExpenseChangePercentage = $"{analysis.ComparisonWithPreviousPeriod.ExpenseChange.Percentage:N1}%";
-            
-            IncomeChangeAmount = analysis.ComparisonWithPreviousPeriod.IncomeChange.Amount.ToString("N");
-            IncomeChangePercentage = $"{analysis.ComparisonWithPreviousPeriod.IncomeChange.Percentage:N1}%";
-            
-            NetChangeAmount = analysis.ComparisonWithPreviousPeriod.NetChange.Amount.ToString("N");
-            NetChangePercentage = $"{analysis.ComparisonWithPreviousPeriod.NetChange.Percentage:N1}%";
-        }
-        catch (Exception ex)
-        {
-            Debug.WriteLine($"Error updating analysis data: {ex.Message}");
-        }
-    }
-
     [RelayCommand]
     private async Task AnalyzeAsync()
     {
         try
         {
-            var analysis = await _analysisService.GetAnalysisAsync(
+            if (UserId == 0 || StartDate == null || EndDate == null)
+            {
+                Debug.WriteLine("Missing required data for analysis");
+                return;
+            }
+
+            _lastAnalysis = await _analysisService.GetAnalysisAsync(
                 UserId,
-                AccountId,
-                StartDate.Date,
-                EndDate.Date);
+                SelectedAccountObj?.AccountId,
+                StartDate?.DateTime.Date ?? DateTime.Now.AddMonths(-1).Date,
+                EndDate?.DateTime.Date ?? DateTime.Now.Date);
 
-            Debug.WriteLine($"Analysis data: {analysis}");
+            Debug.WriteLine($"API Response: {JsonSerializer.Serialize(_lastAnalysis)}");
 
-            // Time Period
-            DurationInDays = analysis.TimePeriod.DurationInDays.ToString();
+            // Current Period Values
+            TotalIncome = _lastAnalysis.SpendingSummary.TotalIncome.ToString("N2");
+            TotalExpense = _lastAnalysis.SpendingSummary.TotalExpense.ToString("N2");
+            NetChange = _lastAnalysis.SpendingSummary.NetChange.ToString("N2");
 
-            // Spending Summary
-            TotalIncome = analysis.SpendingSummary.TotalIncome.ToString("N");
-            TotalExpense = analysis.SpendingSummary.TotalExpense.ToString("N");
-            NetChange = analysis.SpendingSummary.NetChange.ToString("N");
+            // Previous Period Values - Sửa lại cách tính
+            // Không trừ đi change amount nữa, vì API đã trả về giá trị thực tế
+            PreviousPeriodIncome = (_lastAnalysis.SpendingSummary.TotalIncome - _lastAnalysis.ComparisonWithPreviousPeriod.IncomeChange.Amount).ToString("N2");
+            PreviousPeriodExpense = (_lastAnalysis.SpendingSummary.TotalExpense - _lastAnalysis.ComparisonWithPreviousPeriod.ExpenseChange.Amount).ToString("N2");
+            PreviousPeriodNetChange = (_lastAnalysis.SpendingSummary.NetChange - _lastAnalysis.ComparisonWithPreviousPeriod.NetChange.Amount).ToString("N2");
 
-            // Comparison
-            PreviousPeriod = $"{analysis.ComparisonWithPreviousPeriod.PreviousStartDate:d} - {analysis.ComparisonWithPreviousPeriod.PreviousEndDate:d}";
-            
-            ExpenseChangeAmount = analysis.ComparisonWithPreviousPeriod.ExpenseChange.Amount.ToString("N");
-            ExpenseChangePercentage = $"{analysis.ComparisonWithPreviousPeriod.ExpenseChange.Percentage:N1}%";
-            
-            IncomeChangeAmount = analysis.ComparisonWithPreviousPeriod.IncomeChange.Amount.ToString("N");
-            IncomeChangePercentage = $"{analysis.ComparisonWithPreviousPeriod.IncomeChange.Percentage:N1}%";
-            
-            NetChangeAmount = analysis.ComparisonWithPreviousPeriod.NetChange.Amount.ToString("N");
-            NetChangePercentage = $"{analysis.ComparisonWithPreviousPeriod.NetChange.Percentage:N1}%";
+            // Change Amounts - Lấy trực tiếp từ API
+            IncomeChangeAmount = _lastAnalysis.ComparisonWithPreviousPeriod.IncomeChange.Amount.ToString("N2");
+            ExpenseChangeAmount = _lastAnalysis.ComparisonWithPreviousPeriod.ExpenseChange.Amount.ToString("N2");
+            NetChangeAmount = _lastAnalysis.ComparisonWithPreviousPeriod.NetChange.Amount.ToString("N2");
 
-            // Top Categories
-            if (analysis.TopCategories.MostExpensiveCategory != null)
-            {
-                MostExpensiveCategory = analysis.TopCategories.MostExpensiveCategory.Name;
-                MostExpensiveAmount = analysis.TopCategories.MostExpensiveCategory.Amount.ToString("N");
-            }
+            // Change Percentages - API trả về 1 = 100% nên không cần nhân với 100 nữa
+            IncomeChangePercentage = $"{(_lastAnalysis.ComparisonWithPreviousPeriod.IncomeChange.Percentage * 100):N0}%";
+            ExpenseChangePercentage = $"{(_lastAnalysis.ComparisonWithPreviousPeriod.ExpenseChange.Percentage * 100):N0}%";
+            NetChangePercentage = $"{(_lastAnalysis.ComparisonWithPreviousPeriod.NetChange.Percentage * 100):N0}%";
 
-            if (analysis.TopCategories.MostIncomeCategory != null)
-            {
-                MostIncomeCategory = analysis.TopCategories.MostIncomeCategory.Name;
-                MostIncomeAmount = analysis.TopCategories.MostIncomeCategory.Amount.ToString("N");
-            }
+            // Period Info
+            DurationInDays = _lastAnalysis.TimePeriod.DurationInDays.ToString();
+            PreviousPeriodDates = $"{_lastAnalysis.ComparisonWithPreviousPeriod.PreviousStartDate:d} - {_lastAnalysis.ComparisonWithPreviousPeriod.PreviousEndDate:d}";
+
+            // Debug log để kiểm tra giá trị
+            Debug.WriteLine($"Current Income: {TotalIncome}");
+            Debug.WriteLine($"Previous Income: {PreviousPeriodIncome}");
+            Debug.WriteLine($"Income Change: {IncomeChangeAmount} ({IncomeChangePercentage})");
+            Debug.WriteLine($"Current Expense: {TotalExpense}");
+            Debug.WriteLine($"Previous Expense: {PreviousPeriodExpense}");
+            Debug.WriteLine($"Expense Change: {ExpenseChangeAmount} ({ExpenseChangePercentage})");
+
+            // Notify UI about changes
+            OnPropertyChanged(nameof(IsIncomeIncreased));
+            OnPropertyChanged(nameof(IsIncomeDecreased));
+            OnPropertyChanged(nameof(IsExpenseIncreased));
+            OnPropertyChanged(nameof(IsExpenseDecreased));
+            OnPropertyChanged(nameof(IncomeChangeColor));
+            OnPropertyChanged(nameof(ExpenseChangeColor));
         }
         catch (Exception ex)
         {

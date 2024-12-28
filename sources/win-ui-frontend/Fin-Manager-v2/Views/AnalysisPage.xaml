@@ -11,6 +11,7 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
@@ -61,8 +62,8 @@
             <Run Text=" days"/>
         </TextBlock>
 
-        <!-- Summary Cards -->
-        <Grid Grid.Row="2" Margin="0,0,0,20">
+        <!-- Analysis Cards -->
+        <Grid Grid.Row="2" Margin="0,20,0,0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="*"/>
@@ -78,14 +79,36 @@
                   BorderThickness="1"
                   BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}">
                 <StackPanel>
-                    <TextBlock Text="Income" Style="{StaticResource SubtitleTextBlockStyle}"/>
+                    <StackPanel Orientation="Horizontal">
+                        <FontIcon Glyph="&#xE8FB;" 
+                                 Foreground="Green" 
+                                 Margin="0,0,10,0"/>
+                        <TextBlock Text="Income" Style="{StaticResource SubtitleTextBlockStyle}"/>
+                    </StackPanel>
+                    <!-- Current Period -->
+                    <TextBlock Text="Current Period" 
+                              Style="{StaticResource CaptionTextBlockStyle}"
+                              Margin="0,10,0,0"/>
                     <TextBlock Text="{x:Bind ViewModel.TotalIncome, Mode=OneWay}" 
-                             Style="{StaticResource TitleTextBlockStyle}"
-                             Foreground="Green"/>
+                              Style="{StaticResource TitleTextBlockStyle}"
+                              Foreground="Green"/>
+                    <!-- Previous Period -->
+                    <TextBlock Text="Previous Period" 
+                              Style="{StaticResource CaptionTextBlockStyle}"
+                              Margin="0,10,0,0"/>
+                    <TextBlock Text="{x:Bind ViewModel.PreviousPeriodIncome, Mode=OneWay}" 
+                              Style="{StaticResource BodyTextBlockStyle}"
+                              Foreground="Gray"/>
+                    <!-- Change -->
                     <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
-                        <TextBlock Text="{x:Bind ViewModel.IncomeChangeAmount, Mode=OneWay}"/>
-                        <TextBlock Text="{x:Bind ViewModel.IncomeChangePercentage, Mode=OneWay}" 
-                                 Margin="5,0,0,0"/>
+                        <FontIcon Glyph="&#xE74A;" 
+                                 Foreground="{x:Bind ViewModel.IncomeChangeColor, Mode=OneWay}"
+                                 Visibility="{x:Bind ViewModel.IsIncomeIncreased, Mode=OneWay}"/>
+                        <FontIcon Glyph="&#xE74B;" 
+                                 Foreground="{x:Bind ViewModel.IncomeChangeColor, Mode=OneWay}"
+                                 Visibility="{x:Bind ViewModel.IsIncomeDecreased, Mode=OneWay}"/>
+                        <TextBlock Text="{x:Bind ViewModel.IncomeChangePercentage, Mode=OneWay}"
+                                  Foreground="{x:Bind ViewModel.IncomeChangeColor, Mode=OneWay}"/>
                     </StackPanel>
                 </StackPanel>
             </Grid>
@@ -99,14 +122,36 @@
                   BorderThickness="1"
                   BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}">
                 <StackPanel>
-                    <TextBlock Text="Expense" Style="{StaticResource SubtitleTextBlockStyle}"/>
+                    <StackPanel Orientation="Horizontal">
+                        <FontIcon Glyph="&#xE8A1;" 
+                                 Foreground="Red" 
+                                 Margin="0,0,10,0"/>
+                        <TextBlock Text="Expense" Style="{StaticResource SubtitleTextBlockStyle}"/>
+                    </StackPanel>
+                    <!-- Current Period -->
+                    <TextBlock Text="Current Period" 
+                              Style="{StaticResource CaptionTextBlockStyle}"
+                              Margin="0,10,0,0"/>
                     <TextBlock Text="{x:Bind ViewModel.TotalExpense, Mode=OneWay}" 
-                             Style="{StaticResource TitleTextBlockStyle}"
-                             Foreground="Red"/>
+                              Style="{StaticResource TitleTextBlockStyle}"
+                              Foreground="Red"/>
+                    <!-- Previous Period -->
+                    <TextBlock Text="Previous Period" 
+                              Style="{StaticResource CaptionTextBlockStyle}"
+                              Margin="0,10,0,0"/>
+                    <TextBlock Text="{x:Bind ViewModel.PreviousPeriodExpense, Mode=OneWay}" 
+                              Style="{StaticResource BodyTextBlockStyle}"
+                              Foreground="Gray"/>
+                    <!-- Change -->
                     <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
-                        <TextBlock Text="{x:Bind ViewModel.ExpenseChangeAmount, Mode=OneWay}"/>
-                        <TextBlock Text="{x:Bind ViewModel.ExpenseChangePercentage, Mode=OneWay}" 
-                                 Margin="5,0,0,0"/>
+                        <FontIcon Glyph="&#xE74A;" 
+                                 Foreground="{x:Bind ViewModel.ExpenseChangeColor, Mode=OneWay}"
+                                 Visibility="{x:Bind ViewModel.IsExpenseIncreased, Mode=OneWay}"/>
+                        <FontIcon Glyph="&#xE74B;" 
+                                 Foreground="{x:Bind ViewModel.ExpenseChangeColor, Mode=OneWay}"
+                                 Visibility="{x:Bind ViewModel.IsExpenseDecreased, Mode=OneWay}"/>
+                        <TextBlock Text="{x:Bind ViewModel.ExpenseChangePercentage, Mode=OneWay}"
+                                  Foreground="{x:Bind ViewModel.ExpenseChangeColor, Mode=OneWay}"/>
                     </StackPanel>
                 </StackPanel>
             </Grid>
@@ -121,19 +166,28 @@
                   BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}">
                 <StackPanel>
                     <TextBlock Text="Net Change" Style="{StaticResource SubtitleTextBlockStyle}"/>
+                    <!-- Current Period -->
+                    <TextBlock Text="Current Period" 
+                              Style="{StaticResource CaptionTextBlockStyle}"
+                              Margin="0,10,0,0"/>
                     <TextBlock Text="{x:Bind ViewModel.NetChange, Mode=OneWay}" 
-                             Style="{StaticResource TitleTextBlockStyle}"/>
-                    <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
-                        <TextBlock Text="{x:Bind ViewModel.NetChangeAmount, Mode=OneWay}"/>
-                        <TextBlock Text="{x:Bind ViewModel.NetChangePercentage, Mode=OneWay}" 
-                                 Margin="5,0,0,0"/>
-                    </StackPanel>
+                              Style="{StaticResource TitleTextBlockStyle}"/>
+                    <!-- Previous Period -->
+                    <TextBlock Text="Previous Period" 
+                              Style="{StaticResource CaptionTextBlockStyle}"
+                              Margin="0,10,0,0"/>
+                    <TextBlock Text="{x:Bind ViewModel.PreviousPeriodNetChange, Mode=OneWay}" 
+                              Style="{StaticResource BodyTextBlockStyle}"
+                              Foreground="Gray"/>
+                    <!-- Change -->
+                    <TextBlock Text="{x:Bind ViewModel.NetChangePercentage, Mode=OneWay}" 
+                              Margin="0,10,0,0"/>
                 </StackPanel>
             </Grid>
         </Grid>
 
         <!-- Top Categories -->
-        <Grid Grid.Row="3">
+        <Grid Grid.Row="3" Margin="0,20,0,0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="*"/>
