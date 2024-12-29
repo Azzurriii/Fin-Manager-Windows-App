@@ -17,6 +17,7 @@ namespace Fin_Manager_v2.Tests.MSTest.Test.ViewModels
         private readonly Mock<IReportService> _mockReportService;
         private readonly Mock<IAuthService> _mockAuthService;
         private readonly Mock<IAccountService> _mockAccountService;
+        private readonly Mock<INavigationService> _mockNavigationService;
         private readonly ReportViewModel _viewModel;
 
         public ReportViewModelTest()
@@ -24,6 +25,7 @@ namespace Fin_Manager_v2.Tests.MSTest.Test.ViewModels
             _mockReportService = new Mock<IReportService>();
             _mockAuthService = new Mock<IAuthService>();
             _mockAccountService = new Mock<IAccountService>();
+            _mockNavigationService = new Mock<INavigationService>();
 
             _mockAuthService.Setup(x => x.GetUserId()).Returns(1);
             _mockAuthService.Setup(x => x.FetchUserIdAsync()).Returns(Task.CompletedTask);
@@ -38,7 +40,9 @@ namespace Fin_Manager_v2.Tests.MSTest.Test.ViewModels
             _viewModel = new ReportViewModel(
                 _mockReportService.Object,
                 _mockAuthService.Object,
-                _mockAccountService.Object);
+                _mockAccountService.Object,
+                _mockNavigationService.Object
+                );
         }
 
         private void SetupDefaultReportServiceMocks()

@@ -10,6 +10,7 @@
     <Page.Resources>
         <converters:TransactionTypeToColorConverter x:Key="TypeToColorConverter"/>
         <converters:DateFormatterConverter x:Key="DateFormatter"/>
+        
     </Page.Resources>
 
     <Grid x:Name="ContentArea">
@@ -127,7 +128,7 @@
                         Style="{ThemeResource AccentButtonStyle}"
                         Margin="0,24,0,0">
                     <StackPanel Orientation="Horizontal" Spacing="8">
-                        <FontIcon Glyph="&#xE9BD;"/>
+                        <FontIcon Glyph="&#xEDE1;"/>
                         <TextBlock Text="Export CSV"/>
                     </StackPanel>
                 </Button>

@@ -8,6 +8,7 @@ using LiveChartsCore.SkiaSharpView.Painting;
 using SkiaSharp;
 using System.Diagnostics;
 using System.Collections.ObjectModel;
+using CommunityToolkit.Mvvm.Input;
 namespace Fin_Manager_v2.ViewModels;
 
 public partial class ReportViewModel : ObservableRecipient
@@ -15,6 +16,7 @@ public partial class ReportViewModel : ObservableRecipient
     private readonly IReportService _reportService;
     private readonly IAuthService _authService;
     private readonly IAccountService _accountService;
+    private readonly INavigationService _navigationService;
 
     [ObservableProperty]
     private string _selectedTimePeriod = "Year";
@@ -79,11 +81,13 @@ public partial class ReportViewModel : ObservableRecipient
     public ReportViewModel(
         IReportService reportService,
         IAuthService authService,
-        IAccountService accountService)
+        IAccountService accountService,
+        INavigationService navigationService)
     {
         _reportService = reportService;
         _authService = authService;
         _accountService = accountService;
+        _navigationService = navigationService;
         
         InitializeUserAndAccountsAsync();
         LegendTextPaint = new SolidColorPaint(new SKColor(0, 120, 215));
@@ -400,5 +404,11 @@ public partial class ReportViewModel : ObservableRecipient
                 .WithAlpha((byte)230)
             )
         }).ToList();
+    }
+
+    [RelayCommand]
+    private void NavigateToAnalysis()
+    {
+        _navigationService.NavigateTo(typeof(AnalysisViewModel).FullName!);
     }
 }

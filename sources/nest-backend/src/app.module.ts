@@ -18,6 +18,7 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { JobModule } from './job/job.module';
 import { AnalysisModule } from './analysis/analysis.module';
 import { OpenaiModule } from './openai/openai.module';
+import { MailerModule } from './mailer/mailer.module';
 
 @Module({
   imports: [
@@ -51,7 +52,8 @@ import { OpenaiModule } from './openai/openai.module';
     JobModule,
     FinancialGoalModule,
     OpenaiModule,
-    AnalysisModule
+    AnalysisModule,
+    MailerModule
   ],
   controllers: [AppController],
   providers: [AppService],

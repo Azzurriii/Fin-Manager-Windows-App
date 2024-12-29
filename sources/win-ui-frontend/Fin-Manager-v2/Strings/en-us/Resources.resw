@@ -146,5 +146,7 @@
   </data>
   <data name="Shell_FinancialGoal.Content" xml:space="preserve">
     <value>FinancialGoal</value>
+  <data name="Shell_Analysis.Content" xml:space="preserve">
+    <value>Analysis</value>
   </data>
 </root>

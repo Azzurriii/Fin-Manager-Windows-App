@@ -70,12 +70,12 @@
                 </NavigationViewItem>
                 <NavigationViewItem x:Uid="Shell_Budget" helpers:NavigationHelper.NavigateTo="Fin_Manager_v2.ViewModels.BudgetViewModel">
                     <NavigationViewItem.Icon>
-                        <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE8F1;" Foreground="#E8864B"/>
+                        <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xF133;" Foreground="#E8864B"/>
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
                 <NavigationViewItem x:Uid="Shell_Job" helpers:NavigationHelper.NavigateTo="Fin_Manager_v2.ViewModels.JobViewModel">
                     <NavigationViewItem.Icon>
-                        <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE821;" Foreground="#4BC3E8"/>
+                        <FontIcon FontFamily="{StaticResource SymbolThemeFontFamily}" Glyph="&#xE929;" Foreground="#4BC3E8"/>
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
                 <NavigationViewItem x:Uid="Shell_FinancialGoal" helpers:NavigationHelper.NavigateTo="Fin_Manager_v2.ViewModels.FinancialGoalViewModel">
