@@ -19,6 +19,8 @@ namespace Fin_Manager_v2.Tests.MSTest.Test.ViewModels
         private readonly Mock<IAccountService> _accountServiceMock;
         private readonly Mock<IDialogService> _dialogServiceMock;
         private readonly Mock<ITagService> _tagServiceMock;
+        private readonly Mock<ITransactionService> _transactionServiceMock;
+        private readonly Mock<IAuthService> _authServiceMock;
         private readonly BudgetViewModel _viewModel;
 
         public BudgetViewModelTest()
@@ -27,11 +29,15 @@ namespace Fin_Manager_v2.Tests.MSTest.Test.ViewModels
             _accountServiceMock = new Mock<IAccountService>();
             _dialogServiceMock = new Mock<IDialogService>();
             _tagServiceMock = new Mock<ITagService>();
+            _transactionServiceMock = new Mock<ITransactionService>();
+            _authServiceMock = new Mock<IAuthService>();
             _viewModel = new BudgetViewModel(
                 _budgetServiceMock.Object,
                 _accountServiceMock.Object,
                 _dialogServiceMock.Object,
-                _tagServiceMock.Object
+                _tagServiceMock.Object, 
+                _transactionServiceMock.Object,
+                _authServiceMock.Object
                 );
 
         }
