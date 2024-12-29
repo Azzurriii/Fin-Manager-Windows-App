@@ -5,6 +5,8 @@ using Fin_Manager_v2.Services;
 using System.Collections.ObjectModel;
 using Fin_Manager_v2.Contracts.Services;
 using Fin_Manager_v2.DTO;
+using LiveChartsCore.SkiaSharpView.Extensions;
+using LiveChartsCore;
 
 namespace Fin_Manager_v2.ViewModels;
 
@@ -24,6 +26,32 @@ public partial class FinancialGoalViewModel : ObservableObject
     [ObservableProperty]
     private CreateFinancialGoalDto _newGoal = new();
 
+    //public IEnumerable<ISeries> Series { get; set; } =
+    //    GaugeGenerator.BuildSolidGauge(
+    //        new GaugeItem(
+    //            30,          // the gauge value
+    //            series =>    // the series style
+    //            {
+    //                series.MaxRadialColumnWidth = 50;
+    //                series.DataLabelsSize = 50;
+    //            }));
+
+    //private void UpdateGoalProgressChart()
+    //{
+    //    var firstGoal = FinancialGoals.FirstOrDefault();
+    //    if (firstGoal != null)
+    //    {
+    //        Series = GaugeGenerator.BuildSolidGauge(
+    //            new GaugeItem(
+    //                firstGoal.CompletionPercentage,
+    //                series =>
+    //                {
+    //                    series.MaxRadialColumnWidth = 50;
+    //                    series.DataLabelsSize = 50;
+    //                }));
+    //    }
+    //}
+
     public FinancialGoalViewModel(IFinancialGoalService financialGoalService)
     {
         _financialGoalService = financialGoalService;
@@ -36,6 +64,7 @@ public partial class FinancialGoalViewModel : ObservableObject
     private async void InitializeAsync()
     {
         await LoadFinancialGoalsAsync();
+        //UpdateGoalProgressChart();
     }
 
     [RelayCommand]

@@ -11,9 +11,10 @@ import {
 import { FinancialGoalService } from './financial-goal.service';
 import { CreateFinancialGoalDto } from './dto/create-financial-goal.dto';
 import { FinancialGoal } from './entity/financial-goal.entity';
-import { ApiBearerAuth, ApiBody, ApiOperation } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from 'src/guard/auth.guard';
 
+@ApiTags('financial_goals')
 @Controller('financial_goals')
 export class FinancialGoalController {
   constructor(private readonly financialGoalService: FinancialGoalService) {}
