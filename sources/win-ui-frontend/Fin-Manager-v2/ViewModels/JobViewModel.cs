@@ -4,6 +4,8 @@ using Fin_Manager_v2.DTO;
 using Fin_Manager_v2.Models;
 using Fin_Manager_v2.Contracts.Services;
 using Microsoft.UI.Xaml;
+using CommunityToolkit.Mvvm.Input;
+using Fin_Manager_v2.Services;
 
 namespace Fin_Manager_v2.ViewModels;
 
@@ -12,6 +14,7 @@ public partial class JobViewModel : ObservableRecipient
     private readonly IJobService _jobService;
     private readonly IDialogService _dialogService;
     private readonly IAuthService _authService;
+    private readonly IMailerService _mailerService;
 
     [ObservableProperty]
     private ObservableCollection<JobModel> _jobs;
@@ -31,11 +34,12 @@ public partial class JobViewModel : ObservableRecipient
     [ObservableProperty]
     private bool _isInitialized;
 
-    public JobViewModel(IJobService jobService, IDialogService dialogService, IAuthService authService)
+    public JobViewModel(IJobService jobService, IDialogService dialogService, IAuthService authService, IMailerService mailerService)
     {
         _jobService = jobService;
         _dialogService = dialogService;
         _authService = authService;
+        _mailerService = mailerService;
         _jobs = new ObservableCollection<JobModel>();
         IsLoading = false;
         HasError = false;
@@ -79,6 +83,69 @@ public partial class JobViewModel : ObservableRecipient
             IsLoading = false;
         }
     }
+
+    public async Task CreateMailerAsync(CreateMailerDto mailerDto)
+    {
+        try
+        {
+            IsLoading = true;
+            HasError = false;
+
+            mailerDto.UserId = _authService.GetUserId();
+            mailerDto.UserEmail = _authService.GetUserEmail();
+
+            if (!ValidateMailerDto(mailerDto)) throw new ArgumentException("Invalid mailer data format");
+
+            var success = await _mailerService.CreateMailerAsync(mailerDto);
+            if (success)
+            {
+                await _dialogService.ShowSuccessAsync("Success", "Mailer created successfully");
+            }
+            else
+            {
+                HasError = true;
+                ErrorMessage = "Cannot create mailer";
+                await _dialogService.ShowErrorAsync("Error", ErrorMessage);
+            }
+        }
+        catch (Exception ex)
+        {
+            HasError = true;
+            ErrorMessage = "Error creating mailer";
+            await _dialogService.ShowErrorAsync("Error", ErrorMessage);
+            System.Diagnostics.Debug.WriteLine($"CreateMailer Error: {ex.Message}");
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+
+    // Validate Mailer DTO
+    private bool ValidateMailerDto(CreateMailerDto mailerDto)
+    {
+        if (string.IsNullOrWhiteSpace(mailerDto.Title))
+        {
+            SetError("Error", "Please enter the mailer title");
+            return false;
+        }
+
+        if (mailerDto.Amount <= 0)
+        {
+            SetError("Error", "Amount must be greater than 0");
+            return false;
+        }
+
+        if (string.IsNullOrWhiteSpace(mailerDto.Period))
+        {
+            SetError("Error", "Please select a period");
+            return false;
+        }
+
+        return true;
+    }
+
+
 
     /// <summary>
     /// Asynchronously loads jobs from the job service and updates the collection of jobs.

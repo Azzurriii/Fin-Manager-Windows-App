@@ -85,6 +85,9 @@
 
                             <!-- Action Buttons -->
                             <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
+                                <Button Click="OnNotifyJobClick" Style="{StaticResource ButtonRevealStyle}">
+                                    <FontIcon Glyph="&#xE7E5;" FontSize="16" Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
+                                </Button>
                                 <Button Click="OnViewJobClick" Style="{StaticResource AccentButtonStyle}">
                                     <FontIcon Glyph="&#xE70F;" FontSize="16" Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
                                 </Button>

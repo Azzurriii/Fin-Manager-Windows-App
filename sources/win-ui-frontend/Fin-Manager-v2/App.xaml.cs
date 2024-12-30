@@ -70,6 +70,7 @@ public partial class App : Application
             services.AddSingleton<IReportService, ReportService>();
             services.AddSingleton<IFinancialGoalService, FinancialGoalService>();
             services.AddSingleton<IAnalysisService, AnalysisService>();
+            services.AddSingleton<IMailerService, MailerService>();
 
             // HTTP and Currency Services
             services.AddHttpClient<ITransactionService, TransactionService>((provider, client) =>

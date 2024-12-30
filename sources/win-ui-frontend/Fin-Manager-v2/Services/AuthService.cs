@@ -125,6 +125,20 @@ public class AuthService : IAuthService
                         Console.WriteLine("User ID is not in the expected format.");
                     }
                 }
+
+                if (userData != null && userData.TryGetValue("email", out var email))
+                {
+                    // Check if email is of type JsonElement and extract the string value
+                    if (email is JsonElement emailElement && emailElement.ValueKind == JsonValueKind.String)
+                    {
+                        string emailString = emailElement.GetString(); // Get the string value
+                        localSettings.Values["Email"] = emailString; // Store the email
+                    }
+                    else
+                    {
+                        Console.WriteLine("Email is not in the expected format.");
+                    }
+                }
             }
             else
             {
@@ -159,5 +173,11 @@ public class AuthService : IAuthService
     {
         var localSettings = ApplicationData.Current.LocalSettings;
         return localSettings.Values["UserId"] as int?;
+    }
+
+    public string GetUserEmail()
+    {
+        var localSettings = ApplicationData.Current.LocalSettings;
+        return localSettings.Values["Email"] as string;
     }
 }
