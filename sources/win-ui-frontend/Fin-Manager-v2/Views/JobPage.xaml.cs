@@ -101,6 +101,143 @@ public sealed partial class JobPage : Page
         }
     }
 
+    public async void OnNotifyJobClick(object sender, RoutedEventArgs e)
+    {
+        var button = sender as Button;
+        var job = button.DataContext as JobModel;
+
+        if (job != null)
+        {
+            await ShowMailerDialog(job);
+        }
+    }
+
+    private async Task ShowMailerDialog(JobModel job)
+    {
+        // Lấy UserId từ LocalSettings
+        //var userId = ;
+        //var userEmail = GetUserEmail();
+        var xamlRoot = this.XamlRoot;
+        var dialog = new ContentDialog
+        {
+            XamlRoot = xamlRoot,
+            Title = "Create Mailer Notification",
+            Content = new StackPanel
+            {
+                Spacing = 10,
+                Children =
+            {
+                new TextBox
+                {
+                    Header = "Title",
+                    Text = job.JobName,
+                    Name = "TitleTextBox"
+                },
+                new TextBox
+                {
+                    Header = "Description",
+                    Text = job.Description ?? "",
+                    Name = "DescriptionTextBox"
+                },
+                new NumberBox
+                {
+                    Header = "Amount",
+                    Value = (double)job.Amount,
+                    Name = "AmountNumberBox",
+                    SpinButtonPlacementMode = NumberBoxSpinButtonPlacementMode.Inline
+                },
+                new ComboBox
+                {
+                    Header = "Period",
+                    Items = { "monthly", "quarterly", "yearly" },
+                    SelectedItem = job.RecurringType?.ToLower() ?? "monthly",
+                    Name = "PeriodComboBox"
+                },
+                new CalendarDatePicker
+                {
+                    Header = "Start Date",
+                    Date = DateTimeOffset.Now,
+                    Name = "StartDatePicker"
+                },
+                new TextBox
+                {
+                    Header = "Payment Link (Optional)",
+                    PlaceholderText = "https://example.com/payment",
+                    Name = "PaymentLinkTextBox"
+                }
+            }
+            },
+            PrimaryButtonText = "Create Mailer",
+            CloseButtonText = "Cancel"
+        };
+
+        dialog.PrimaryButtonClick += async (s, e) =>
+        {
+            var contentDialog = s as ContentDialog;
+
+            // Lấy các giá trị từ form
+            var titleBox = contentDialog.FindName("TitleTextBox") as TextBox;
+            var descriptionBox = contentDialog.FindName("DescriptionTextBox") as TextBox;
+            var amountBox = contentDialog.FindName("AmountNumberBox") as NumberBox;
+            var periodCombo = contentDialog.FindName("PeriodComboBox") as ComboBox;
+            var startDatePicker = contentDialog.FindName("StartDatePicker") as CalendarDatePicker;
+            var paymentLinkBox = contentDialog.FindName("PaymentLinkTextBox") as TextBox;
+
+            // Validate
+            if (string.IsNullOrWhiteSpace(titleBox.Text) ||
+                periodCombo.SelectedItem == null ||
+                !startDatePicker.Date.HasValue)
+            {
+                await new ContentDialog
+                {
+                    Title = "Validation Error",
+                    Content = "Please fill in all required fields",
+                    PrimaryButtonText = "OK"
+                }.ShowAsync();
+                return;
+            }
+
+            // Tạo DTO
+            var mailerDto = new CreateMailerDto
+            {
+                UserId = 0,
+                UserEmail = "",
+                Title = titleBox.Text,
+                Description = descriptionBox.Text,
+                Amount = amountBox.Value,
+                Period = periodCombo.SelectedItem.ToString(),
+                StartDate = startDatePicker.Date.Value.DateTime,
+                PaymentLink = string.IsNullOrWhiteSpace(paymentLinkBox.Text) ? null : paymentLinkBox.Text
+            };
+
+            // Gọi service tạo mailer
+            try
+            {
+                await ViewModel.CreateMailerAsync(mailerDto);
+
+                // Thông báo thành công
+                //await new ContentDialog
+                //{
+                //    Title = "Success",
+                //    Content = "Mailer notification created successfully",
+                //    PrimaryButtonText = "OK"
+                //}.ShowAsync();
+            }
+            catch (Exception ex)
+            {
+                // Xử lý lỗi
+                await new ContentDialog
+                {
+                    Title = "Error",
+                    Content = $"Failed to create mailer: {ex.Message}",
+                    PrimaryButtonText = "OK"
+                }.ShowAsync();
+            }
+        };
+
+        await dialog.ShowAsync();
+    }
+
     private async void OnDeleteJobClick(object sender, RoutedEventArgs e)
     {
         var button = sender as Button;

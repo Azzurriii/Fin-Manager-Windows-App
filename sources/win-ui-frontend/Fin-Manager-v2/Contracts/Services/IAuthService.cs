@@ -17,4 +17,6 @@ public interface IAuthService
     Task FetchUserIdAsync();
 
     public int? GetUserId();
+
+    public string GetUserEmail();
 }

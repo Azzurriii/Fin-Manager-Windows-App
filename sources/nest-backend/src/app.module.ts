@@ -9,6 +9,7 @@ import { TransactionModule } from './transaction/transaction.module';
 import { UserModule } from './user/user.module';
 import { AuthModule } from './auth/auth.module';
 import { BaseModule } from './base/base.module';
+import { FinancialGoalModule } from './financial-goal/financial-goal.module';
 import { FinanceAccountModule } from './account/account.module';
 import { TagModule } from './tag/tag.module';
 import { ReportModule } from './report/report.module';
@@ -20,7 +21,8 @@ import { OpenaiModule } from './openai/openai.module';
 import { MailerModule } from './mailer/mailer.module';
 
 @Module({
-  imports: [ScheduleModule.forRoot(),
+  imports: [
+    ScheduleModule.forRoot(),
     ConfigModule.forRoot(), // Initialize ConfigModule
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
@@ -48,6 +50,7 @@ import { MailerModule } from './mailer/mailer.module';
     ReportModule,
     BudgetModule,
     JobModule,
+    FinancialGoalModule,
     OpenaiModule,
     AnalysisModule,
     MailerModule

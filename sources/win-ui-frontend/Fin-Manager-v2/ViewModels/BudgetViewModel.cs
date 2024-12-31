@@ -17,7 +17,9 @@ public partial class BudgetViewModel : ObservableRecipient
     private readonly IAccountService _accountService;
     private readonly IDialogService _dialogService;
     private readonly ITagService _tagService;
-    
+    private readonly ITransactionService _transactionService;
+    private readonly IAuthService _authService;
+
     public ObservableCollection<BudgetModel> Budgets { get; set; } = new ObservableCollection<BudgetModel>();
     public ObservableCollection<AccountModel> Accounts { get; set; } = new ObservableCollection<AccountModel>();
     public ObservableCollection<TagModel> AvailableTags { get; set; } = new();
@@ -54,12 +56,16 @@ public partial class BudgetViewModel : ObservableRecipient
         IBudgetService budgetService, 
         IAccountService accountService, 
         IDialogService dialogService,
-        ITagService tagService)
+        ITagService tagService,
+        ITransactionService transactionService,
+        IAuthService authService)
     {
         _budgetService = budgetService;
         _accountService = accountService;
         _dialogService = dialogService;
         _tagService = tagService;
+        _transactionService = transactionService;
+        _authService = authService;
 
         LoadBudgets();
         LoadAccounts();
@@ -127,6 +133,14 @@ public partial class BudgetViewModel : ObservableRecipient
         }
 
         NewBudget.Category = SelectedTag.TagName;
+
+        int userId = _authService.GetUserId() ?? 0;
+        DateTimeOffset? startDate = NewBudget.StartDate;
+        DateTimeOffset? endDate = NewBudget.EndDate;
+        var totalAmount = await _transactionService.GetTotalAmountAsync(userId, NewBudget.AccountId, "EXPENSE", startDate?.DateTime ?? DateTime.MinValue,
+    endDate?.DateTime ?? DateTime.MaxValue);
+
+        NewBudget.SpentAmount = totalAmount;
 
         var createdBudget = await _budgetService.CreateBudgetAsync(NewBudget);
         if (createdBudget != null)
