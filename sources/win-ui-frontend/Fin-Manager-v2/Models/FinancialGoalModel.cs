@@ -53,16 +53,6 @@ namespace Fin_Manager_v2.Models
             }
         }
 
-        public IEnumerable<ISeries> Series()
-        {
-            return GaugeGenerator.BuildSolidGauge(
-                new GaugeItem(
-                    CompletionPercentage,
-                    series =>
-                    {
-                        series.MaxRadialColumnWidth = 50;
-                        series.DataLabelsSize = 50;
-                    }));
-        }
+        public IEnumerable<ISeries> Series { get; set; }
     }
 }

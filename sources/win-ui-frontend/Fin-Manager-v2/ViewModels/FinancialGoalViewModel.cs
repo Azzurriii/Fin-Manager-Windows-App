@@ -20,43 +20,41 @@ public partial class FinancialGoalViewModel : ObservableObject
     [ObservableProperty]
     private bool _isAddGoalDialogOpen;
 
-    //[ObservableProperty]
-    //private FinancialGoalModel _newGoal = new();
-
     [ObservableProperty]
     private CreateFinancialGoalDto _newGoal = new();
 
-    //public IEnumerable<ISeries> Series { get; set; } =
-    //    GaugeGenerator.BuildSolidGauge(
-    //        new GaugeItem(
-    //            30,          // the gauge value
-    //            series =>    // the series style
-    //            {
-    //                series.MaxRadialColumnWidth = 50;
-    //                series.DataLabelsSize = 50;
-    //            }));
+    [ObservableProperty]
+    private IEnumerable<ISeries> _series =
+        GaugeGenerator.BuildSolidGauge(
+            new GaugeItem(
+                30,          // the gauge value
+                series =>    // the series style
+                {
+                    series.MaxRadialColumnWidth = 50;
+                    series.DataLabelsSize = 50;
+                }));
 
-    //private void UpdateGoalProgressChart()
-    //{
-    //    var firstGoal = FinancialGoals.FirstOrDefault();
-    //    if (firstGoal != null)
-    //    {
-    //        Series = GaugeGenerator.BuildSolidGauge(
-    //            new GaugeItem(
-    //                firstGoal.CompletionPercentage,
-    //                series =>
-    //                {
-    //                    series.MaxRadialColumnWidth = 50;
-    //                    series.DataLabelsSize = 50;
-    //                }));
-    //    }
-    //}
+    private void UpdateGoalProgressCharts()
+    {
+        foreach (var goal in FinancialGoals)
+        {
+            var completionPercentage = Math.Min(goal.CompletionPercentage, 100);
+
+            goal.Series = GaugeGenerator.BuildSolidGauge(
+                new GaugeItem(
+                    completionPercentage,
+                    series =>
+                    {
+                        series.MaxRadialColumnWidth = 50;
+                        series.DataLabelsSize = 50;
+                    }));
+        }
+    }
 
     public FinancialGoalViewModel(IFinancialGoalService financialGoalService)
     {
         _financialGoalService = financialGoalService;
         FinancialGoals = new ObservableCollection<FinancialGoalModel>();
-        //NewGoal = new FinancialGoalModel();
         NewGoal = new CreateFinancialGoalDto();
         InitializeAsync();
     }
@@ -64,7 +62,8 @@ public partial class FinancialGoalViewModel : ObservableObject
     private async void InitializeAsync()
     {
         await LoadFinancialGoalsAsync();
-        //UpdateGoalProgressChart();
+
+        UpdateGoalProgressCharts();
     }
 
     [RelayCommand]
@@ -83,7 +82,6 @@ public partial class FinancialGoalViewModel : ObservableObject
     {
         System.Diagnostics.Debug.WriteLine("OpenAddGoalDialog called");
 
-        //NewGoal = new FinancialGoalModel();
         NewGoal = new CreateFinancialGoalDto();
         IsAddGoalDialogOpen = true;
 

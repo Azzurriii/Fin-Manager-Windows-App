@@ -57,41 +57,22 @@
 							<Run Text="Saved: "/>
 							<Run Text="{Binding SavedAmount, Converter={StaticResource CurrencyConverter}}"/>
 						</TextBlock>
-						<TextBlock>
+                        <TextBlock>
 							<Run Text="Completion: "/>
 							<Run Text="{Binding CompletionPercentage}"/>
 							<Run Text="%"/>
-						</TextBlock>
-						<StackPanel Orientation="Horizontal" Margin="0,5,0,0">
-							<TextBlock Text="Completion: "
-									   VerticalAlignment="Center"
-									   Margin="0,0,10,0"/>
-							<ProgressBar Width="200"
-										 Height="20"
-										 Value="{Binding CompletionPercentage}"
-										 Maximum="100"
-										 Foreground="{Binding CompletionPercentage, Converter={StaticResource ProgressColorConverter}}"
-										 Background="{ThemeResource SystemControlBackgroundBaseLowBrush}">
-								<ProgressBar.Template>
-									<ControlTemplate TargetType="ProgressBar">
-										<Grid Background="Transparent">
-											<Border x:Name="ProgressBarTrack"
-													Background="{TemplateBinding Background}"
-													CornerRadius="10"/>
-											<Border x:Name="ProgressBarIndicator"
-													HorizontalAlignment="Left"
-													Background="{TemplateBinding Foreground}"
-													CornerRadius="10"
-													Width="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=ActualWidth, Converter={StaticResource PercentageWidthConverter}}"/>
-										</Grid>
-									</ControlTemplate>
-								</ProgressBar.Template>
-							</ProgressBar>
-							<TextBlock Margin="10,0,0,0">
-								<Run Text="{Binding CompletionPercentage}"/>
-								<Run Text="%"/>
-							</TextBlock>
-						</StackPanel>
+                        </TextBlock>
+
+                        <StackPanel>
+                            <lvc:PieChart
+								Series="{Binding Series}"
+								InitialRotation="-90"
+								MinValue="0"
+								MaxValue="100"
+                                Width="200"
+                                Height="200">
+                            </lvc:PieChart>
+                        </StackPanel>
 
 						<Button Content="Delete"
                                 Click="DeleteGoal_Click"
