@@ -19,12 +19,15 @@ namespace Fin_Manager_v2.Tests.MSTest.Test.ViewModels
         private readonly Mock<IJobService> _mockJobService;
         private readonly Mock<IDialogService> _mockDialogService;
         private readonly Mock<IAuthService> _mockAuthService;
+        private readonly Mock<IMailerService> _mockMailService;
+
 
         public JobViewModelTest()
         {
             _mockJobService = new Mock<IJobService>();
             _mockDialogService = new Mock<IDialogService>();
             _mockAuthService = new Mock<IAuthService>();
+            _mockMailService = new Mock<IMailerService>();
 
             // Setup default auth token
             _mockAuthService.Setup(x => x.GetAccessToken()).Returns("test-token");
@@ -46,7 +49,8 @@ namespace Fin_Manager_v2.Tests.MSTest.Test.ViewModels
             var viewModel = new JobViewModel(
                 _mockJobService.Object,
                 _mockDialogService.Object,
-                _mockAuthService.Object
+                _mockAuthService.Object,
+                _mockMailService.Object
             );
 
             // Act
@@ -82,7 +86,9 @@ namespace Fin_Manager_v2.Tests.MSTest.Test.ViewModels
             var viewModel = new JobViewModel(
                 _mockJobService.Object,
                 _mockDialogService.Object,
-                _mockAuthService.Object
+                _mockAuthService.Object,
+                _mockMailService.Object
+                
             );
 
             // Act
@@ -107,7 +113,8 @@ namespace Fin_Manager_v2.Tests.MSTest.Test.ViewModels
             var viewModel = new JobViewModel(
                 _mockJobService.Object,
                 _mockDialogService.Object,
-                _mockAuthService.Object
+                _mockAuthService.Object,
+                _mockMailService.Object
             );
 
             // Act
@@ -137,7 +144,8 @@ namespace Fin_Manager_v2.Tests.MSTest.Test.ViewModels
             var viewModel = new JobViewModel(
                 _mockJobService.Object,
                 _mockDialogService.Object,
-                _mockAuthService.Object
+                _mockAuthService.Object,
+                _mockMailService.Object
             );
 
             // Manually add job to collection
@@ -180,7 +188,8 @@ namespace Fin_Manager_v2.Tests.MSTest.Test.ViewModels
             var viewModel = new JobViewModel(
                 _mockJobService.Object,
                 _mockDialogService.Object,
-                _mockAuthService.Object
+                _mockAuthService.Object,
+                _mockMailService.Object
             );
 
             // Set selected job
@@ -204,7 +213,8 @@ namespace Fin_Manager_v2.Tests.MSTest.Test.ViewModels
             var viewModel = new JobViewModel(
                 _mockJobService.Object,
                 _mockDialogService.Object,
-                _mockAuthService.Object
+                _mockAuthService.Object,
+                _mockMailService.Object
             );
 
             // Empty collection

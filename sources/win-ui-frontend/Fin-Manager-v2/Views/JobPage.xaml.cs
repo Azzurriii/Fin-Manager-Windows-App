@@ -171,4 +171,14 @@ public sealed partial class JobPage : Page
             Frame.Navigate(typeof(JobDetailPage), job);
         }
     }
+
+    private async void OnMailerClick(object sender, RoutedEventArgs e)
+    {
+        var button = sender as Button;
+        var job = button?.DataContext as JobModel;
+        if (job != null && button != null)
+        {
+            await ViewModel.ShowMailerDialogAsync(job, button.XamlRoot);
+        }
+    }
 }

@@ -53,8 +53,9 @@
                                     BorderBrush="Cyan"
                                     BorderThickness="1"
                                     CornerRadius="12"
-                                    Padding="16"
-                                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
+                                    Padding="10"
+                                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                    >
                             
                             <!-- Header -->
                             <Grid Margin="0,0,0,12">
@@ -74,7 +75,7 @@
                                         Click="DeleteBudget"
                                         CommandParameter="{Binding}"
                                         Padding="8,4">
-                                    <FontIcon Glyph="&#xE74D;" Foreground="{ThemeResource SystemFillColorCriticalBrush}"/>
+                                    <FontIcon Glyph="&#xE74D;" FontSize="16" Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
                                 </Button>
                             </Grid>
 

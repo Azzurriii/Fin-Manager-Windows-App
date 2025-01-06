@@ -14,7 +14,7 @@ namespace Fin_Manager_v2.Converters
         {
             if (value is decimal)
             {
-                return string.Format(CultureInfo.CurrentCulture, "{0:C}", value);
+                return string.Format(CultureInfo.CurrentCulture, "{0:F2}", value);
             }
             return value;
         }

@@ -1,0 +1,51 @@
+<ContentDialog
+    x:Class="Fin_Manager_v2.Controls.MailerDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:vm="using:Fin_Manager_v2.ViewModels"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Style="{ThemeResource DefaultContentDialogStyle}"
+    Title="Setup Email Reminder"
+    PrimaryButtonText="Send"
+    SecondaryButtonText="Delete"
+    CloseButtonText="Cancel"
+    DefaultButton="Primary">
+
+    <StackPanel Spacing="10">
+        <TextBox Text="{x:Bind ViewModel.Email, Mode=TwoWay}"
+                 Header="Email"
+                 PlaceholderText="Enter your email"
+                 Style="{ThemeResource DefaultTextBoxStyle}">
+            <TextBox.Description>
+                <TextBlock Foreground="{ThemeResource SystemFillColorCriticalBrush}"
+                           Text="{x:Bind ViewModel.ErrorMessage, Mode=OneWay}"
+                           Visibility="{x:Bind ViewModel.HasError, Mode=OneWay}"/>
+            </TextBox.Description>
+        </TextBox>
+
+        <TextBox Text="{x:Bind ViewModel.Title, Mode=TwoWay}"
+                 Header="Title"
+                 PlaceholderText="Enter reminder title"
+                 Style="{ThemeResource DefaultTextBoxStyle}"/>
+
+        <TextBox Text="{x:Bind ViewModel.Description, Mode=TwoWay}"
+                 Header="Description"
+                 PlaceholderText="Enter description"
+                 TextWrapping="Wrap"
+                 AcceptsReturn="True"
+                 Height="80"
+                 Style="{ThemeResource DefaultTextBoxStyle}"/>
+
+        <TextBox Text="{x:Bind ViewModel.PaymentLink, Mode=TwoWay}"
+                 Header="Payment Link (Optional)"
+                 PlaceholderText="Enter payment link"
+                 Style="{ThemeResource DefaultTextBoxStyle}"/>
+
+        <TextBlock Text="{x:Bind ViewModel.ErrorMessage, Mode=OneWay}"
+                  Foreground="{ThemeResource SystemFillColorCriticalBrush}"
+                  Style="{ThemeResource BodyTextBlockStyle}"
+                  Visibility="{x:Bind ViewModel.HasError, Mode=OneWay}"/>
+    </StackPanel>
+</ContentDialog> 

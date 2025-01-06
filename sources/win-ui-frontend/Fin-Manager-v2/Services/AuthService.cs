@@ -115,6 +115,7 @@ public class AuthService : IAuthService
                     {
                         int id = jsonElement.GetInt32(); // Get the integer value
                         localSettings.Values["UserId"] = id; // Store the integer userId
+                        localSettings.Values["UserEmail"] = userData["email"] as string;
                     }
                     else if (userId is double doubleId) // In case the ID is a double
                     {
@@ -159,5 +160,11 @@ public class AuthService : IAuthService
     {
         var localSettings = ApplicationData.Current.LocalSettings;
         return localSettings.Values["UserId"] as int?;
+    }
+
+    public string GetUserEmail()
+    {
+        var localSettings = ApplicationData.Current.LocalSettings;
+        return localSettings.Values["UserEmail"] as string;
     }
 }
