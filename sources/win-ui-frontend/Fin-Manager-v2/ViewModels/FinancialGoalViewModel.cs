@@ -101,6 +101,7 @@ public partial class FinancialGoalViewModel : ObservableObject
         if (createdGoal != null)
         {
             FinancialGoals.Add(createdGoal);
+            UpdateGoalProgressCharts();
             IsAddGoalDialogOpen = false;
         }
     }
