@@ -9,30 +9,37 @@
     PrimaryButtonText="Add"
     CloseButtonText="Cancel"
     DefaultButton="Primary"
-    PrimaryButtonClick="ContentDialog_PrimaryButtonClick">
+    PrimaryButtonClick="ContentDialog_PrimaryButtonClick"
+    Style="{ThemeResource DefaultContentDialogStyle}"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
     <StackPanel Spacing="10">
         <TextBox x:Name="JobNameBox" 
                  Header="Job Name"
-                 PlaceholderText="Enter job name"/>
+                 PlaceholderText="Enter job name"
+                 Style="{ThemeResource DefaultTextBoxStyle}"/>
         
         <TextBox x:Name="DescriptionBox"
                  Header="Description"
                  PlaceholderText="Enter job description"
                  TextWrapping="Wrap"
                  AcceptsReturn="True"
-                 Height="80"/>
+                 Height="80"
+                 Style="{ThemeResource DefaultTextBoxStyle}"/>
 
         <TextBox x:Name="AmountBox"
                  Header="Amount"
-                 PlaceholderText="Enter amount"/>
+                 PlaceholderText="Enter amount"
+                 Style="{ThemeResource DefaultTextBoxStyle}"/>
 
         <DatePicker x:Name="ScheduleDatePicker"
-                    Header="Start Date"/>
+                    Header="Start Date"
+                    Style="{ThemeResource DefaultDatePickerStyle}"/>
 
         <ComboBox x:Name="RecurringTypeComboBox"
                   Header="Recurring Type"
-                  PlaceholderText="Select recurring type">
+                  PlaceholderText="Select recurring type"
+                  Style="{ThemeResource DefaultComboBoxStyle}">
             <ComboBoxItem Content="DAILY"/>
             <ComboBoxItem Content="WEEKLY"/>
             <ComboBoxItem Content="MONTHLY"/>
@@ -41,13 +48,15 @@
 
         <ComboBox x:Name="TransactionTypeComboBox"
                   Header="Transaction Type"
-                  PlaceholderText="Select transaction type">
+                  PlaceholderText="Select transaction type"
+                  Style="{ThemeResource DefaultComboBoxStyle}">
             <ComboBoxItem Content="INCOME"/>
             <ComboBoxItem Content="EXPENSE"/>
         </ComboBox>
 
         <TextBlock x:Name="ErrorTextBlock"
-                   Foreground="Red"
+                   Foreground="{ThemeResource SystemFillColorCriticalBrush}"
+                   Style="{ThemeResource BodyTextBlockStyle}"
                    Visibility="Collapsed"
                    TextWrapping="Wrap"/>
     </StackPanel>

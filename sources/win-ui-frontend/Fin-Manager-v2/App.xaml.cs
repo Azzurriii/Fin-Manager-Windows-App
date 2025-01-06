@@ -69,6 +69,7 @@ public partial class App : Application
             services.AddSingleton<HttpClient>();
             services.AddSingleton<IReportService, ReportService>();
             services.AddSingleton<IAnalysisService, AnalysisService>();
+            services.AddSingleton<IMailerService, MailerService>();
 
             // HTTP and Currency Services
             services.AddHttpClient<ITransactionService, TransactionService>((provider, client) =>
@@ -120,6 +121,11 @@ public partial class App : Application
                 var config = provider.GetRequiredService<IApiConfiguration>();
                 client.BaseAddress = new Uri(config.BaseUrl);
             });
+            services.AddHttpClient<IMailerService, MailerService>((provider, client) =>
+            {
+                var config = provider.GetRequiredService<IApiConfiguration>();
+                client.BaseAddress = new Uri(config.BaseUrl);
+            });
 
             // Views and ViewModels
             services.AddTransient<AnalysisViewModel>();
@@ -146,6 +152,7 @@ public partial class App : Application
             services.AddTransient<SignUpPage>();
             services.AddTransient<JobDetailViewModel>();
             services.AddTransient<JobDetailPage>();
+            services.AddTransient<MailerViewModel>();
         }).
         Build();
 

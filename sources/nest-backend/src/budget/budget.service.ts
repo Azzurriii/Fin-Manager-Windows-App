@@ -3,6 +3,13 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Budget } from './entity/budget.entity';
 import { CreateBudgetDto } from './dto/create-budget.dto';
+import { LessThanOrEqual, MoreThanOrEqual } from 'typeorm';
+
+interface FindBudgetParams {
+  user_id: number;
+  category: string;
+  date: Date;
+}
 
 @Injectable()
 export class BudgetService {
@@ -51,5 +58,29 @@ export class BudgetService {
       throw new Error('Budget not found');
     }
     return budget;
+  }
+
+  async findActiveBudget(params: FindBudgetParams): Promise<Budget | null> {
+    return this.budgetRepository.findOne({
+      where: {
+        user_id: params.user_id,
+        category: params.category,
+        start_date: LessThanOrEqual(params.date),
+        end_date: MoreThanOrEqual(params.date),
+      },
+    });
+  }
+
+  async updateBudgetSpentAmount(budgetId: number, newAmount: number): Promise<Budget> {
+    const budget = await this.budgetRepository.findOne({
+      where: { budget_id: budgetId },
+    });
+
+    if (!budget) {
+      throw new Error('Budget not found');
+    }
+
+    budget.spent_amount = newAmount;
+    return this.budgetRepository.save(budget);
   }
 }

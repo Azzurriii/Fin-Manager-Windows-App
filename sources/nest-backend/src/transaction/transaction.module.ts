@@ -6,6 +6,7 @@ import { Transaction } from './entity/transaction.entity';
 import { FinanceAccountModule } from 'src/account/account.module';
 import { CsvModule } from 'src/csv/csv.module';
 import { TagModule } from 'src/tag/tag.module';
+import { BudgetModule } from 'src/budget/budget.module';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { TagModule } from 'src/tag/tag.module';
     forwardRef(() => FinanceAccountModule),
     CsvModule,
     TagModule,
+    BudgetModule,
   ],
   controllers: [TransactionController],
   providers: [TransactionService],

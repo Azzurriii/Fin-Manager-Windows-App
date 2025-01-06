@@ -24,7 +24,7 @@ namespace Fin_Manager_v2.Converters
 
                 if (difference > 0)
                 {
-                    return $"You have {difference:C} remaining before reaching the budget limit.";
+                    return $"You have {difference} remaining before reaching the budget limit.";
                 }
                 else if (difference == 0)
                 {

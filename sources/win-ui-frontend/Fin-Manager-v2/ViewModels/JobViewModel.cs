@@ -3,7 +3,9 @@ using System.Collections.ObjectModel;
 using Fin_Manager_v2.DTO;
 using Fin_Manager_v2.Models;
 using Fin_Manager_v2.Contracts.Services;
+using Fin_Manager_v2.Controls;
 using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
 
 namespace Fin_Manager_v2.ViewModels;
 
@@ -12,6 +14,7 @@ public partial class JobViewModel : ObservableRecipient
     private readonly IJobService _jobService;
     private readonly IDialogService _dialogService;
     private readonly IAuthService _authService;
+    private readonly IMailerService _mailerService;
 
     [ObservableProperty]
     private ObservableCollection<JobModel> _jobs;
@@ -31,11 +34,12 @@ public partial class JobViewModel : ObservableRecipient
     [ObservableProperty]
     private bool _isInitialized;
 
-    public JobViewModel(IJobService jobService, IDialogService dialogService, IAuthService authService)
+    public JobViewModel(IJobService jobService, IDialogService dialogService, IAuthService authService, IMailerService mailerService)
     {
         _jobService = jobService;
         _dialogService = dialogService;
         _authService = authService;
+        _mailerService = mailerService;
         _jobs = new ObservableCollection<JobModel>();
         IsLoading = false;
         HasError = false;
@@ -295,5 +299,56 @@ public partial class JobViewModel : ObservableRecipient
     public Visibility InverseCollectionVisibility(ObservableCollection<JobModel> jobs)
     {
         return (jobs == null || jobs.Count == 0) ? Visibility.Collapsed : Visibility.Visible;
+    }
+
+    public async Task ShowMailerDialogAsync(JobModel job, XamlRoot xamlRoot)
+    {
+        try
+        {
+            var mailerViewModel = App.GetService<MailerViewModel>();
+            mailerViewModel.Initialize(job);
+
+            var dialog = new MailerDialog()
+            {
+                XamlRoot = xamlRoot,
+                DataContext = mailerViewModel
+            };
+
+            var result = await dialog.ShowAsync();
+
+            if (result == ContentDialogResult.Primary)
+            {
+                var success = await mailerViewModel.SendMailAsync();
+                if (success)
+                {
+                    await _dialogService.ShowSuccessAsync("Success", "Email reminder setup successfully");
+                }
+                else
+                {
+                    await _dialogService.ShowErrorAsync("Error", mailerViewModel.ErrorMessage);
+                }
+            }
+            else if (result == ContentDialogResult.Secondary)
+            {
+                var success = await mailerViewModel.DeleteMailAsync();
+                if (success)
+                {
+                    await _dialogService.ShowSuccessAsync("Success", "Email reminder deleted successfully");
+                }
+                else
+                {
+                    await _dialogService.ShowErrorAsync("Error", mailerViewModel.ErrorMessage);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            await _dialogService.ShowErrorAsync("Error", "Failed to process email reminder");
+        }
+    }
+
+    public string GetMailerTooltip(bool hasMailer)
+    {
+        return hasMailer ? "Email Reminder Active" : "Setup Email Reminder";
     }
 }

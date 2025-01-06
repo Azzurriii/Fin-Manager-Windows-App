@@ -6,6 +6,7 @@
     xmlns:models="using:Fin_Manager_v2.Models"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:converters="using:Fin_Manager_v2.Converters"
     mc:Ignorable="d">
 
     <Grid Padding="20">
@@ -77,7 +78,10 @@
                                 <TextBlock Text="{x:Bind JobName}" 
                                         Style="{StaticResource SubtitleTextBlockStyle}"/>
                                 <TextBlock Text="{x:Bind Amount, Converter={StaticResource CurrencyFormatterConverter}}"
-                                        Style="{StaticResource BodyTextBlockStyle}"/>
+                                           Style="{StaticResource CaptionTextBlockStyle}"
+                                           Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                           FontWeight="Bold"
+                                           />
                                 <TextBlock Text="{x:Bind RecurringType}"
                                         Style="{StaticResource CaptionTextBlockStyle}"
                                         Foreground="{ThemeResource TextFillColorSecondaryBrush}"/>
@@ -85,10 +89,19 @@
 
                             <!-- Action Buttons -->
                             <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
-                                <Button Click="OnViewJobClick" Style="{StaticResource AccentButtonStyle}">
+                                <Button Click="OnMailerClick" 
+                                        Style="{StaticResource AccentButtonStyle}"
+                                        ToolTipService.ToolTip="Setup Email Reminder">
+                                    <FontIcon Glyph="&#xE715;" 
+                                              FontSize="16" 
+                                              Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
+                                </Button>
+                                <Button Click="OnViewJobClick" Style="{StaticResource AccentButtonStyle}"
+                                        ToolTipService.ToolTip="View Details">
                                     <FontIcon Glyph="&#xE70F;" FontSize="16" Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
                                 </Button>
-                                <Button Click="OnDeleteJobClick" Style="{StaticResource ButtonRevealStyle}">
+                                <Button Click="OnDeleteJobClick" Style="{StaticResource ButtonRevealStyle}"
+                                        ToolTipService.ToolTip="Delete">
                                     <FontIcon Glyph="&#xE74D;" FontSize="16" Foreground="{ThemeResource TextFillColorPrimaryBrush}"/>
                                 </Button>
                             </StackPanel>
