@@ -149,8 +149,8 @@ public sealed partial class JobPage : Page
                 new ComboBox
                 {
                     Header = "Period",
-                    Items = { "daily", "monthly", "quarterly", "yearly" },
-                    SelectedItem = job.RecurringType?.ToLower() ?? "monthly",
+                    Items = { "DAILY", "MONTHLY", "QUARTERLY", "YEARLY" },
+                    SelectedItem = job.RecurringType?.ToUpper() ?? "MONTHLY",
                     Name = "PeriodComboBox"
                 },
                 new CalendarDatePicker
@@ -205,7 +205,7 @@ public sealed partial class JobPage : Page
                 Title = titleBox.Text,
                 Description = descriptionBox.Text,
                 Amount = amountBox.Value,
-                Period = periodCombo.SelectedItem.ToString(),
+                Period = periodCombo.SelectedItem.ToString().ToLower(),
                 StartDate = startDatePicker.Date.Value.DateTime,
                 PaymentLink = string.IsNullOrWhiteSpace(paymentLinkBox.Text) ? null : paymentLinkBox.Text
             };
