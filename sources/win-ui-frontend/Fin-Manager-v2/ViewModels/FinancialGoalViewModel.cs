@@ -24,6 +24,9 @@ public partial class FinancialGoalViewModel : ObservableObject
     private CreateFinancialGoalDto _newGoal = new();
 
     [ObservableProperty]
+    private string _errorMessage;
+
+    [ObservableProperty]
     private IEnumerable<ISeries> _series =
         GaugeGenerator.BuildSolidGauge(
             new GaugeItem(

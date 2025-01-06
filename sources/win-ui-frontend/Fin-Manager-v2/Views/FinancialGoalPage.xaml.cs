@@ -134,33 +134,34 @@ public sealed partial class FinancialGoalPage : Page
     {
         args.Cancel = true;
 
+        ViewModel.ErrorMessage = string.Empty;
         // Validate Goal Name
-        //if (string.IsNullOrWhiteSpace(ViewModel.NewGoal.GoalName))
-        //{
-        //    await ShowErrorDialog("Goal Name is required");
-        //    return;
-        //}
+        if (string.IsNullOrWhiteSpace(ViewModel.NewGoal.GoalName))
+        {
+            ViewModel.ErrorMessage = "Goal Name is required";
+            return;
+        }
 
         //// Validate Target Amount
-        //if (ViewModel.NewGoal.TargetAmount <= 0)
-        //{
-        //    await ShowErrorDialog("Target Amount must be greater than zero");
-        //    return;
-        //}
+        if (ViewModel.NewGoal.TargetAmount <= 0)
+        {
+            ViewModel.ErrorMessage = "Target Amount must be greater than zero";
+            return;
+        }
 
         //// Validate Saved Amount
-        //if (ViewModel.NewGoal.SavedAmount < 0)
-        //{
-        //    await ShowErrorDialog("Saved Amount cannot be negative");
-        //    return;
-        //}
+        if (ViewModel.NewGoal.SavedAmount < 0)
+        {
+            ViewModel.ErrorMessage = "Saved Amount cannot be negative";
+            return;
+        }
 
         //// Validate Deadline
-        //if (ViewModel.NewGoal.Deadline.HasValue && ViewModel.NewGoal.Deadline.Value < DateTime.Now)
-        //{
-        //    await ShowErrorDialog("Deadline cannot be in the past");
-        //    return;
-        //}
+        if (ViewModel.NewGoal.Deadline.HasValue && ViewModel.NewGoal.Deadline.Value < DateTime.Now)
+        {
+            ViewModel.ErrorMessage = "Deadline cannot be in the past";
+            return;
+        }
 
         // Save the goal
         await ViewModel.SaveNewGoalCommand.ExecuteAsync(null);

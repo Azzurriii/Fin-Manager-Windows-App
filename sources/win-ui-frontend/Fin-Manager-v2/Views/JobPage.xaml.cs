@@ -149,7 +149,7 @@ public sealed partial class JobPage : Page
                 new ComboBox
                 {
                     Header = "Period",
-                    Items = { "monthly", "quarterly", "yearly" },
+                    Items = { "daily", "monthly", "quarterly", "yearly" },
                     SelectedItem = job.RecurringType?.ToLower() ?? "monthly",
                     Name = "PeriodComboBox"
                 },
