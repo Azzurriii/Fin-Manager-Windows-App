@@ -4,5 +4,5 @@ namespace Fin_Manager_v2.Services;
 
 public class ApiConfiguration : IApiConfiguration
 {
-    public string BaseUrl => "http://localhost:3000/";
+    public string BaseUrl => "https://fin-manager-api.up.railway.app/";
 }
