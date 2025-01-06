@@ -6,6 +6,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:vm="using:Fin_Manager_v2.ViewModels"
     xmlns:local="using:Fin_Manager_v2.Converters"
+    xmlns:converters="using:Fin_Manager_v2.Converters"
     mc:Ignorable="d">
 
     <Page.Resources>
@@ -17,6 +18,7 @@
         <local:StringToDateConverter x:Key="StringToDateConverter" />
         <local:SpentAmountToStatusConverter x:Key="SpentAmountToStatusConverter" />
         <local:SpentAmountToForegroundConverter x:Key="SpentAmountToForegroundConverter" />
+        <converters:DecimalToDoubleConverter x:Key="DecimalToDoubleConverter"/>
     </Page.Resources>
 
     <Grid Padding="20"
@@ -31,7 +33,7 @@
           ItemsSource="{Binding Budgets}"
           SelectedItem="{Binding SelectedBudget}"
           Visibility="{Binding IsAddingBudget, Converter={StaticResource InverseBooleanToVisibilityConverter}}"
-          Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
+          >
             <ListView.ItemContainerStyle>
                 <Style TargetType="ListViewItem">
                     <Setter Property="Padding" Value="12"/>
@@ -47,48 +49,91 @@
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
 
-                        <StackPanel Grid.Column="0">
-                            <TextBlock Text="{Binding Category}" 
-                             FontWeight="SemiBold" 
-                             FontSize="18"
-                             Margin="0,0,0,8"/>
+                        <StackPanel Grid.Column="0"
+                                    BorderBrush="Cyan"
+                                    BorderThickness="1"
+                                    CornerRadius="12"
+                                    Padding="16"
+                                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}">
+                            
+                            <!-- Header -->
+                            <Grid Margin="0,0,0,12">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                
+                                <TextBlock Text="{Binding Category}" 
+                                          FontWeight="SemiBold" 
+                                          FontSize="20"
+                                          VerticalAlignment="Center"/>
+                                          
+                                <Button Grid.Column="1"
+                                        Background="Transparent"
+                                        BorderThickness="0"
+                                        Click="DeleteBudget"
+                                        CommandParameter="{Binding}"
+                                        Padding="8,4">
+                                    <FontIcon Glyph="&#xE74D;" Foreground="{ThemeResource SystemFillColorCriticalBrush}"/>
+                                </Button>
+                            </Grid>
 
-                            <StackPanel Orientation="Horizontal" Spacing="24">
-                                <TextBlock>
-                            <Run Text="Budget: "/>
-                            <Run Text="{Binding BudgetAmount, Converter={StaticResource CurrencyFormatter}}" 
-                                 FontWeight="SemiBold"/>
-                                </TextBlock>
-                                <TextBlock>
-                            <Run Text="Spent: "/>
-                            <Run Text="{Binding SpentAmount, Converter={StaticResource CurrencyFormatter}}"
-                                 FontWeight="SemiBold"/>
-                                </TextBlock>
-                            </StackPanel>
+                            <!-- Budget Info -->
+                            <Grid Margin="0,0,0,12">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                
+                                <StackPanel Grid.Column="0">
+                                    <TextBlock Text="Budget Amount" 
+                                              Opacity="0.7" 
+                                              FontSize="12"/>
+                                    <TextBlock Text="{Binding BudgetAmount}"
+                                              FontWeight="SemiBold"
+                                              FontSize="16"/>
+                                </StackPanel>
+                                
+                                <StackPanel Grid.Column="1">
+                                    <TextBlock Text="Amount Spent" 
+                                              Opacity="0.7"
+                                              FontSize="12"/>
+                                    <TextBlock Text="{Binding SpentAmount}"
+                                              FontWeight="SemiBold"
+                                              FontSize="16"/>
+                                </StackPanel>
+                            </Grid>
 
-                            <StackPanel Orientation="Horizontal" Spacing="24" Margin="0,4,0,4">
-                                <TextBlock>
-                            <Run Text="From: "/>
-                            <Run Text="{Binding StartDate, Converter={StaticResource DateFormatter}}"/>
-                                </TextBlock>
-                                <TextBlock>
-                            <Run Text="To: "/>
-                            <Run Text="{Binding EndDate, Converter={StaticResource DateFormatter}}"/>
-                                </TextBlock>
-                            </StackPanel>
+                            <!-- Date Range -->
+                            <Grid Margin="0,0,0,8">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                
+                                <StackPanel Grid.Column="0">
+                                    <TextBlock Text="Start Date" 
+                                              Opacity="0.7"
+                                              FontSize="12"/>
+                                    <TextBlock Text="{Binding StartDate, Converter={StaticResource DateFormatter}}"
+                                              FontSize="14"/>
+                                </StackPanel>
+                                
+                                <StackPanel Grid.Column="1">
+                                    <TextBlock Text="End Date" 
+                                              Opacity="0.7"
+                                              FontSize="12"/>
+                                    <TextBlock Text="{Binding EndDate, Converter={StaticResource DateFormatter}}"
+                                              FontSize="14"/>
+                                </StackPanel>
+                            </Grid>
 
+                            <!-- Status -->
                             <TextBlock Foreground="{Binding Converter={StaticResource SpentAmountToForegroundConverter}}"
-                             Text="{Binding Converter={StaticResource SpentAmountToStatusConverter}}"/>
+                                       Text="{Binding Converter={StaticResource SpentAmountToStatusConverter}}"
+                                       FontWeight="SemiBold"
+                                       FontSize="14"/>
                         </StackPanel>
-
-                        <Button Grid.Column="1"
-                        Background="Transparent"
-                        BorderThickness="0"
-                        Click="DeleteBudget"
-                        CommandParameter="{Binding}"
-                        VerticalAlignment="Top">
-                            <FontIcon Glyph="&#xE74D;" Foreground="Red"/>
-                        </Button>
                     </Grid>
                 </DataTemplate>
             </ListView.ItemTemplate>
