@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Between, FindOptionsWhere, In, Repository } from 'typeorm';
 import { Transaction } from './entity/transaction.entity';
@@ -8,6 +8,7 @@ import { GetTotalAmountDto } from './dto/get-total-amount.dto';
 import { UpdateTransactionDto } from './dto/update-transaction.dto';
 import { QueryDto } from './dto/query.dto';
 import { Tag } from 'src/tag/entity/tag.entity';
+import { BudgetService } from 'src/budget/budget.service';
 
 export enum TransactionType {
   INCOME = 'INCOME',
@@ -24,6 +25,7 @@ export class TransactionService {
     private readonly tagRepository: Repository<Tag>,
     @InjectRepository(FinanceAccount)
     private readonly accountRepository: Repository<FinanceAccount>,
+    private readonly budgetService: BudgetService,
   ) {}
 
   async addTransaction(
@@ -53,6 +55,30 @@ export class TransactionService {
     }
 
     await this.accountRepository.save(account);
+
+    // Get tag information for budget category
+    const tag = await this.tagRepository.findOne({
+      where: { id: createTransactionDto.tag_id },
+    });
+
+    if (!tag) {
+      throw new Error('Tag not found');
+    }
+
+    // Find active budget for this category/tag
+    const now = new Date();
+    const budget = await this.budgetService.findActiveBudget({
+      user_id: createTransactionDto.user_id,
+      category: tag.name,
+      date: now,
+    });
+
+    // If budget exists and transaction is an expense, update spent amount
+    if (budget && createTransactionDto.transaction_type === TransactionType.EXPENSE) {
+      const newSpentAmount = +budget.spent_amount + Number(createTransactionDto.amount);
+      await this.budgetService.updateBudgetSpentAmount(budget.budget_id, newSpentAmount);
+    }
+
     return this.transactionRepository.save(transaction);
   }
 
@@ -97,49 +123,104 @@ export class TransactionService {
     );
   }
 
-  async updateTransaction(
-    id: number,
-    updateTransactionDto: UpdateTransactionDto,
-  ): Promise<Transaction> {
-    const transaction = await this.transactionRepository.findOne({
+  async updateTransaction(id: number, updateTransactionDto: UpdateTransactionDto): Promise<Transaction> {
+    // Get old transaction and its tag
+    const oldTransaction = await this.transactionRepository.findOne({
       where: { transaction_id: id },
     });
 
-    if (!transaction) {
-      throw new Error('Transaction not found');
+    if (!oldTransaction) {
+      throw new NotFoundException('Transaction not found');
     }
 
-    // Update the transaction
-    Object.assign(transaction, updateTransactionDto);
-    return this.transactionRepository.save(transaction);
+    const oldTag = await this.tagRepository.findOne({
+      where: { id: oldTransaction.tag_id },
+    });
+
+    // If amount or tag changed, need to update budgets
+    if (
+      updateTransactionDto.amount !== undefined ||
+      updateTransactionDto.tag_id !== undefined ||
+      updateTransactionDto.transaction_type !== undefined
+    ) {
+      // Remove amount from old budget if it was an expense
+      if (oldTransaction.transaction_type === TransactionType.EXPENSE) {
+        const oldBudget = await this.budgetService.findActiveBudget({
+          user_id: oldTransaction.user_id,
+          category: oldTag.name,
+          date: oldTransaction.transaction_date,
+        });
+
+        if (oldBudget) {
+          const oldSpentAmount = +oldBudget.spent_amount - Number(oldTransaction.amount);
+          await this.budgetService.updateBudgetSpentAmount(oldBudget.budget_id, oldSpentAmount);
+        }
+      }
+
+      // Add amount to new budget if it's an expense
+      if (updateTransactionDto.transaction_type === TransactionType.EXPENSE || 
+         (updateTransactionDto.transaction_type === undefined && oldTransaction.transaction_type === TransactionType.EXPENSE)) {
+        const newTag = updateTransactionDto.tag_id 
+          ? await this.tagRepository.findOne({ where: { id: updateTransactionDto.tag_id }})
+          : oldTag;
+
+        const newBudget = await this.budgetService.findActiveBudget({
+          user_id: oldTransaction.user_id,
+          category: newTag.name,
+          date: updateTransactionDto.transaction_date || oldTransaction.transaction_date,
+        });
+
+        if (newBudget) {
+          const newAmount = updateTransactionDto.amount || oldTransaction.amount;
+          const newSpentAmount = +newBudget.spent_amount + Number(newAmount);
+          await this.budgetService.updateBudgetSpentAmount(newBudget.budget_id, newSpentAmount);
+        }
+      }
+    }
+
+    // Update transaction
+    const result = await this.transactionRepository.update(id, updateTransactionDto);
+    if (result.affected === 0) {
+      throw new NotFoundException('Transaction not found');
+    }
+
+    return this.transactionRepository.findOne({ where: { transaction_id: id }});
   }
 
   async deleteTransaction(id: number): Promise<void> {
+    // Get transaction and its tag before deleting
     const transaction = await this.transactionRepository.findOne({
       where: { transaction_id: id },
     });
 
     if (!transaction) {
-      throw new Error('Transaction not found');
+      throw new NotFoundException('Transaction not found');
     }
 
-    // If it's an income, subtract from balance. If expense, add back to balance
-    const account = await this.accountRepository.findOne({
-      where: { account_id: transaction.account_id },
+    const tag = await this.tagRepository.findOne({
+      where: { id: transaction.tag_id },
     });
 
-    if (account) {
-      if (transaction.transaction_type === TransactionType.INCOME) {
-        account.current_balance -= Number(transaction.amount);
-      } else if (transaction.transaction_type === TransactionType.EXPENSE) {
-        account.current_balance += Number(transaction.amount);
+    // Update budget if it was an expense
+    if (transaction.transaction_type === TransactionType.EXPENSE) {
+      const budget = await this.budgetService.findActiveBudget({
+        user_id: transaction.user_id,
+        category: tag.name,
+        date: transaction.transaction_date,
+      });
+
+      if (budget) {
+        const newSpentAmount = +budget.spent_amount - Number(transaction.amount);
+        await this.budgetService.updateBudgetSpentAmount(budget.budget_id, newSpentAmount);
       }
-      await this.accountRepository.save(account);
     }
 
-    await this.transactionRepository.remove(transaction);
+    // Delete transaction
+    const result = await this.transactionRepository.delete(id);
+    if (result.affected === 0) {
+      throw new NotFoundException('Transaction not found');
+    }
   }
-
 
   async findByQuery(query: QueryDto): Promise<Transaction[]> {
     console.log('Query:', query);
